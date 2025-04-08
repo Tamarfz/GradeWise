@@ -10,6 +10,14 @@ const TableContainer = styled.div`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+
+  tbody tr:nth-child(even) {
+    background-color: rgba(106, 208, 212, 0.23); /* Light blue color for even rows */
+  }
+
+  tbody tr:hover {
+    border: 2px solid black;
+  }
 `;
 
 const TableHeader = styled.th`
@@ -23,7 +31,11 @@ const TableCell = styled.td`
   padding: 10px;
   border: 1px solid #ddd;
   text-align: center;
-  background-color: #F5F5F5; /* Light gray color */
+  background-color: inherit; /* Let the row background show */
+
+  &:hover {
+   background-color:rgba(37, 43, 49, 0.12);
+  }
 `;
 
 const GradesManager = ({ grades }) => {
@@ -61,10 +73,8 @@ const GradesManager = ({ grades }) => {
           {grades.map((grade, index) => (
             <tr key={index}>
               <TableCell>{grade.judge_id}</TableCell>
-              {/* Use judgeMap to display judge name */}
               <TableCell>{judgeMap[grade.judge_id] || 'Unknown Judge'}</TableCell>
               <TableCell>{grade.project_id}</TableCell>
-              {/* Use projectMap to display project name */}
               <TableCell>{projectMap[grade.project_id] || 'Unknown Project'}</TableCell>
               <TableCell>{grade.complexity}</TableCell>
               <TableCell>{grade.usability}</TableCell>

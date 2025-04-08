@@ -1,3 +1,4 @@
+//V
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import Swal from 'sweetalert2';
@@ -59,7 +60,6 @@ const AssignProjectsToJudges = () => {
   useEffect(() => {
     const storedJudgeMap = JSON.parse(localStorage.getItem('judgeMap') || '{}');
     const storedProjectMap = JSON.parse(localStorage.getItem('projectMap') || '{}');
-
     const judgeOptions = Object.keys(storedJudgeMap).map((id) => ({ value: id, label: storedJudgeMap[id] }));
     const projectOptions = Object.keys(storedProjectMap).map((id) => ({ value: id, label: storedProjectMap[id] }));
 

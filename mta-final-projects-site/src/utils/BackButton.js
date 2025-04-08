@@ -1,68 +1,59 @@
 import React from 'react';
-import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { storages } from '../stores';
+import { useLocation } from 'react-router-dom';
 
-// Styled components
-const BackButtonContainer = styled.button`
+// Styled component for the Back Button wrapper (positioned in the upper right)
+const BackButtonWrapper = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+`;
+
+// Styled component for the Back Button with a classic blue style
+const BackButtonStyled = styled.button`
+  background-color:rgb(31, 85, 144); /* Classic blue */
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 30px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: #175a94;
-  border: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  position: relative;
-  overflow: hidden;
-  margin-top:20px;
+  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: #0e3f6d;
+    transform: translateX(-2px);
+    box-shadow: 4px 4px 6px rgb(0, 0, 0);
   }
 `;
 
-const BackArrow = styled.svg`
-  width: 24px;
-  height: 24px;
-  color: #fff;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+// Styled component for the arrow icon
+const ArrowIcon = styled.span`
+  font-size: 25px;
 `;
 
-const BackButton = ({ route }) => {
+// BackButton component using React Router's useNavigate hook
+const BackButton = () => {
   const navigate = useNavigate();
-
-  const handleBackButtonClick = () => {
-    Swal.fire({
-      title: 'Confirm',
-      text: 'Are you sure you want to go back?',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      cancelButtonText: 'No',
-      reverseButtons: false, // Keep this as false
-      customClass: {
-        confirmButton: 'swal-button-confirm',
-        cancelButton: 'swal-button-cancel',
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        navigate(route);
-      }
-    });
-  };
+  const location = useLocation();
+  const { userStorage } = storages;
+  // Determine destination based on user type
+  const destination = userStorage.user?.type === 'admin' ? '/admin' : '/judge';
 
   return (
-    <BackButtonContainer onClick={handleBackButtonClick}>
-      <BackArrow xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
-      </BackArrow>
-    </BackButtonContainer>
+    location.pathname !== '/admin' &&
+    location.pathname !== '/judge' &&
+    location.pathname !== '/' && (
+      <BackButtonWrapper>
+        <BackButtonStyled onClick={() => navigate(destination)}>
+          <ArrowIcon>&larr;</ArrowIcon>
+        </BackButtonStyled>
+      </BackButtonWrapper>
+    )
   );
 };
 

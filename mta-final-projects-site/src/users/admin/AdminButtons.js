@@ -1,3 +1,4 @@
+//V
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
@@ -35,7 +36,7 @@ const AdminButtons = observer(() => {
   const handlePodiumClick = () => {
     navigate("/admin/podium");
   };
-
+  //DELETE!!
   const handleExportToCsvClick = async () => {
     try {
       console.log("hi");
@@ -84,7 +85,7 @@ const AdminButtons = observer(() => {
     });
   };
 
-  // Handle clicks outside the sidebar
+  // Handle clicks outside the sidebar - closes the sidebar
   const handleClickOutside = (event) => {
     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
       setIsOpen(false); // Close sidebar if clicked outside
@@ -104,18 +105,20 @@ const AdminButtons = observer(() => {
         style={{ cursor: 'pointer', position: 'fixed', top: '20px', left: '20px', zIndex: 1000 }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <AiOutlineMenu size={24} />
+        <AiOutlineMenu size={50} />
       </div>
       <div
+      //Need to understand Ref!!!!!!!!!!!!!!!!!
         ref={sidebarRef} // Add ref to the sidebar for outside click detection
         className={`side-menu ${isOpen ? 'open' : ''}`} // Toggle open/close class
         style={{
           position: 'fixed',
-          top: '0',
+          top: '70px',
+          // Use left: 0 to show the sidebar, and left: -300px to hide it
           left: isOpen ? '0' : '-300px',
           width: '250px',
           height: '100%',
-          backgroundColor: 'rgba(240, 248, 255, 0.9)', // Light blue with 90% opacity
+          background: 'linear-gradient(135deg,rgba(35, 117, 158, 0.3),rgb(2, 12, 22, 0.3))', // Applied gradient background
           padding: '20px',
           boxShadow: '2px 0px 5px rgba(0, 0, 0, 0.1)',
           zIndex: 999,
@@ -123,33 +126,19 @@ const AdminButtons = observer(() => {
         }}
       >
         <div className="admin-buttons">
-          <div className="admin-button" onClick={handleManageJudgesClick}>
-            Manage Judges
-            <AiOutlineUser size={20} style={{ marginLeft: '10px' }} />
-          </div>
-          <div className="admin-button" onClick={handleManageProjectsClick}>
-            Manage Projects
-            <AiOutlineProject size={20} style={{ marginLeft: '10px' }} />
-          </div>
-          <div className="admin-button" onClick={handleAssignProjectsClick}>
-            Assign Projects
-            <AiOutlineFileAdd size={20} style={{ marginLeft: '10px' }} />
-          </div>
-          <div className="admin-button" onClick={handleManageProjectsGradesClick}>
-            Manage Projects Grades
-            <AiOutlineStar size={20} style={{ marginLeft: '10px' }} />
-          </div>
-          <div className="admin-button" onClick={handlePodiumClick}>
-            Podium
-            <AiOutlineStar size={20} style={{ marginLeft: '10px' }} />
-          </div>
-          <div className="admin-button logout-button" onClick={handleLogout} style={{ marginTop: 'auto' }}>
-            Logout
-            <AiOutlineLogout size={20} style={{ marginLeft: '10px' }} />
-          </div>
+          <nav>
+            <ul className="anton-regular">
+              <li onClick={handleManageJudgesClick}><span>Manage Judges</span></li>
+              <li onClick={handleManageProjectsClick}><span>Manage Projects</span></li>
+              <li onClick={handleAssignProjectsClick}><span>Assign Projects</span></li>
+              <li onClick={handleManageProjectsGradesClick}><span>Manage Projects Grades</span></li>
+              <li onClick={handlePodiumClick}><span>Podium</span></li>
+              <li onClick={handleLogout}><span>Logout</span></li>
+            </ul>
+          </nav>
+        </div>
         </div>
       </div>
-    </div>
   );
 });
 

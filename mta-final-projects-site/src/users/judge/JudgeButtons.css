@@ -1,53 +1,109 @@
-.judge-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 20px; /* Adjusted for some spacing at the top */
+ul {
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
 }
 
-.judge-button {
-  padding: 12px 24px;
-  background-color: #175a94;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Ensures content is centered */
+a {
+  text-decoration: none;
 }
 
-.judge-button:hover {
-  background-color: #0e3f6d;
-  transform: scale(1.05);
+.menu-hover-fill {
+  li {
+    position: relative;
+
+    &::before {
+      position: absolute;
+      content: "";
+      top: 0;
+      left: -1rem;
+      width: 0.25rem;
+      height: 100%;
+      background: var(--menu-link-active-color);
+      transition: 0.6s;
+    }
+
+    a {
+      --menu-link-color: var(--grey-color);
+      position: relative;
+      background: linear-gradient(var(--menu-link-active-color) 0 100%) left / 0
+        no-repeat;
+      color: transparent;
+      background-clip: text;
+      -webkit-background-clip: text;
+      transition: background-size 0.45s 0.04s;
+
+      &::before {
+        position: absolute;
+        content: attr(data-text);
+        z-index: -1;
+        color: var(--menu-link-color);
+      }
+    }
+
+    @for $i from 1 through length($menu-link-active-colors) {
+      &:nth-child(#{$i}) {
+        --menu-link-active-color: #{nth($menu-link-active-colors, $i)};
+      }
+    }
+
+    &:hover {
+      &::before {
+        left: calc(100% + 1rem);
+      }
+
+      a {
+        background-size: 100%;
+      }
+    }
+  }
 }
 
-.judge-button:active {
-  background-color: #0c365a;
-  transform: scale(1);
+
+nav ul {
+	list-style-type: none;
+	padding: 0;
 }
 
-.logout-button {
-  color: red;
-  background-color: transparent;
+nav ul li {
+	font-size: 40px;
+	font-family: sans-serif;
+	background-color: white;
+	border: 2px solid black;
+	letter-spacing: 0.1em;
+	width: 5em;
+	height: 1.5em;
+	line-height: 1.5em;
+	position: relative;
+	overflow: hidden;
+	margin: 0.5em;
+	cursor: pointer;
 }
 
-.logout-button:hover {
-  color: #d33;
+nav ul li span {
+	color: white;
+	mix-blend-mode: difference;
 }
 
-.side-menu {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start; /* Aligns buttons at the top */
-  margin-top: 30px;
-  align-items: center; /* Centers the buttons horizontally */
-  padding-top: 40px; /* Adds padding at the top for spacing */
-  height: 100%;
-  background-color: rgba(240, 248, 255, 0.85); /* Slightly transparent light blue */
-  backdrop-filter: blur(10px); /* Adds a blur effect for a glassmorphic look */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds shadow for depth */
+nav ul li::before {
+	content: '';
+	position: absolute;
+	width: 1.5em;
+	height: inherit;
+	background-color: black;
+	border-radius: 50%;
+	top: 0;
+	left: -0.75em;
+	transition: 0.5s ease-out;
 }
+
+nav ul li:hover::before {
+	transform: scale(7);
+}
+
+.judge-buttons nav ul li span {
+  font-size: 20px; /* adjust as necessary */
+  font-weight: 600;
+  text-align: center;
+}
+

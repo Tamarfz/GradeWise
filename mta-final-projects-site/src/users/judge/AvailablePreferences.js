@@ -1,3 +1,4 @@
+//V
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import Swal from 'sweetalert2';
@@ -107,7 +108,6 @@ const AvailablePreferences = observer(({ token }) => {
                   style={{
                     flex: 1,
                     whiteSpace: 'nowrap',
-                    overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     margin: 0,
                   }}

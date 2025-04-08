@@ -1,3 +1,4 @@
+//V
 import { backendURL } from '../../config';
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
@@ -97,7 +98,7 @@ const ManageGrades = () => {
     }
 
     return (
-        <div className="manage-grades-container" style={{ backgroundColor: '#f0f8ff' }}>
+        <div className="manage-grades-container" style={{ backgroundColor: '#f0f8ff'},{display:'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div className="admin-header">
             <h2>Manage Grades</h2>
             </div>
@@ -111,7 +112,7 @@ const ManageGrades = () => {
                 filtersActive={filtersActive}
             />
             <div className="grades-manager-table">
-                <GradesManager grades={filteredGrades} /> {/* Display filtered grades */}
+                <GradesManager grades={filteredGrades} /> {/* Display filtered grades */} {/*GradesTable is now GradesManager*/}
             </div>
             <BackButton route="/admin" />
             <AdminButtons />

@@ -4,6 +4,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import SearchBar from './SearchBar'; // Import SearchBar component
 import { backendURL } from '../../src/config';
+import Loading from './Loader';
 
 // Styled components for Feed
 const FeedContainer = styled.div`
@@ -16,17 +17,6 @@ const FeedContainer = styled.div`
     @media (max-width: 768px) {
         padding: 15px;
         max-width: 100%; /* Full width on smaller screens */
-    }
-`;
-
-const Loader = styled.h4`
-    color: #175a94;
-    text-align: center;
-    font-size: 18px;
-
-    /* Adjust font size for mobile */
-    @media (max-width: 768px) {
-        font-size: 16px;
     }
 `;
 
@@ -105,7 +95,7 @@ const Feed = () => {
     };
 
     if (loading) {
-        return <Loader>Loading projects...</Loader>;
+        return <Loading/>;
     }
 
     return (

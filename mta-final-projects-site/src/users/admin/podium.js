@@ -1,9 +1,10 @@
+//V
 import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 import axios from 'axios';
 import { backendURL } from '../../config';
 import { convertWixImageUrl } from '../../utils/Utils';
-import confetti from 'canvas-confetti'; // Confetti library
+import confetti from 'canvas-confetti'; // Fireworks using canvas-confetti
 import AdminButtons from './AdminButtons';
 
 // Jump animation for the project images
@@ -17,7 +18,8 @@ const jumpAnimation = keyframes`
 const PodiumContainer = styled.div`
   text-align: center;
   margin-top: 20px;
-  backgroundColor: '#f0f8ff';
+  background-color: #f0f8ff;
+  position: relative;
 `;
 
 const CategorySelector = styled.div`
@@ -28,7 +30,7 @@ const CategorySelector = styled.div`
 `;
 
 const CategoryButton = styled.button`
-  background-color: #175a94;
+  background-color: ${({ selected }) => (selected ? 'green' : '#175a94')};
   color: white;
   border: none;
   padding: 10px 15px;
@@ -39,9 +41,10 @@ const CategoryButton = styled.button`
   font-size: 0.9em;
 
   &:hover {
-    background-color: #0e3f6d;
+    background-color: ${({ selected }) => (selected ? 'green' : '#0e3f6d')};
   }
 `;
+//Color is green for chosen category
 
 const OverallButton = styled(CategoryButton)`
   background-color: #6A9C89;
@@ -80,18 +83,18 @@ const PodiumPlace = styled.div`
           transform: translate(-50%, -25px);
         `
       : place === 2
-      ? `
+        ? `
           left: calc(50% - 280px);
           top: 90px;
           transform: translateY(-25px);
         `
-      : place === 3
-      ? `
+        : place === 3
+          ? `
           left: calc(50% + 90px);
           top: 100px;
           transform: translateY(-25px);
         `
-      : ''}
+          : ''}
 
   &:hover {
     animation: ${jumpAnimation} 0.5s ease;
@@ -116,8 +119,8 @@ const PodiumImage = styled.img`
   }
 
   @media (max-width: 480px) {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
   }
 `;
 
@@ -126,7 +129,7 @@ const PodiumTitle = styled.h3`
   font-size: 1.2em;
 
   @media (max-width: 480px) {
-    font-size: 1em;
+    font-size: 1.8em;
   }
 `;
 
@@ -136,7 +139,7 @@ const PodiumScore = styled.p`
   color: #0e3f6d;
 
   @media (max-width: 480px) {
-    font-size: 1.2em;
+    font-size: 1.5em;
   }
 `;
 
@@ -149,20 +152,50 @@ const PodiumBase = styled.img`
   width: 40%;
   z-index: 0;
 
-  @media (max-width: 768px) {
-    position: static;
-    margin-top: 20px;
-    width: 70%;
+ @media (max-width: 768px) {
+    display: none;
   }
 `;
 
-// Confetti function to trigger on hover
-const triggerConfetti = () => {
-  confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 },
-  });
+// Add this new styled component for the medal icons:
+const Medal = styled.span`
+  display: none;
+  @media (max-width: 768px) {
+    display: inline-block;
+    font-size: 1.5em;
+    margin-right: 8px;
+  }
+`;
+
+// Fireworks function using canvas-confetti
+const triggerFireworks = () => {
+  // Total duration for the fireworks cycle (in milliseconds)
+  const duration = 3000; // 3 seconds
+  const animationEnd = Date.now() + duration;
+  // Set defaults to produce a wide spread burst
+  const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999 };
+
+  // Helper to get a random value between min and max
+  const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+  const interval = setInterval(() => {
+    const timeLeft = animationEnd - Date.now();
+
+    if (timeLeft <= 0) {
+      clearInterval(interval);
+      return;
+    }
+
+    // Fire bursts from random positions across the entire screen with double confetti (100 particles)
+    confetti({
+      ...defaults,
+      particleCount: 100,
+      origin: {
+        x: randomInRange(0, 1),  // full horizontal range
+        y: randomInRange(0, 1)   // full vertical range
+      }
+    });
+  }, 100); // Trigger bursts every 100ms
 };
 
 // Podium component
@@ -195,6 +228,14 @@ const Podium = () => {
     fetchPodiumData();
   }, []);
 
+  // Automatically trigger the 3-second fireworks cycle immediately after the podium is rendered
+  useEffect(() => {
+    if (!loading) {
+      triggerFireworks();
+    }
+  }, [loading]);
+  //If I want only once - delete 'selectedCategory' from the array
+
   if (loading) {
     return <p>Loading podium...</p>;
   }
@@ -216,10 +257,18 @@ const Podium = () => {
     return (
       <PodiumList>
         {top3.map((project, index) => (
-          <PodiumPlace key={index} place={index + 1} onMouseEnter={triggerConfetti}>
+          <PodiumPlace key={index} place={index + 1}>
             <PodiumImage src={convertWixImageUrl(project.image)} alt={project.title} />
             <PodiumTitle>
-              {index + 1} - {project.title}
+              {/* Show medal on mobile for top 3 */}
+              {index < 3 && (
+                <Medal>
+                  {index === 0 ? <img src="/Assets/icons/medal-gold.png" alt="Gold Medal" style={{ width: '3em' }} /> : index === 1 ? <img src="/Assets/icons/medal-silver.png" alt="Silver Medal" style={{ width: '3em' }} /> : <img src="/Assets/icons/medal-bronze.png" alt="Bronze Medal" style={{ width: '3em' }} />}
+                </Medal>
+              )}
+              <div>
+                {project.title}
+              </div>
             </PodiumTitle>
             <PodiumScore>
               {category === 'topOverallProjects'
@@ -238,17 +287,47 @@ const Podium = () => {
     <PodiumContainer>
       <h1>Project Podium</h1>
       <CategorySelector>
-        <OverallButton onClick={() => handleCategoryChange('topOverallProjects')}>Overall</OverallButton>
-        <CategoryButton onClick={() => handleCategoryChange('topComplexity')}>Complexity</CategoryButton>
-        <CategoryButton onClick={() => handleCategoryChange('topUsability')}>Usability</CategoryButton>
-        <CategoryButton onClick={() => handleCategoryChange('topInnovation')}>Innovation</CategoryButton>
-        <CategoryButton onClick={() => handleCategoryChange('topPresentation')}>Presentation</CategoryButton>
-        <CategoryButton onClick={() => handleCategoryChange('topProficiency')}>Proficiency</CategoryButton>
+        <CategoryButton
+          selected={selectedCategory === 'topOverallProjects'}
+          onClick={() => handleCategoryChange('topOverallProjects')}
+        >
+          Overall
+        </CategoryButton>
+        <CategoryButton
+          selected={selectedCategory === 'topComplexity'}
+          onClick={() => handleCategoryChange('topComplexity')}
+        >
+          Complexity
+        </CategoryButton>
+        <CategoryButton
+          selected={selectedCategory === 'topUsability'}
+          onClick={() => handleCategoryChange('topUsability')}
+        >
+          Usability
+        </CategoryButton>
+        <CategoryButton
+          selected={selectedCategory === 'topInnovation'}
+          onClick={() => handleCategoryChange('topInnovation')}
+        >
+          Innovation
+        </CategoryButton>
+        <CategoryButton
+          selected={selectedCategory === 'topPresentation'}
+          onClick={() => handleCategoryChange('topPresentation')}
+        >
+          Presentation
+        </CategoryButton>
+        <CategoryButton
+          selected={selectedCategory === 'topProficiency'}
+          onClick={() => handleCategoryChange('topProficiency')}
+        >
+          Proficiency
+        </CategoryButton>
       </CategorySelector>
 
       {/* Render the podium */}
       {renderPodium(selectedCategory)}
-    <AdminButtons />
+      <AdminButtons />
     </PodiumContainer>
   );
 };

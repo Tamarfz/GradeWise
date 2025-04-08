@@ -1,3 +1,4 @@
+//V
 import { observer } from 'mobx-react-lite';
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
@@ -157,9 +158,12 @@ const ManageJudges = observer(() => {
     
         const toggleSelection = (id) => {
           setSelectedJudges((prevSelectedJudges) => {
+            //if the id is already in the list, remove it
             if (prevSelectedJudges.includes(id)) {
               return prevSelectedJudges.filter((judgeId) => judgeId !== id);
-            } else {
+            }
+             //if the id is not in the list, add it 
+            else {   
               return [...prevSelectedJudges, id];
             }
           });
@@ -183,7 +187,7 @@ const ManageJudges = observer(() => {
                 .map((judge, index) => (
                   <li key={judge.ID} style={{ marginBottom: '10px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '6px', border: '1px solid #ccc', padding: '10px' }}>
-                      <label htmlFor={`judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
+                      <label htmlFor={`judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', margin: 0 }}>
                         {judge.name} (ID: {judge.ID})
                       </label>
                       <input
@@ -208,7 +212,7 @@ const ManageJudges = observer(() => {
     const removeSelectedJudges = (selectedJudges) => {
         removeSelectedUsers(selectedJudges);
     };
-
+//toggleSelection - Delete - maybe
     const toggleSelection = (judgeId) => {
         const selectedIndex = selectedJudges.indexOf(judgeId);
         let newSelectedJudges = [];
@@ -255,11 +259,17 @@ const ManageJudges = observer(() => {
             localStorage.setItem('selectedPotentialJudges', JSON.stringify(selectedIds));
         }, [selectedIds]);
     
+
+        //Do we need this function? is it a duplicate of the one above?
         const toggleSelection = (id) => {
             setSelectedIds((prevSelectedIds) => {
+                //if the id is already in the list, remove it
                 if (prevSelectedIds.includes(id)) {
                     return prevSelectedIds.filter((judgeId) => judgeId !== id);
-                } else {
+
+                }
+                //if the id is not in the list, add it 
+                else {
                     return [...prevSelectedIds, id];
                 }
             });
@@ -279,7 +289,7 @@ const ManageJudges = observer(() => {
                         .map((judge, index) => (
                             <li key={judge.ID} style={{ marginBottom: '10px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', padding: '10px' }}>
-                                    <label htmlFor={`potential-judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
+                                    <label htmlFor={`potential-judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', margin: 0 }}>
                                         ID: {judge.ID}
                                     </label>
                                     <input
@@ -418,6 +428,7 @@ const ManageJudges = observer(() => {
             localStorage.setItem('selectedPreferences', JSON.stringify(selectedPreferences));
         }, [selectedPreferences]);
 
+        //Do we need this function? is it a duplicate of the one above?
         const toggleSelection = (id) => {
             setSelectedPreferences((prevSelectedPreferences) => {
                 if (prevSelectedPreferences.includes(id)) {
@@ -434,7 +445,7 @@ const ManageJudges = observer(() => {
                     {preferences.map((preference, index) => (
                         <li key={preference.ID} style={{ marginBottom: '10px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', padding: '10px' }}>
-                                <label htmlFor={`preference-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
+                                <label htmlFor={`preference-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', margin: 0 }}>
                                     {preference.ID}
                                 </label>
                                 <input

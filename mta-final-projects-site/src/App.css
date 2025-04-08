@@ -2,7 +2,9 @@
   text-align: center;
   padding: 20px;
   background-color: #f0f8ff;
+  /*background-color: #f0f8ff;*/
 }
+
 
 h1 {
   color: #175a94;
@@ -16,6 +18,59 @@ h1 {
   right: 20px;
   z-index: 1000;
 }
+.grade-wise-logo{
+  width: 80px;
+  height:80px;
+  border-radius: 30px;
+}
+
+.grade-wise-logo:hover{
+  animation-name: rotateRL;
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-fill-mode: none;
+  transform: rotate(0deg);
+}
+
+.boldonse-regular {
+  font-family: "Boldonse", system-ui;
+  font-weight: 700;
+  font-style: normal;
+  font-size: 40px;
+}
+
+h4.boldonse-regular {
+  font-family: "Boldonse", system-ui;
+  font-weight: 300;
+  font-style: normal;
+  font-size: 18px;
+}
+
+.playwrite-gb-j-guides-regular {
+  font-family: "Playwrite GB J Guides", cursive;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 1.7rem;
+}
+
+.merriweather-regular {
+  font-family: "Merriweather", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: italic;
+  font-variation-settings:
+    "wdth" 100;
+}
+
+
+@keyframes rotateRL {
+   0%{ transform: rotate(0deg); }
+   25%  { transform: rotate(20deg); }
+   50%  { transform: rotate(0deg); }
+   75% { transform: rotate(-20deg); }
+   100% { transform: rotate(0deg); }
+}
+
 
 .chat-button {
   background-color: #007bff;

@@ -15,10 +15,6 @@ const JudgeButtons = observer(() => {
     navigate("/judge/profile-setup");
   };
 
-  const handleViewProjectsClick = () => {
-    navigate("/judge/view-projects");
-  };
-
   const handleGradeProjectsClick = () => {
     navigate("/judge/grade-projects");
   };
@@ -39,43 +35,35 @@ const JudgeButtons = observer(() => {
 
   return (
     <div style={{ position: 'relative' }}>
-      <div 
+      <div
         style={{ cursor: 'pointer', position: 'fixed', top: '20px', left: '20px', zIndex: 1000 }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <AiOutlineMenu size={24} />
+        <AiOutlineMenu size={50} />
       </div>
       <div
-        className={`side-menu ${isOpen ? 'open' : ''}`} // Toggle open/close class
+        className={`side-menu ${isOpen ? 'open' : ''}`}
         style={{
           position: 'fixed',
-          top: '0',
+          top: '70px',
           left: isOpen ? '0' : '-300px',
           width: '250px',
           height: '100%',
-          backgroundColor: 'rgba(240, 248, 255, 0.9)', // Light blue with 90% opacity
+          background: 'linear-gradient(135deg,rgba(35, 117, 158, 0.3),rgb(2, 12, 22, 0.3))', // Applied gradient background
           padding: '20px',
           boxShadow: '2px 0px 5px rgba(0, 0, 0, 0.1)',
           zIndex: 999,
-          transition: 'left 0.3s ease',
+          transition: 'left 0.5s ease',
         }}
       >
         <div className="judge-buttons">
-          <div className="judge-button" onClick={handleProfileSetupClick}>
-            <AiOutlineProfile size={20} style={{ marginRight: '10px' }} />
-            Profile Setup
-          </div>
-          <div className="judge-button" onClick={handleGradeProjectsClick}>
-            <AiOutlineStar size={20} style={{ marginRight: '10px' }} />
-            Grade Projects
-          </div>
-          <div
-            className="judge-button logout-button"
-            onClick={handleLogout}
-          >
-            <AiOutlineLogout size={20} style={{ marginRight: '10px' }} />
-            Logout
-          </div>
+          <nav>
+            <ul>
+              <li onClick={handleProfileSetupClick}><span>Profile Setup</span></li>
+              <li onClick={handleGradeProjectsClick}><span>Grade Projects</span></li>
+              <li   onClick={handleLogout}><span>Logout</span></li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
