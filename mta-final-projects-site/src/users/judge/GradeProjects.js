@@ -173,7 +173,7 @@ const GradeProjects = observer(() => {
 
   return (
     <FeedContainer>
-      <header className="mt- 10 py-6 bg-white text-center border-b border-gray-200">
+      <header className="py-6 bg-white text-center border-b border-gray-200">
         <h3 className="text-blue-700 text-lg">
           Welcome, {user?.name}! Let's grade some projects.
         </h3>
