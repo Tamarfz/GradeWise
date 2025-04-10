@@ -4,7 +4,6 @@ import Login from './Login';
 import Register from './Register';
 import JudgeHome from './users/judge/JudgeHome';
 import ProfileSetup from './users/judge/ProfileSetup';
-import ViewProjects from './users/judge/ViewProjects';
 import GradeProjects from './users/judge/GradeProjects';
 import { AdminHome } from './users/admin/admin-homepage';
 import ManageJudges from './users/admin/manage-judges';
@@ -107,7 +106,6 @@ const App = observer(() => {
           <Route path={"/judge"} element={<JudgeLayout />}>
             <Route index element={<JudgeHome />} />
             <Route path="profile-setup" element={<ProfileSetup />} />
-            <Route path="view-projects" element={<ViewProjects />} />
             <Route path="grade-projects" element={<GradeProjects />} />
           </Route>
           <Route path="/admin" element={<AdminLayout />}>

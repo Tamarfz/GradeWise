@@ -98,7 +98,7 @@ const ManageGrades = () => {
     }
 
     return (
-        <div className="manage-grades-container" style={{ backgroundColor: '#f0f8ff'},{display:'flex', flexDirection: 'column', alignItems: 'center'}}>
+        <div className="manage-grades-container" >
             <div className="admin-header">
             <h2>Manage Grades</h2>
             </div>

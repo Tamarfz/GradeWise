@@ -4,6 +4,7 @@ import './Login.css';
 import { observer } from 'mobx-react-lite';
 import { storages } from './stores';
 import { backendURL } from './config';
+import Swal from 'sweetalert2';
 
 const Register = observer(() => {
   const [userID, setUserID] = useState('');
@@ -15,32 +16,40 @@ const Register = observer(() => {
 
   const handleRegister = (e) => {
     e.preventDefault();
-    sendRegisterRequest(userID, fullName, email, password);
-  };
 
-  const sendRegisterRequest = (userID, fullName, email, password) => {
     fetch(`${backendURL}/registerFullInfo`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userID, fullName, email, password }),
     })
-      .then((response) => response.json())
-      .then((data) => {
+      .then(response => response.json())
+      .then(data => {
         if (data.success) {
-          // Registration successful, log the user in
-          localStorage.setItem('token', data.token);
-          userStorage.user = data.user;
-          if (data.user.type === 'admin') {
-            navigate('/admin');
-          } else if (data.user.type === 'judge') {
-            navigate('/judge');
-          }
+          Swal.fire({
+            title: 'Success',
+            text: 'Registration successful!',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          }).then(() => {
+            navigate('/');
+          });
         } else {
-          alert('Registration failed! Please try again.');
+          Swal.fire({
+            title: 'Error',
+            text: `Registration failed: ${data.error}`,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
         }
       })
-      .catch((error) => {
-        console.error('Error:', error);
+      .catch(error => {
+        console.error("Error during registration:", error);
+        Swal.fire({
+          title: 'Error',
+          text: 'An error occurred during registration.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       });
   };
 
@@ -59,7 +68,7 @@ const Register = observer(() => {
           <form onSubmit={handleRegister}>
             <div className="form-group">
               <label htmlFor="userID">ID Number:</label>
-              <input
+              <input required
                 type="text"
                 id="userID"
                 value={userID}
@@ -69,7 +78,7 @@ const Register = observer(() => {
             </div>
             <div className="form-group">
               <label htmlFor="password">Password:</label>
-              <input
+              <input required
                 type="password"
                 id="password"
                 value={password}
@@ -79,7 +88,7 @@ const Register = observer(() => {
             </div>
             <div className="form-group">
               <label htmlFor="fullName">Full Name:</label>
-              <input
+              <input required
                 type="text"
                 id="fullName"
                 value={fullName}
@@ -89,7 +98,7 @@ const Register = observer(() => {
             </div>
             <div className="form-group">
               <label htmlFor="email">Email:</label>
-              <input
+              <input required
                 type="email"
                 id="email"
                 value={email}

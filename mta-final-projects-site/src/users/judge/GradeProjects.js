@@ -140,13 +140,40 @@ const GradeProjects = observer(() => {
     });
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    let query = '';
+    if (searchTerm || searchField) {
+      const params = [];
+      if (searchTerm) {
+        params.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
+      }
+      if (searchField) {
+        params.push(`searchField=${encodeURIComponent(searchField)}`);
+      }
+      query = '?' + params.join('&');
+      setFiltersActive(true);
+    } else {
+      setFiltersActive(false);
+    }
+    fetchProjects(query);
+  };
+
+  const handleClearFilters = (e) => {
+    e.preventDefault();
+    setSearchTerm('');
+    setSearchField('');
+    setFiltersActive(false);
+    fetchProjects(); // Fetch projects without query to reset the list
+  };
+
   if (loading) {
     return <Loading />;
   }
 
   return (
     <FeedContainer>
-      <header className="py-6 bg-white text-center border-b border-gray-200">
+      <header className="mt- 10 py-6 bg-white text-center border-b border-gray-200">
         <h3 className="text-blue-700 text-lg">
           Welcome, {user?.name}! Let's grade some projects.
         </h3>
@@ -159,8 +186,8 @@ const GradeProjects = observer(() => {
         searchField={searchField}
         onSearchInputChange={(e) => setSearchTerm(e.target.value)}
         onSearchFieldChange={(e) => setSearchField(e.target.value)}
-        onSearchButtonClick={fetchProjects}
-        onClearFilters={() => {}}
+        onSearchButtonClick={handleSearch}
+        onClearFilters={handleClearFilters}
         filtersActive={filtersActive}
       />
 

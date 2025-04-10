@@ -245,38 +245,43 @@ getCollections()
           return res.status(401).json({ error: 'Unauthorized' });
         }
     
-        console.log('fetching from projectsJudgesGroups: ', user.id);
-        const query = { judge_ids: { $in: [user.id] } };
-        const cursor = await collections.projects_judges_groups.find(query);
-        const matchingProjectjudgesGroups = await cursor.toArray();
+        console.log('Fetching from projectsJudgesGroups for judge id:', user.id);
+        const queryForGroups = { judge_ids: { $in: [user.id] } };
+        const cursor = await collections.projects_judges_groups.find(queryForGroups);
+        const matchingProjectGroups = await cursor.toArray();
     
+        // Extract distinct project IDs
         const projectIds = [];
-        for (const obj of matchingProjectjudgesGroups) {
-          if (obj.project_ids && Array.isArray(obj.project_ids)) {
-            obj.project_ids.forEach((projectId) => {
-              if (!projectIds.includes(projectId)) {
-                projectIds.push(projectId);  // Only push if not already exists
+        matchingProjectGroups.forEach((group) => {
+          if (group.project_ids && Array.isArray(group.project_ids)) {
+            group.project_ids.forEach((pId) => {
+              if (!projectIds.includes(pId)) {
+                projectIds.push(pId);
               }
             });
           }
-        }
+        });
     
         console.log('projectIds:', projectIds);
     
-        const projects = [];
-        for (const projectId of projectIds) {
-          const project = await collections.project_schemas.findOne({ ProjectNumber: projectId });
-          if (project) {
-            projects.push(project);
-          }
+        // Base filter: projects that match the judge's allowed projects
+        const filter = { ProjectNumber: { $in: projectIds } };
+        // Check for search params and add filtering if provided
+        const { searchTerm, searchField } = req.query;
+        if (searchTerm && searchField) {
+          filter[searchField] = { $regex: searchTerm, $options: 'i' }; // case-insensitive regex match
         }
-        res.json({'projects': projects});
+    
+        // Find projects matching the filter
+        const projectsCursor = await collections.project_schemas.find(filter);
+        const projects = await projectsCursor.toArray();
+    
+        res.json({ projects });
       } catch (error) {
         console.error('Error fetching projects:', error);
         res.status(500).json({ error: 'An error occurred while fetching projects' });
       }
     });
-    
   })
   .catch((error) => {
     console.error('Error setting up routes:', error);

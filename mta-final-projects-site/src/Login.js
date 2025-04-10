@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { storages } from "./stores";
 import { backendURL } from "./config";
+import Swal from 'sweetalert2';
 import "./Login.css";
 
 const Login = observer(() => {
@@ -47,11 +48,22 @@ const Login = observer(() => {
             navigate("/judge");
           }
         } else {
-          alert("Invalid credentials");
+          Swal.fire({
+            title: 'Error',
+            text: 'Invalid credentials',
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
         }
       })
       .catch((error) => {
         console.error("Error:", error);
+        Swal.fire({
+          title: 'Error',
+          text: 'An error occurred during login.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
       });
   };
 

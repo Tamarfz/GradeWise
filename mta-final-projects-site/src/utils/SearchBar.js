@@ -189,7 +189,7 @@ const SearchBar = ({
     const [expanded, setExpanded] = useState(false);
 
     return (
-        <FormContainer onSubmit={onSearchButtonClick}>
+        <FormContainer onSubmit={(e) => { e.preventDefault(); onSearchButtonClick(e); }}>
             <InputContainer>
                 <ToggleButton expanded={expanded} type="button" onClick={() => setExpanded(prev => !prev)}>
                     {expanded 
