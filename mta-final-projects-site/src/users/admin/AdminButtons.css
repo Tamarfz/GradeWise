@@ -3,7 +3,7 @@
   background-color: #f0f8ff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  max-width: 800px;
+  width: 90%;
   margin: 20px auto;
 }
   .admin-buttons {
@@ -26,7 +26,8 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
-    display: flex;
+    width: 300px; /* Fixed width for all buttons */
+    height: 50px; /* Fixed height for all buttons */
     align-items: center;
     justify-content: center; /* Ensures content is centered */
   }

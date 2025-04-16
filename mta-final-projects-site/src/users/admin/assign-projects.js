@@ -45,8 +45,35 @@ const SelectContainer = styled.div`
   max-width: 70%;
 `;
 
+// Add this styled component for the grid
+const ProjectsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 items per row */
+  gap: 20px;
+  width: 100%;
+  max-width: 70%;
+`;
 
+const ProjectCard = styled.div`
+  padding: 15px;
+  background-color: rgba(240, 248, 255, 0.9);
+  border: 1px solid #175a94;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 
+  &:hover {
+    transform: scale(1.05);
+    background-color: #e0f7ff;
+  }
+
+  &.selected {
+    background-color: #175a94;
+    color: white;
+  }
+`;
 
 // Main component
 const AssignProjectsToJudges = () => {
@@ -151,26 +178,32 @@ const AssignProjectsToJudges = () => {
         />
       </SelectContainer>
 
-      {/* Multi-select dropdown for projects */}
-      <SelectContainer>
-        <Select
-          isMulti
-          options={projects}
-          placeholder="Select Projects"
-          onChange={setSelectedProjects}
-          value={selectedProjects}
-          closeMenuOnSelect={false} // Keep dropdown open for continuous selection
-          isOpen={projectsListOpen} // Control open/close state
-          styles={{
-            control: (base) => ({
-              ...base,
-              backgroundColor: 'rgba(240, 248, 255, 0.9)',
-              borderRadius: '8px',
-              border: '1px solid #175a94',
-            }),
-          }}
-        />
-      </SelectContainer>
+      {/* Replace the project dropdown with the grid */}
+      <ProjectsGrid>
+        {projects
+          .slice() // Create a shallow copy to avoid mutating the original array
+          .sort((a, b) => (a.label?.toLowerCase() || "").localeCompare(b.label?.toLowerCase() || "")) // Safely access title
+          .map((project) => (
+            <ProjectCard
+              key={project.value}
+              className={selectedProjects.some((p) => p.value === project.value) ? 'selected' : ''}
+              onClick={() => {
+                // Toggle selection
+                setSelectedProjects((prevSelected) => {
+                  if (prevSelected.some((p) => p.value === project.value)) {
+                    // Remove if already selected
+                    return prevSelected.filter((p) => p.value !== project.value);
+                  } else {
+                    // Add if not selected
+                    return [...prevSelected, project];
+                  }
+                });
+              }}
+            >
+              {project.label || "Untitled Project"} {/* Fallback for missing title */}
+            </ProjectCard>
+          ))}
+      </ProjectsGrid>
 
       {/* Button to trigger assignment */}
       <Button onClick={handleAssignClick}>Assign Projects</Button>

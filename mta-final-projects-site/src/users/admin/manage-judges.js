@@ -118,11 +118,11 @@ const ManageJudges = observer(() => {
                 <div id="judgesListContainer" style="font-size: 75%; display: flex; flex-direction: column;">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <span>Judge 1</span>
-                        <input type="checkbox" style="margin-left: auto; margin-right: 0;" />
+                        <input type="checkbox" style="margin-left: 0; margin-right: 0;" />
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                         <span>Judge 2</span>
-                        <input type="checkbox" style="margin-left: auto; margin-right: 0;" />
+                        <input type="checkbox" style="margin-left: 0; margin-right: 0;" />
                     </div>
                     <!-- More judge entries can go here -->
                 </div>`,
@@ -186,18 +186,21 @@ const ManageJudges = observer(() => {
                 )
                 .map((judge, index) => (
                   <li key={judge.ID} style={{ marginBottom: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '6px', border: '1px solid #ccc', padding: '10px' }}>
-                      <label htmlFor={`judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', margin: 0 }}>
-                        {judge.name} (ID: {judge.ID})
-                      </label>
+                    <div style={{ display: 'flex', justifyContent: 'normal', alignItems: 'left', borderRadius: '6px', border: '1px solid #ccc', padding: '10px' }}>
+                      
                       <input
                         type="checkbox"
                         id={`judge-${index}`}
-                        style={{ marginRight: '0', marginLeft: 'auto' }} // Ensure checkbox sticks to the right without margin
+                        style={{ marginRight: '25px', marginLeft: '70px'}} // Ensure checkbox sticks to the right without margin
                         checked={selectedJudges.includes(judge.ID.toString())}
                         onChange={() => toggleSelection(judge.ID.toString())}
+
                       />
+                      <label htmlFor={`judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '200px' }}>
+                        {judge.name} (ID: {judge.ID})
+                      </label>
                     </div>
+
                   </li>
                 ))}
             </ul>
@@ -288,17 +291,18 @@ const ManageJudges = observer(() => {
                         .filter((judge) => judge.ID.toString().includes(filterText))
                         .map((judge, index) => (
                             <li key={judge.ID} style={{ marginBottom: '10px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', padding: '10px' }}>
-                                    <label htmlFor={`potential-judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', margin: 0 }}>
-                                        ID: {judge.ID}
-                                    </label>
+                                <div style={{ display: 'flex', alignItems: 'left', justifyContent: 'normal', border: '1px solid #ccc', padding: '10px' }}>
+                                    
                                     <input
                                         type="checkbox"
                                         id={`potential-judge-${index}`}
                                         checked={selectedIds.includes(judge.ID.toString())}
                                         onChange={() => toggleSelection(judge.ID.toString())}
-                                        style={{ marginLeft: '10px' }}
+                                        style={{ marginLeft: '20px', marginRight: '10px' }} // Ensure checkbox sticks to the right without margin
                                     />
+                                    <label htmlFor={`potential-judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '200px' }}>
+                                        ID: {judge.ID}
+                                    </label>
                                 </div>
                             </li>
                         ))}
@@ -444,17 +448,18 @@ const ManageJudges = observer(() => {
                 <ul id="preferencesList" style={{ listStyleType: 'none', padding: 0 }}>
                     {preferences.map((preference, index) => (
                         <li key={preference.ID} style={{ marginBottom: '10px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #ccc', padding: '10px' }}>
-                                <label htmlFor={`preference-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', margin: 0 }}>
-                                    {preference.ID}
-                                </label>
+                            <div style={{ display: 'flex',justifyContent: 'normal', alignItems: 'left', border: '1px solid #ccc', padding: '10px' }}>
+                                
                                 <input
                                     type="checkbox"
                                     id={`preference-${index}`}
                                     checked={selectedPreferences.includes(preference.ID)}
                                     onChange={() => toggleSelection(preference.ID)}
-                                    style={{ marginLeft: '10px' }}
+                                    style={{ marginLeft: '90px', marginRight: '100px' }} // Ensure checkbox sticks to the right without margin
                                 />
+                                <label htmlFor={`preference-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '200px' }}>
+                                    {preference.ID}
+                                </label>
                             </div>
                         </li>
                     ))}
