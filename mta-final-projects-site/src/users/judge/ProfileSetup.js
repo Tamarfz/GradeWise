@@ -96,7 +96,7 @@ const ProfileSetup = observer(() => {
         </h3>
         <JudgeButtons />
       </header>
-      <h2>Profile Setup</h2>
+      <h2 style={{color: 'black'}}>Profile Setup</h2>
       <form onSubmit={handleSubmit} className="profile-form">
         <div className="form-field">
           <label htmlFor="email">Email:</label>
@@ -131,12 +131,11 @@ const ProfileSetup = observer(() => {
             onChange={(e) => handleChange('name', e.target.value)}
           />
         </div>
-        <button type="submit" className="save-button">Save Changes</button>
-      </form>
       <div className="preferences-section">
-        <h3>Preferences</h3>
         <AvailablePreferences token={localStorage.getItem('token')} />
       </div>
+      <button type="submit" className="save-button">Save Changes</button>
+      </form>
       <BackButton className="back-button" route="/judge" />
     </div>
   );
