@@ -79,6 +79,7 @@ getCollections()
                 $or: [
                     { name: { $regex: search, $options: 'i' } },
                     { Title: { $regex: search, $options: 'i' } },
+                    { ProjectYear: { $regex: search, $options: 'i' } },
                     { WorkshopName: { $regex: search, $options: 'i' } },
                     { ProjectOwners: { $regex: search, $options: 'i' } },
                     { Lecturer: { $regex: search, $options: 'i' } },

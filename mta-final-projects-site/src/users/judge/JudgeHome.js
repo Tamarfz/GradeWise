@@ -16,7 +16,7 @@ const JudgeHome = observer(() => {
         <div className="max-w-3xl mx-auto p-6 bg-blue-50">
             <header className="py-6 bg-white text-center border-b border-gray-200">
             
-            <h3 className="anton-regular">Welcome, Judge <span style={{ color: 'blue' }}>{user?.name}!</span></h3>
+            <h3 className="anton-regular"> <span style={{ color: '#175a94' }}>Welcome, Judge {user?.name}!</span></h3>
                 <JudgeButtons />
             </header>
             <Feed />

@@ -203,6 +203,7 @@ const SearchBar = ({
                         <option value="">Select field</option>
                         <option value="name">Name</option>
                         <option value="Title">Title</option>
+                        <option value="ProjectYear">Year</option>
                         <option value="WorkshopName">Workshop Name</option>
                         <option value="ProjectOwners">Project Owners</option>
                         <option value="Lecturer">Lecturer</option>

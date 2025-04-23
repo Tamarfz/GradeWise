@@ -146,35 +146,48 @@ button:hover {
 }
 
 /* Update the icon inputs to respect the container width */
-.input-with-icon-id,
-.input-with-icon-password,
-.input-with-icon-email,
-.input-with-icon-name {
-  width: 100%; /* Ensure the input takes up the full width of its container */
+.input-with-icon-id {
+  width: 100%;
   box-sizing: border-box;
   padding: 10px;
-  padding-left: 40px; /* Adjust padding for icon space */
-  background-position: 10px center; /* Position the icon */
-  background-repeat: no-repeat; /* Prevent the icon from repeating */
-  background-size: 20px 20px; /* Set the size of the icon */
+  padding-left: 200px; /* Increased left padding for icon space */
+  background: url("/public/Assets/icons/id-card.png") no-repeat 10px center;
+  background-size: 20px 20px;
   border: 1px solid #bbdefb;
   border-radius: 4px;
-  height: 40px; /* Ensure the input has a consistent height */
-}
-
-/* Specific background images for each input */
-.input-with-icon-id {
-  background-image: url("/public/Assets/icons/id-card.png");
 }
 
 .input-with-icon-password {
-  background-image: url("/public/Assets/icons/password3.png");
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  padding-left: 200px; /* increased left padding */  
+  background: url("/public/Assets/icons/password3.png") no-repeat 10px center;
+  
+  background-size: 20px 20px;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
 }
 
 .input-with-icon-email {
-  background-image: url("/public/Assets/icons/email.png");
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  padding-left: 200px; /* increased left padding */  
+  background: url("/public/Assets/icons/email.png") no-repeat 10px center;
+  background-size: 20px 20px;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
 }
 
 .input-with-icon-name {
-  background-image: url("/public/Assets/icons/id2.png");
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  padding-left: 200px; /* increased left padding */  
+  background: url("/public/Assets/icons/id2.png") no-repeat 10px center;
+  
+  background-size: 20px 20px;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
 }

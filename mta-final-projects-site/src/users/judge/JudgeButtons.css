@@ -8,58 +8,6 @@ a {
   text-decoration: none;
 }
 
-.menu-hover-fill {
-  li {
-    position: relative;
-
-    &::before {
-      position: absolute;
-      content: "";
-      top: 0;
-      left: -1rem;
-      width: 0.25rem;
-      height: 100%;
-      background: var(--menu-link-active-color);
-      transition: 0.6s;
-    }
-
-    a {
-      --menu-link-color: var(--grey-color);
-      position: relative;
-      background: linear-gradient(var(--menu-link-active-color) 0 100%) left / 0
-        no-repeat;
-      color: transparent;
-      background-clip: text;
-      -webkit-background-clip: text;
-      transition: background-size 0.45s 0.04s;
-
-      &::before {
-        position: absolute;
-        content: attr(data-text);
-        z-index: -1;
-        color: var(--menu-link-color);
-      }
-    }
-
-    @for $i from 1 through length($menu-link-active-colors) {
-      &:nth-child(#{$i}) {
-        --menu-link-active-color: #{nth($menu-link-active-colors, $i)};
-      }
-    }
-
-    &:hover {
-      &::before {
-        left: calc(100% + 1rem);
-      }
-
-      a {
-        background-size: 100%;
-      }
-    }
-  }
-}
-
-
 nav ul {
 	list-style-type: none;
 	padding: 0;
@@ -67,7 +15,7 @@ nav ul {
 
 nav ul li {
 	font-size: 40px;
-	font-family: sans-serif;
+	font-family: Arial;
 	background-color: white;
 	border: 2px solid black;
 	letter-spacing: 0.1em;
@@ -90,7 +38,7 @@ nav ul li::before {
 	position: absolute;
 	width: 1.5em;
 	height: inherit;
-	background-color: black;
+	background-color: #175a94;
 	border-radius: 50%;
 	top: 0;
 	left: -0.75em;

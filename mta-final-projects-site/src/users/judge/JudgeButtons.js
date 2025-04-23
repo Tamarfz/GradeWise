@@ -49,9 +49,9 @@ const JudgeButtons = observer(() => {
           left: isOpen ? '0' : '-300px',
           width: '250px',
           height: '100%',
-          background: 'linear-gradient(135deg,rgba(35, 117, 158, 0.3),rgb(2, 12, 22, 0.3))', // Applied gradient background
+          background: 'linear-gradient(135deg,rgba(231, 238, 241, 0.93))', // Applied gradient background
           padding: '20px',
-          boxShadow: '2px 0px 5px rgba(0, 0, 0, 0.1)',
+          boxShadow: '2px 0px 5px rgba(222, 229, 232, 0.96)',
           zIndex: 999,
           transition: 'left 0.5s ease',
         }}
