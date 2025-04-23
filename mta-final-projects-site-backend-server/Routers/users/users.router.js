@@ -234,6 +234,7 @@ getCollections()
   })
 
 // Assuming getCollections is defined elsewhere and returns a promise with the collections
+
 getCollections()
   .then((collections) => {
     router.get('/projectsForJudge/projectList', async (req, res) => {

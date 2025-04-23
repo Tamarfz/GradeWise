@@ -1,11 +1,7 @@
-//V
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import Swal from 'sweetalert2';
-import ReactDOM from 'react-dom/client';
 import './ProfileSetup.css';
 import { backendURL } from '../../config';
-
 
 const AvailablePreferences = observer(({ token }) => {
   const [preferences, setPreferences] = useState([]);
@@ -39,103 +35,14 @@ const AvailablePreferences = observer(({ token }) => {
       });
       const data = await response.json();
       if (Array.isArray(data)) {
-        setSelectedPreferences(data);
+        // Map user preferences to an array of IDs.
+        setSelectedPreferences(data.map(item => item.ID || item));
       } else {
         console.error('User preferences data is not an array:', data);
       }
     } catch (error) {
       console.error('Error fetching user preferences:', error);
     }
-  };
-
-  const openPreferencesModal = async () => {
-    await fetchPreferences();
-    await fetchUserPreferences();
-
-    Swal.fire({
-      title: 'Available Preferences',
-      html: '<div id="preferencesListContainer"></div>',
-      confirmButtonText: 'OK',
-      didOpen: () => {
-        renderPreferencesList();
-      },
-    });
-  };
-
-  const renderPreferencesList = () => {
-    const preferencesListContainer = document.getElementById('preferencesListContainer');
-    if (preferencesListContainer) {
-      const root = ReactDOM.createRoot(preferencesListContainer);
-      root.render(<PreferencesList selectedPreferences={selectedPreferences} />);
-    }
-  };
-
-  const PreferencesList = ({ selectedPreferences }) => {
-    const [localSelectedPreferences, setLocalSelectedPreferences] = useState(selectedPreferences);
-
-    useEffect(() => {
-      setSelectedPreferences(localSelectedPreferences);
-    }, [localSelectedPreferences]);
-
-    const toggleSelection = (id) => {
-      setLocalSelectedPreferences((prevSelectedPreferences) => {
-        if (prevSelectedPreferences.includes(id)) {
-          handlePreferenceChange(id, false); // false indicates removal
-          return prevSelectedPreferences.filter((preferenceId) => preferenceId !== id);
-        } else {
-          handlePreferenceChange(id, true); // true indicates addition
-          return [...prevSelectedPreferences, id];
-        }
-      });
-    };
-
-    return (
-      <div>
-        <ul id="preferencesList" style={{ listStyleType: 'none', padding: 0 }}>
-          {preferences.map((preference, index) => (
-            <li key={preference.ID} style={{ marginBottom: '10px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderRadius: '6px',
-                  border: '1px solid #ccc',
-                  padding: '10px',
-                }}
-              >
-                <label
-                  htmlFor={`preference-${index}`}
-                  style={{
-                    flex: 1,
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    margin: 0,
-                  }}
-                >
-                  {preference.ID}
-                </label>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                    minWidth: '45px',
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    id={`preference-${index}`}
-                    checked={localSelectedPreferences.includes(preference.ID)}
-                    onChange={() => toggleSelection(preference.ID)}
-                  />
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
   };
 
   const handlePreferenceChange = async (preferenceId, isAdding) => {
@@ -150,15 +57,77 @@ const AvailablePreferences = observer(({ token }) => {
         body: JSON.stringify({ preferenceId }),
       });
       const data = await response.json();
-      console.log('Success:', data);
+      console.log('Preference update result:', data);
     } catch (error) {
       console.error('Error handling preference change:', error);
     }
   };
 
+  // Use selectedPreferences directly to manage checkbox state.
+  const toggleSelection = (id) => {
+    if (selectedPreferences.includes(id)) {
+      // Remove the preference.
+      handlePreferenceChange(id, false);
+      setSelectedPreferences(prev => prev.filter(x => x !== id));
+    } else {
+      // Add the preference.
+      handlePreferenceChange(id, true);
+      setSelectedPreferences(prev => [...prev, id]);
+    }
+  };
+
+  const PreferencesList = () => {
+    return (
+      <ul style={{ listStyleType: 'none', padding: 0 }}>
+        {preferences.map((preference, index) => (
+          <li key={preference.ID} style={{ marginBottom: '10px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                borderRadius: '6px',
+                border: '1px solid #ccc',
+                padding: '10px',
+              }}
+            >
+              <label
+                htmlFor={`preference-${index}`}
+                style={{
+                  flex: 1,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  margin: 0,
+                }}
+              >
+                {preference.ID}
+              </label>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: '45px',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id={`preference-${index}`}
+                  checked={selectedPreferences.includes(preference.ID)}
+                  onChange={() => toggleSelection(preference.ID)}
+                />
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
   return (
-    <div>
-      <button className="profile_setup_button" onClick={openPreferencesModal}>Edit Preferences</button>
+    <div className="preferences-section">
+      <h3>Preferences</h3>
+      <PreferencesList />
     </div>
   );
 });
