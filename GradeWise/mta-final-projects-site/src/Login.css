@@ -1,0 +1,180 @@
+/* Container splits the screen in two halves */
+.login-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Left half: occupies 50% and displays the TA logo */
+.left-half {
+  width: 50%;
+  background-color: #61b0f4b8; /* or a background image if needed */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 0;
+  
+}
+
+/* The logo remains sized as configured */
+.logo_TA {
+  max-width: 60%;
+  height: auto;
+}
+
+/* Right half: contains the login form */
+.right-half {
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ffff;
+  
+}
+
+/* Login box styling */
+.login-box {
+  width: 350px;         /* Reduced from 400px to 350px */
+  padding: 30px;        /* Reduced padding */
+  border: 2px solid #1e88e5;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* General input styling inside the login box */
+.login-box input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
+}
+
+/* Form styling */
+h2 {
+  color: #1e88e5;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  color: #1565c0;
+  margin-bottom: 5px;
+}
+
+input {
+  width: 500px;
+  padding: 10px;
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
+}
+
+input[type="text"] {
+  padding-left: 50px;
+}
+
+input[type="password"]  {
+  padding-left: 50px;
+}
+
+input[type="email"] {
+  padding-left: 50px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #2196f3;
+  color: #fff;
+  border: none;
+  margin: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #1976d2;
+}
+
+/* Register button styling */
+.register-button,
+.register-button:visited,
+.register-button:focus,
+.register-button:active {
+  outline: none;
+  color: #fafafa;
+  background-color: transparent;
+  text-decoration: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    min-height: 100vh; /* Make the container occupy the full viewport height */
+    align-items: center;
+  }
+  
+  .left-half{
+    width: 95%;
+    min-height: 25vh; /* Each half occupies at least half the screen */
+    padding-right: 0; /* Remove right padding on smaller screens */
+  }
+  .right-half {
+    width: 95%;
+    min-height: 75vh; /* Each half occupies at least half the screen */
+  }
+  
+  /* Increase logo size on smaller screens */
+  .logo_TA {
+    max-width: 60%;
+    margin-bottom: 20px; /* Add some space below the logo */
+  }
+  
+  .login-box {
+    width: 90%;
+    padding: 20px;
+    min-height: 60vh;
+  }
+}
+
+/* Update the icon inputs to respect the container width */
+.input-with-icon-id,
+.input-with-icon-password,
+.input-with-icon-email,
+.input-with-icon-name {
+  width: 100%; /* Ensure the input takes up the full width of its container */
+  box-sizing: border-box;
+  padding: 10px;
+  padding-left: 40px; /* Adjust padding for icon space */
+  background-position: 10px center; /* Position the icon */
+  background-repeat: no-repeat; /* Prevent the icon from repeating */
+  background-size: 20px 20px; /* Set the size of the icon */
+  border: 1px solid #bbdefb;
+  border-radius: 4px;
+  height: 40px; /* Ensure the input has a consistent height */
+}
+
+/* Specific background images for each input */
+.input-with-icon-id {
+  background-image: url("/public/Assets/icons/id-card.png");
+}
+
+.input-with-icon-password {
+  background-image: url("/public/Assets/icons/password3.png");
+}
+
+.input-with-icon-email {
+  background-image: url("/public/Assets/icons/email.png");
+}
+
+.input-with-icon-name {
+  background-image: url("/public/Assets/icons/id2.png");
+}

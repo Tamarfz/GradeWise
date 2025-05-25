@@ -1,0 +1,86 @@
+/* Main container for the Manage Projects screen */
+.admin-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px; /* Reduce padding */
+  width: 100%;
+  max-width: 100%; /* Ensure it doesn't exceed the screen width */
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Header styling */
+.admin-header {
+  text-align: center;
+  margin-bottom: 10px; /* Reduce margin */
+  width: 100%;
+}
+
+.admin-header h2 {
+  font-size: 20px; /* Adjust font size for smaller screens */
+  color: #175a94;
+  margin-bottom: 5px; /* Reduce margin */
+}
+
+.admin-header h3 {
+  font-size: 16px; /* Adjust font size for smaller screens */
+  color: #333;
+  margin-bottom: 10px; /* Reduce margin */
+}
+
+/* Buttons container */
+.admin-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px; /* Reduce spacing between buttons */
+  width: 100%;
+}
+
+/* Individual button styling */
+.admin-button {
+  padding: 8px 15px; /* Reduce padding */
+  background-color: #175a94;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px; /* Adjust font size */
+  transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+  background-color: #0e3f6d;
+}
+
+/* Responsive styling for mobile */
+@media (max-width: 768px) {
+  .admin-page-container {
+    padding: 5px; /* Further reduce padding for smaller screens */
+  }
+
+  .admin-header h2 {
+    font-size: 18px; /* Further adjust font size */
+  }
+
+  .admin-header h3 {
+    font-size: 14px; /* Further adjust font size */
+  }
+
+  .admin-buttons {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 5px; /* Reduce spacing between buttons */
+  }
+
+  .admin-button {
+    width: 100%; /* Make buttons full width */
+    font-size: 12px; /* Adjust font size */
+  }
+
+  input[type="file"] {
+    font-size: 12px; /* Adjust file input font size */
+    width: 100%; /* Make file input full width */
+  }
+}
