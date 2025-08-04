@@ -1,0 +1,124 @@
+/* Custom class for the Swal popup */
+.responsive-swal-popup {
+    width: 90% !important; /* Make the modal take up most of the screen on smaller devices */
+    max-width: 500px; /* Limit the maximum width */
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  
+  
+  /* Ensure the modal content is scrollable on smaller screens */
+  #judgesListContainer {
+    max-height: 80vh; /* Limit the height to 60% of the viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+
+  #potentialJudgesListContainer{
+    max-height: 80vh; /* Limit the height to 60% of the viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  
+  /* Adjust font sizes and spacing for smaller screens */
+  @media (max-width: 768px) {
+    .responsive-swal-popup {
+      width: 95% !important; /* Increase width for smaller screens */
+      padding: 15px;
+    }
+  
+    #judgesListContainer {
+      font-size: 12px; /* Reduce font size for smaller screens */
+      padding: 5px;
+      max-height: 100vh; /* Allow full height on very small screens */
+    }
+  
+    .swal2-title {
+      font-size: 16px !important; /* Adjust title font size */
+    }
+  
+    .swal2-confirm,
+    .swal2-cancel {
+      font-size: 14px !important; /* Adjust button font size */
+    }
+  }
+
+/* Main container for the Manage Judges screen */
+.admin-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  width: 100%;
+  max-width: 100%; /* Ensure it doesn't exceed the screen width */
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+/* Header styling */
+.admin-header {
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.admin-header h2 {
+  font-size: 24px;
+  color: #175a94;
+  margin-bottom: 10px;
+}
+
+.admin-header h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+/* Buttons container */
+.admin-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Individual button styling */
+.admin-button {
+  padding: 10px 20px;
+  background-color: #175a94;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.admin-button:hover {
+  background-color: #0e3f6d;
+}
+
+/* Responsive styling for mobile */
+@media (max-width: 768px) {
+  .admin-page-container {
+    padding: 10px; /* Reduce padding for smaller screens */
+  }
+
+  .admin-header h2 {
+    font-size: 20px; /* Adjust font size for smaller screens */
+  }
+
+  .admin-header h3 {
+    font-size: 16px; /* Adjust font size for smaller screens */
+  }
+
+  .admin-buttons {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Add spacing between buttons */
+  }
+
+  .admin-button {
+    width: 100%; /* Make buttons full width */
+    font-size: 14px; /* Adjust font size for smaller screens */
+  }
+}
