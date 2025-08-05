@@ -5,7 +5,7 @@ import { backendURL } from '../../config';
 import './Analytics.css';
 
 const Analytics = observer(() => {
-  const [viewMode, setViewMode] = useState('judge'); // 'judge' or 'project'
+  const [viewMode, setViewMode] = useState('judge'); // 'judge', 'project', or 'distribution'
   const [judges, setJudges] = useState([]);
   const [projects, setProjects] = useState([]);
   const [selectedJudge, setSelectedJudge] = useState('');
@@ -48,10 +48,29 @@ const Analytics = observer(() => {
   const fetchProjectAnalytics = async (projectId) => {
     setLoading(true);
     try {
+      console.log('Fetching project analytics for projectId:', projectId);
+      console.log('API URL:', `${backendURL}/admin/analytics/project/${projectId}`);
       const response = await axios.get(`${backendURL}/admin/analytics/project/${projectId}`);
+      console.log('Project analytics response:', response.data);
       setAnalyticsData(response.data);
     } catch (error) {
       console.error('Error fetching project analytics:', error);
+      console.error('Error details:', error.response?.data || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDistributionAnalytics = async () => {
+    setLoading(true);
+    try {
+      console.log('Fetching distribution analytics...');
+      const response = await axios.get(`${backendURL}/admin/analytics/distribution`);
+      console.log('Distribution analytics response:', response.data);
+      setAnalyticsData(response.data);
+    } catch (error) {
+      console.error('Error fetching distribution analytics:', error);
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -82,6 +101,88 @@ const Analytics = observer(() => {
     setSelectedJudge('');
     setSelectedProject('');
     setAnalyticsData(null);
+    if (mode === 'distribution') {
+      fetchDistributionAnalytics();
+    }
+  };
+
+  const calculateAverageGrades = () => {
+    if (!analyticsData) return null;
+
+    let validGrades = [];
+    
+    if (viewMode === 'judge' && analyticsData.projects) {
+      // For judge view: filter projects with valid grades
+      validGrades = analyticsData.projects.filter(project => {
+        const complexity = parseFloat(project.avgComplexity);
+        const usability = parseFloat(project.avgUsability);
+        const innovation = parseFloat(project.avgInnovation);
+        const presentation = parseFloat(project.avgPresentation);
+        const proficiency = parseFloat(project.avgProficiency);
+        
+        // Check if all scores are 1 (default/not graded)
+        return !(complexity === 1 && usability === 1 && innovation === 1 && 
+                 presentation === 1 && proficiency === 1);
+      });
+    } else if (viewMode === 'project' && analyticsData.judges) {
+      // For project view: filter judges with valid grades
+      validGrades = analyticsData.judges.filter(judge => {
+        const complexity = parseFloat(judge.complexity);
+        const usability = parseFloat(judge.usability);
+        const innovation = parseFloat(judge.innovation);
+        const presentation = parseFloat(judge.presentation);
+        const proficiency = parseFloat(judge.proficiency);
+        
+        // Check if all scores are 1 (default/not graded)
+        return !(complexity === 1 && usability === 1 && innovation === 1 && 
+                 presentation === 1 && proficiency === 1);
+      });
+    }
+
+    if (validGrades.length === 0) {
+      return null;
+    }
+
+    let sumComplexity, sumUsability, sumInnovation, sumPresentation, sumProficiency, sumTotal;
+
+    if (viewMode === 'judge') {
+      // Calculate averages for projects (judge view)
+      sumComplexity = validGrades.reduce((sum, project) => sum + parseFloat(project.avgComplexity), 0);
+      sumUsability = validGrades.reduce((sum, project) => sum + parseFloat(project.avgUsability), 0);
+      sumInnovation = validGrades.reduce((sum, project) => sum + parseFloat(project.avgInnovation), 0);
+      sumPresentation = validGrades.reduce((sum, project) => sum + parseFloat(project.avgPresentation), 0);
+      sumProficiency = validGrades.reduce((sum, project) => sum + parseFloat(project.avgProficiency), 0);
+      sumTotal = validGrades.reduce((sum, project) => sum + parseFloat(project.avgTotal), 0);
+    } else {
+      // Calculate averages for judges (project view)
+      sumComplexity = validGrades.reduce((sum, judge) => sum + parseFloat(judge.complexity), 0);
+      sumUsability = validGrades.reduce((sum, judge) => sum + parseFloat(judge.usability), 0);
+      sumInnovation = validGrades.reduce((sum, judge) => sum + parseFloat(judge.innovation), 0);
+      sumPresentation = validGrades.reduce((sum, judge) => sum + parseFloat(judge.presentation), 0);
+      sumProficiency = validGrades.reduce((sum, judge) => sum + parseFloat(judge.proficiency), 0);
+      sumTotal = validGrades.reduce((sum, judge) => sum + parseFloat(judge.totalGrade), 0);
+    }
+
+    return {
+      complexity: (sumComplexity / validGrades.length).toFixed(2),
+      usability: (sumUsability / validGrades.length).toFixed(2),
+      innovation: (sumInnovation / validGrades.length).toFixed(2),
+      presentation: (sumPresentation / validGrades.length).toFixed(2),
+      proficiency: (sumProficiency / validGrades.length).toFixed(2),
+      total: (sumTotal / validGrades.length).toFixed(2)
+    };
+  };
+
+  const isNotGraded = (judge) => {
+    const complexity = parseFloat(judge.complexity);
+    const usability = parseFloat(judge.usability);
+    const innovation = parseFloat(judge.innovation);
+    const presentation = parseFloat(judge.presentation);
+    const proficiency = parseFloat(judge.proficiency);
+    
+    // Check if all scores are 1 (default/not graded)
+    return complexity === 1 && usability === 1 && innovation === 1 && 
+           presentation === 1 && proficiency === 1;
   };
 
   const renderAnalyticsTable = () => {
@@ -101,6 +202,7 @@ const Analytics = observer(() => {
                 <th>Presentation</th>
                 <th>Proficiency</th>
                 <th>Total Grade</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -113,13 +215,24 @@ const Analytics = observer(() => {
                   <td>{project.avgPresentation?.toFixed(2) || 'N/A'}</td>
                   <td>{project.avgProficiency?.toFixed(2) || 'N/A'}</td>
                   <td>{project.avgTotal?.toFixed(2) || 'N/A'}</td>
+                  <td>
+                    {project.avgComplexity === 1 && project.avgUsability === 1 && 
+                     project.avgInnovation === 1 && project.avgPresentation === 1 && 
+                     project.avgProficiency === 1 ? (
+                      <span className="not-graded-badge">Not Graded</span>
+                    ) : (
+                      <span className="graded-badge">Graded</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {renderJudgeAverageGradesBox()}
+          {renderJudgeAssessmentSummary()}
         </div>
       );
-    } else {
+    } else if (viewMode === 'project') {
       return (
         <div className="analytics-table-container">
           <h3>Judges Assigned to Project: {projects.find(p => p.ProjectNumber === parseInt(selectedProject))?.Title}</h3>
@@ -133,6 +246,7 @@ const Analytics = observer(() => {
                 <th>Presentation</th>
                 <th>Proficiency</th>
                 <th>Total Grade</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -145,13 +259,317 @@ const Analytics = observer(() => {
                   <td>{judge.presentation || 'N/A'}</td>
                   <td>{judge.proficiency || 'N/A'}</td>
                   <td>{judge.totalGrade || 'N/A'}</td>
+                  <td>
+                    {isNotGraded(judge) ? (
+                      <span className="not-graded-badge">Not Graded</span>
+                    ) : (
+                      <span className="graded-badge">Graded</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {renderAverageGradesBox()}
+          {renderAdditionalInfoBox()}
+        </div>
+      );
+    } else if (viewMode === 'distribution') {
+      return (
+        <div className="analytics-table-container">
+          <h3>Grade Distribution Overview</h3>
+          <div className="distribution-content">
+            <div className="distribution-header">
+              <div className="header-card">
+                <h4>System Overview</h4>
+                <div className="header-stats">
+                  <div className="header-stat">
+                    <span className="header-stat-value">{projects.length}</span>
+                    <span className="header-stat-label">Total Projects</span>
+                  </div>
+                  <div className="header-stat">
+                    <span className="header-stat-value">{judges.length}</span>
+                    <span className="header-stat-label">Total Judges</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="distribution-stats">
+              <div className="stat-card">
+                <h4>Project Status Distribution</h4>
+                <div className="stat-grid">
+                  <div className="stat-item">
+                    <span className="stat-label">Graded Projects</span>
+                    <span className="stat-value">{analyticsData?.uniqueGradedProjects || 0}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Ungraded Projects</span>
+                    <span className="stat-value">{analyticsData?.uniqueNotGradedProjects || 0}</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-label">Unassigned Projects</span>
+                    <span className="stat-value">{analyticsData?.notAssignedProjects || 0}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="grade-chart-section">
+              <div className="chart-card">
+                <h4>Grade Distribution (Total Grades)</h4>
+                <div className="bar-chart">
+                  {renderGradeBarChart()}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       );
     }
+  };
+
+  const renderAverageGradesBox = () => {
+    const averages = calculateAverageGrades();
+    
+    if (!averages) {
+      return null;
+    }
+
+    return (
+      <div className="average-grades-box">
+        <h4>Average Grades</h4>
+        <div className="average-grades-grid">
+          <div className="average-grade-item">
+            <span className="grade-label">Complexity</span>
+            <span className="grade-value">{averages.complexity}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Usability</span>
+            <span className="grade-value">{averages.usability}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Innovation</span>
+            <span className="grade-value">{averages.innovation}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Presentation</span>
+            <span className="grade-value">{averages.presentation}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Proficiency</span>
+            <span className="grade-value">{averages.proficiency}</span>
+          </div>
+          <div className="average-grade-item total-grade">
+            <span className="grade-label">Total Average</span>
+            <span className="grade-value">{averages.total}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderJudgeAverageGradesBox = () => {
+    const averages = calculateAverageGrades();
+    
+    if (!averages) {
+      return null;
+    }
+
+    return (
+      <div className="average-grades-box">
+        <h4>Average Grades</h4>
+        <div className="average-grades-grid">
+          <div className="average-grade-item">
+            <span className="grade-label">Complexity</span>
+            <span className="grade-value">{averages.complexity}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Usability</span>
+            <span className="grade-value">{averages.usability}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Innovation</span>
+            <span className="grade-value">{averages.innovation}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Presentation</span>
+            <span className="grade-value">{averages.presentation}</span>
+          </div>
+          <div className="average-grade-item">
+            <span className="grade-label">Proficiency</span>
+            <span className="grade-value">{averages.proficiency}</span>
+          </div>
+          <div className="average-grade-item total-grade">
+            <span className="grade-label">Total Average</span>
+            <span className="grade-value">{averages.total}</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderAdditionalInfoBox = () => {
+    if (!analyticsData || !analyticsData.judges || analyticsData.judges.length === 0) {
+      return null;
+    }
+
+    const totalJudges = analyticsData.judges.length;
+    
+    // Filter out judges with default scores (all "1") - these are not graded
+    const validGrades = analyticsData.judges.filter(judge => {
+      const complexity = parseFloat(judge.complexity);
+      const usability = parseFloat(judge.usability);
+      const innovation = parseFloat(judge.innovation);
+      const presentation = parseFloat(judge.presentation);
+      const proficiency = parseFloat(judge.proficiency);
+      
+      // Check if all scores are 1 (default/not graded)
+      return !(complexity === 1 && usability === 1 && innovation === 1 && 
+               presentation === 1 && proficiency === 1);
+    });
+    
+    const completedAssessments = validGrades.length;
+
+    return (
+      <div className="additional-info-box">
+        <h4>Project Assessment Summary</h4>
+        <div className="info-grid">
+          <div className="info-item">
+            <div className="info-icon">👥</div>
+            <div className="info-content">
+              <span className="info-label">Total Judges Assigned</span>
+              <span className="info-value">{totalJudges}</span>
+            </div>
+          </div>
+          <div className="info-item">
+            <div className="info-icon">✅</div>
+            <div className="info-content">
+              <span className="info-label">Completed Assessments</span>
+              <span className="info-value">{completedAssessments}</span>
+            </div>
+          </div>
+          <div className="info-item">
+            <div className="info-icon">📊</div>
+            <div className="info-content">
+              <span className="info-label">Completion Rate</span>
+              <span className="info-value">{totalJudges > 0 ? `${Math.round((completedAssessments / totalJudges) * 100)}%` : '0%'}</span>
+            </div>
+          </div>
+          <div className="info-item">
+            <div className="info-icon">⭐</div>
+            <div className="info-content">
+              <span className="info-label">Average Total Score</span>
+              <span className="info-value">
+                {validGrades.length > 0 
+                  ? (validGrades.reduce((sum, judge) => sum + parseFloat(judge.totalGrade), 0) / validGrades.length).toFixed(2)
+                  : 'N/A'
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderJudgeAssessmentSummary = () => {
+    if (!analyticsData || !analyticsData.projects || analyticsData.projects.length === 0) {
+      return null;
+    }
+
+    const totalProjects = analyticsData.projects.length;
+    
+    // Filter out projects with default scores (all "1") - these are not graded
+    const validGrades = analyticsData.projects.filter(project => {
+      const complexity = parseFloat(project.avgComplexity);
+      const usability = parseFloat(project.avgUsability);
+      const innovation = parseFloat(project.avgInnovation);
+      const presentation = parseFloat(project.avgPresentation);
+      const proficiency = parseFloat(project.avgProficiency);
+      
+      // Check if all scores are 1 (default/not graded)
+      return !(complexity === 1 && usability === 1 && innovation === 1 && 
+               presentation === 1 && proficiency === 1);
+    });
+    
+    const completedAssessments = validGrades.length;
+
+    return (
+      <div className="additional-info-box">
+        <h4>Project Assessment Summary</h4>
+        <div className="info-grid">
+          <div className="info-item">
+            <div className="info-icon">👥</div>
+            <div className="info-content">
+              <span className="info-label">Total Projects Assigned</span>
+              <span className="info-value">{totalProjects}</span>
+            </div>
+          </div>
+          <div className="info-item">
+            <div className="info-icon">✅</div>
+            <div className="info-content">
+              <span className="info-label">Completed Assessments</span>
+              <span className="info-value">{completedAssessments}</span>
+            </div>
+          </div>
+          <div className="info-item">
+            <div className="info-icon">📊</div>
+            <div className="info-content">
+              <span className="info-label">Completion Rate</span>
+              <span className="info-value">{totalProjects > 0 ? `${Math.round((completedAssessments / totalProjects) * 100)}%` : '0%'}</span>
+            </div>
+          </div>
+          <div className="info-item">
+            <div className="info-icon">⭐</div>
+            <div className="info-content">
+              <span className="info-label">Average Total Score</span>
+              <span className="info-value">
+                {validGrades.length > 0 
+                  ? (validGrades.reduce((sum, project) => sum + parseFloat(project.avgTotal), 0) / validGrades.length).toFixed(2)
+                  : 'N/A'
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderGradeBarChart = () => {
+    if (!analyticsData || !analyticsData.gradeDistribution) {
+      return <div className="no-data-message">No grade data available</div>;
+    }
+
+    const gradeData = analyticsData.gradeDistribution;
+    const maxCount = Math.max(...Object.values(gradeData));
+    
+    return (
+      <div className="bar-chart-container">
+        <div className="chart-bars">
+          {Object.entries(gradeData).map(([grade, count]) => {
+            const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+            const barHeight = Math.max(percentage, 2); // Minimum 2% height for visibility
+            
+            return (
+              <div key={grade} className="bar-item">
+                <div className="bar-wrapper">
+                  <div 
+                    className="bar" 
+                    style={{ 
+                      height: `${barHeight}%`,
+                      backgroundColor: count > 0 ? '#175a94' : '#e9ecef'
+                    }}
+                  >
+                    {count > 0 && <span className="bar-count">{count}</span>}
+                  </div>
+                </div>
+                <span className="bar-label">{grade}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -170,6 +588,12 @@ const Analytics = observer(() => {
             onClick={() => handleViewModeChange('project')}
           >
             View by Project
+          </button>
+          <button
+            className={`mode-button ${viewMode === 'distribution' ? 'active' : ''}`}
+            onClick={() => handleViewModeChange('distribution')}
+          >
+            View by Distribution
           </button>
         </div>
       </div>
@@ -193,7 +617,7 @@ const Analytics = observer(() => {
                 ))}
               </select>
             </div>
-          ) : (
+          ) : viewMode === 'project' ? (
             <div className="select-wrapper">
               <label htmlFor="project-select">Select Project:</label>
               <select
@@ -210,7 +634,7 @@ const Analytics = observer(() => {
                 ))}
               </select>
             </div>
-          )}
+          ) : null}
         </div>
 
         {loading && (
@@ -222,7 +646,13 @@ const Analytics = observer(() => {
 
         {!loading && analyticsData && renderAnalyticsTable()}
 
-        {!loading && !analyticsData && (selectedJudge || selectedProject) && (
+        {!loading && !analyticsData && viewMode === 'distribution' && (
+          <div className="no-data-message">
+            <p>No distribution data available.</p>
+          </div>
+        )}
+
+        {!loading && !analyticsData && viewMode !== 'distribution' && (selectedJudge || selectedProject) && (
           <div className="no-data-message">
             <p>No analytics data available for the selected {viewMode === 'judge' ? 'judge' : 'project'}.</p>
           </div>

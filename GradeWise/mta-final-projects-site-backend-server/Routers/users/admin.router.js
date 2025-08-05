@@ -337,49 +337,32 @@ router.get('/preferences', async (req, res) => {
       await newAssignment.save(); // Save the new assignment to MongoDB
       console.log('Assignment saved successfully');
 
-      const newGrade = {
-        project_id: 15006007,
-        judge_id: 111111111,
-        complexity: 1,
-        usability: 1,
-        innovation: 1,
-        presentation: 1,
-        proficiency: 1,
-        additionalComment:'not yet graded',
-        grade: 10,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      await collections.grades.insertOne(newGrade);
-   
       // Create default grade entries for each judge-project combination
-      /* 
       const defaultGrades = [];
       for (const judgeId of judgeIds) {
         for (const projectId of projectIds) {
-          defaultGrades.push(new Grade({
-            project_id: projectId,
-            judge_id: judgeId,
+          defaultGrades.push({
+            project_id: parseInt(projectId),
+            judge_id: parseInt(judgeId),
             complexity: 1,
             usability: 1,
             innovation: 1,
             presentation: 1,
             proficiency: 1,
             additionalComment: 'Not yet scored',
-            grade: 10
-          }));
+            grade: 10,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
         }
       }
-
-      */
 
       console.log('Created default grades:', defaultGrades);
 
       // Insert all default grades
       if (defaultGrades.length > 0) {
         console.log('Inserting default grades...');
-        await Grade.insertMany(defaultGrades);
+        await collections.grades.insertMany(defaultGrades);
         console.log('Default grades inserted successfully');
       }
   
@@ -420,75 +403,263 @@ router.get('/preferences', async (req, res) => {
     }
   });
 
+  // Get top 3 projects for podium
   router.get('/podium', async (req, res) => {
     try {
-      // Aggregating the grades to calculate average scores for each project
-      const aggregatedGrades = await Grade.aggregate([
-        {
-          $group: {
-            _id: "$project_id", // Group by project_id
-            avgComplexity: { $avg: "$complexity" },
-            avgUsability: { $avg: "$usability" },
-            avgInnovation: { $avg: "$innovation" },
-            avgPresentation: { $avg: "$presentation" },
-            avgProficiency: { $avg: "$proficiency" },
-            avgTotal: { $avg: "$grade" } // Assuming 'grade' is the overall score
-          }
-        },
-        {
-          $sort: { avgTotal: -1 } // Sort by overall average in descending order
-        }
-      ]);
-  
-      // Prepare the full data by fetching project details using ProjectNumber
-      const podiumData = await Promise.all(aggregatedGrades.map(async (project) => {
-        const projectDetails = await projectsDB.findOne({ ProjectNumber: project._id });
+      console.log('Fetching top 3 projects for podium...');
+      
+      // Get all grades that are not default scores (exclude all "1" grades)
+      const grades = await collections.grades.find({
+        $or: [
+          { complexity: { $ne: 1 } },
+          { usability: { $ne: 1 } },
+          { innovation: { $ne: 1 } },
+          { presentation: { $ne: 1 } },
+          { proficiency: { $ne: 1 } }
+        ]
+      }).toArray();
+
+      console.log(`Found ${grades.length} valid grades`);
+
+      if (grades.length === 0) {
+        return res.json({ topProjects: [] });
+      }
+
+      // Group grades by project_id and calculate averages
+      const projectGrades = {};
+      
+      grades.forEach(grade => {
+        const projectId = grade.project_id;
         
-        if (!projectDetails) {
-          console.warn(`Project not found for id: ${project._id}`);
-          return null; // Skip projects that are not found
+        if (!projectGrades[projectId]) {
+          projectGrades[projectId] = {
+            projectId: projectId,
+            grades: [],
+            totalComplexity: 0,
+            totalUsability: 0,
+            totalInnovation: 0,
+            totalPresentation: 0,
+            totalProficiency: 0,
+            count: 0
+          };
         }
-  
+        
+        projectGrades[projectId].grades.push(grade);
+        projectGrades[projectId].totalComplexity += grade.complexity;
+        projectGrades[projectId].totalUsability += grade.usability;
+        projectGrades[projectId].totalInnovation += grade.innovation;
+        projectGrades[projectId].totalPresentation += grade.presentation;
+        projectGrades[projectId].totalProficiency += grade.proficiency;
+        projectGrades[projectId].count++;
+      });
+
+      // Calculate averages and total scores
+      const projectsWithAverages = Object.values(projectGrades).map(project => {
+        const avgComplexity = project.totalComplexity / project.count;
+        const avgUsability = project.totalUsability / project.count;
+        const avgInnovation = project.totalInnovation / project.count;
+        const avgPresentation = project.totalPresentation / project.count;
+        const avgProficiency = project.totalProficiency / project.count;
+        const averageTotal = avgComplexity + avgUsability + avgInnovation + avgPresentation + avgProficiency;
+        
         return {
-          project_id: project._id,
-          title: projectDetails.Title,
-          image: projectDetails.ProjectImage,
-          avgComplexity: project.avgComplexity,
-          avgUsability: project.avgUsability,
-          avgInnovation: project.avgInnovation,
-          avgPresentation: project.avgPresentation,
-          avgProficiency: project.avgProficiency,
-          avgTotal: project.avgTotal,
+          projectId: project.projectId,
+          avgComplexity,
+          avgUsability,
+          avgInnovation,
+          avgPresentation,
+          avgProficiency,
+          averageTotal,
+          gradeCount: project.count
         };
+      });
+
+      // Sort by average total score (descending) and get top 3
+      const topProjects = projectsWithAverages
+        .sort((a, b) => b.averageTotal - a.averageTotal)
+        .slice(0, 3);
+
+      console.log(`Top 3 projects found: ${topProjects.length}`);
+
+      // Get project titles for the top projects
+      const projectIds = topProjects.map(p => p.projectId.toString());
+      console.log('Looking for projects with IDs:', projectIds);
+      
+      const projects = await collections.project_schemas.find({
+        ProjectNumber: { $in: projectIds }
+      }).toArray();
+
+      console.log('Found projects:', projects.map(p => ({
+        ProjectNumber: p.ProjectNumber,
+        Title: p.Title
+      })));
+
+      // Create a map of project numbers to titles
+      const projectMap = {};
+      projects.forEach(project => {
+        projectMap[project.ProjectNumber] = project.Title;
+      });
+
+      console.log('Project map:', projectMap);
+
+      // Add project titles to top projects
+      const topProjectsWithTitles = topProjects.map(project => ({
+        ...project,
+        projectTitle: projectMap[project.projectId.toString()] || `Project ${project.projectId}`
       }));
-  
-      // Filter out any projects that were not found
-      const validPodiumData = podiumData.filter(p => p !== null);
-  
-      // Sort by individual categories and prepare top 3 lists
-      const topOverallProjects = [...validPodiumData].sort((a, b) => b.avgTotal - a.avgTotal).slice(0, 3);
-      const topComplexity = [...validPodiumData].sort((a, b) => b.avgComplexity - a.avgComplexity).slice(0, 3);
-      const topUsability = [...validPodiumData].sort((a, b) => b.avgUsability - a.avgUsability).slice(0, 3);
-      const topInnovation = [...validPodiumData].sort((a, b) => b.avgInnovation - a.avgInnovation).slice(0, 3);
-      const topPresentation = [...validPodiumData].sort((a, b) => b.avgPresentation - a.avgPresentation).slice(0, 3);
-      const topProficiency = [...validPodiumData].sort((a, b) => b.avgProficiency - a.avgProficiency).slice(0, 3);
-  
-      // Prepare the response with the aggregated and project details
+
+      console.log('Top projects with titles:', topProjectsWithTitles.map(p => ({
+        title: p.projectTitle,
+        score: p.averageTotal
+      })));
+
+      res.json({ topProjects: topProjectsWithTitles });
+    } catch (error) {
+      console.error('Error fetching podium data:', error);
+      res.status(500).json({ error: 'Failed to fetch podium data' });
+    }
+  });
+
+  // Get top 3 projects for podium (old format with categories)
+  router.get('/podium2', async (req, res) => {
+    try {
+      console.log('Fetching podium data for old format...');
+      
+      // Get all grades that are not default scores (exclude all "1" grades)
+      const grades = await collections.grades.find({
+        $or: [
+          { complexity: { $ne: 1 } },
+          { usability: { $ne: 1 } },
+          { innovation: { $ne: 1 } },
+          { presentation: { $ne: 1 } },
+          { proficiency: { $ne: 1 } }
+        ]
+      }).toArray();
+
+      console.log(`Found ${grades.length} valid grades`);
+
+      if (grades.length === 0) {
+        return res.json({
+          topOverallProjects: [],
+          topComplexity: [],
+          topUsability: [],
+          topInnovation: [],
+          topPresentation: [],
+          topProficiency: []
+        });
+      }
+
+      // Group grades by project_id and calculate averages
+      const projectGrades = {};
+      
+      grades.forEach(grade => {
+        const projectId = grade.project_id;
+        
+        if (!projectGrades[projectId]) {
+          projectGrades[projectId] = {
+            projectId: projectId,
+            grades: [],
+            totalComplexity: 0,
+            totalUsability: 0,
+            totalInnovation: 0,
+            totalPresentation: 0,
+            totalProficiency: 0,
+            count: 0
+          };
+        }
+        
+        projectGrades[projectId].grades.push(grade);
+        projectGrades[projectId].totalComplexity += grade.complexity;
+        projectGrades[projectId].totalUsability += grade.usability;
+        projectGrades[projectId].totalInnovation += grade.innovation;
+        projectGrades[projectId].totalPresentation += grade.presentation;
+        projectGrades[projectId].totalProficiency += grade.proficiency;
+        projectGrades[projectId].count++;
+      });
+
+      // Calculate averages and total scores
+      const projectsWithAverages = Object.values(projectGrades).map(project => {
+        const avgComplexity = project.totalComplexity / project.count;
+        const avgUsability = project.totalUsability / project.count;
+        const avgInnovation = project.totalInnovation / project.count;
+        const avgPresentation = project.totalPresentation / project.count;
+        const avgProficiency = project.totalProficiency / project.count;
+        const avgTotal = avgComplexity + avgUsability + avgInnovation + avgPresentation + avgProficiency;
+        
+        return {
+          projectId: project.projectId,
+          avgComplexity,
+          avgUsability,
+          avgInnovation,
+          avgPresentation,
+          avgProficiency,
+          avgTotal,
+          gradeCount: project.count
+        };
+      });
+
+      // Get project details for all projects
+      const projectIds = projectsWithAverages.map(p => p.projectId.toString());
+      const projects = await collections.project_schemas.find({
+        ProjectNumber: { $in: projectIds }
+      }).toArray();
+
+      // Create a map of project numbers to project details
+      const projectMap = {};
+      projects.forEach(project => {
+        projectMap[project.ProjectNumber] = {
+          title: project.ProjectTitle,
+          image: project.ProjectImage || '/Assets/icons/project-default.png'
+        };
+      });
+
+      // Add project details to projects with averages
+      const projectsWithDetails = projectsWithAverages.map(project => ({
+        ...project,
+        title: projectMap[project.projectId.toString()]?.title || `Project ${project.projectId}`,
+        image: projectMap[project.projectId.toString()]?.image || '/Assets/icons/project-default.png'
+      }));
+
+      // Sort by different categories and get top 3 for each
+      const topOverallProjects = [...projectsWithDetails]
+        .sort((a, b) => b.avgTotal - a.avgTotal)
+        .slice(0, 3);
+
+      const topComplexity = [...projectsWithDetails]
+        .sort((a, b) => b.avgComplexity - a.avgComplexity)
+        .slice(0, 3);
+
+      const topUsability = [...projectsWithDetails]
+        .sort((a, b) => b.avgUsability - a.avgUsability)
+        .slice(0, 3);
+
+      const topInnovation = [...projectsWithDetails]
+        .sort((a, b) => b.avgInnovation - a.avgInnovation)
+        .slice(0, 3);
+
+      const topPresentation = [...projectsWithDetails]
+        .sort((a, b) => b.avgPresentation - a.avgPresentation)
+        .slice(0, 3);
+
+      const topProficiency = [...projectsWithDetails]
+        .sort((a, b) => b.avgProficiency - a.avgProficiency)
+        .slice(0, 3);
+
+      console.log('Podium data prepared for old format');
+
       res.json({
         topOverallProjects,
         topComplexity,
         topUsability,
         topInnovation,
         topPresentation,
-        topProficiency,
-        allProjects: validPodiumData // Add all projects with avg scores and details
+        topProficiency
       });
-  
     } catch (error) {
-      console.error('Error fetching podium data:', error);
-      res.status(500).json({ message: 'Error fetching podium data' });
+      console.error('Error fetching podium2 data:', error);
+      res.status(500).json({ error: 'Failed to fetch podium2 data' });
     }
-  });  
+  });
 
   // Analytics endpoint for judge view
   router.get('/analytics/judge/:judgeId', async (req, res) => {
@@ -508,10 +679,13 @@ router.get('/preferences', async (req, res) => {
 
     // Get unique project IDs for this judge
     const projectIds = [...new Set(judgeGrades.map(grade => grade.project_id))];
+    
+    // Convert project IDs to strings to match the project_schemas collection ProjectNumber format
+    const projectIdStrings = projectIds.map(id => id.toString());
 
     // Get project details
     const projects = await collections.project_schemas.find({
-      ProjectNumber: { $in: projectIds }
+      ProjectNumber: { $in: projectIdStrings }
     }).toArray();
 
     // Create a map of project details
@@ -535,7 +709,7 @@ router.get('/preferences', async (req, res) => {
 
       return {
         projectId,
-        title: projectMap[projectId] || '',
+        title: projectMap[projectId.toString()] || '',
         avgComplexity,
         avgUsability,
         avgInnovation,
@@ -555,10 +729,20 @@ router.get('/preferences', async (req, res) => {
   // Analytics endpoint for project view
   router.get('/analytics/project/:projectId', async (req, res) => {
     try {
-      const projectId = parseInt(req.params.projectId);
+      const projectId = req.params.projectId; // Keep as string to match ProjectNumber
+      
+      // First, get the project to verify it exists
+      const project = await collections.project_schemas.findOne({ ProjectNumber: projectId });
+      
+      if (!project) {
+        return res.status(404).json({ error: 'Project not found' });
+      }
+      
+      // Convert projectId to number for grades collection query
+      const projectIdNumber = parseInt(projectId);
       
       // Get all grades for this project
-      const projectGrades = await collections.grades.find({ project_id: projectId }).toArray();
+      const projectGrades = await collections.grades.find({ project_id: projectIdNumber }).toArray();
       
       if (projectGrades.length === 0) {
         return res.json({ judges: [] });
@@ -566,18 +750,26 @@ router.get('/preferences', async (req, res) => {
 
       // Get unique judge IDs for this project
       const judgeIds = [...new Set(projectGrades.map(grade => grade.judge_id))];
+      console.log('Judge IDs from grades:', judgeIds);
       
-      // Get judge details
+      // Convert judge IDs to strings to match the users collection ID format
+      const judgeIdStrings = judgeIds.map(id => id.toString());
+      console.log('Judge ID strings:', judgeIdStrings);
+      
+      // Get judge details - remove type filter to see all users
       const judges = await collections.users.find({ 
-        ID: { $in: judgeIds },
-        type: 'judge'
+        ID: { $in: judgeIdStrings }
       }).toArray();
+      
+      console.log('Found judges:', judges);
 
       // Create a map of judge details
       const judgeMap = {};
       judges.forEach(judge => {
         judgeMap[judge.ID] = judge.name;
       });
+      
+      console.log('Judge map:', judgeMap);
 
       // Get individual grades for each judge
       const judgeAnalytics = judgeIds.map(judgeId => {
@@ -585,9 +777,12 @@ router.get('/preferences', async (req, res) => {
         
         if (!judgeGrade) return null;
 
+        const judgeName = judgeMap[judgeId.toString()];
+        console.log(`Judge ID ${judgeId} (${typeof judgeId}) -> Name: ${judgeName}`);
+
         return {
           judgeId: judgeId,
-          name: judgeMap[judgeId] || `Judge ${judgeId}`,
+          name: judgeName || `Judge ${judgeId}`,
           complexity: judgeGrade.complexity,
           usability: judgeGrade.usability,
           innovation: judgeGrade.innovation,
@@ -601,6 +796,101 @@ router.get('/preferences', async (req, res) => {
     } catch (error) {
       console.error('Error fetching project analytics:', error);
       res.status(500).json({ error: 'An error occurred while fetching project analytics' });
+    }
+  });
+
+  // Analytics endpoint for grade distribution
+  router.get('/analytics/distribution', async (req, res) => {
+    try {
+      // Get all grades from the database
+      const allGrades = await collections.grades.find({}).toArray();
+      
+      // Filter out default grades (all scores = 1)
+      const validGrades = allGrades.filter(grade => {
+        return !(grade.complexity === 1 && grade.usability === 1 && 
+                grade.innovation === 1 && grade.presentation === 1 && 
+                grade.proficiency === 1);
+      });
+
+      // Calculate total counts
+      const totalGrades = allGrades.length;
+      const gradedCount = validGrades.length;
+      const pendingCount = totalGrades - gradedCount;
+
+      // Get unique project IDs from grades
+      const gradedProjectIds = [...new Set(validGrades.map(grade => parseInt(grade.project_id)))];
+      const allGradedProjectIds = [...new Set(allGrades.map(grade => parseInt(grade.project_id)))];
+      
+      // Get all projects from project_schemas
+      const allProjects = await collections.project_schemas.find({}).toArray();
+      const allProjectIds = allProjects.map(project => parseInt(project.ProjectNumber));
+      
+      // Calculate unique project statistics
+      const uniqueGradedProjects = gradedProjectIds.length;
+      const uniqueNotGradedProjects = allGradedProjectIds.length - uniqueGradedProjects;
+      const notAssignedProjects = allProjectIds.filter(projectId => !allGradedProjectIds.includes(projectId)).length;
+
+      // Calculate grade distribution in ranges of 5 (10-14, 15-19, etc.)
+      const gradeDistribution = {};
+      for (let i = 10; i <= 50; i += 5) {
+        const rangeStart = i;
+        const rangeEnd = i + 4;
+        const rangeKey = `${rangeStart}-${rangeEnd}`;
+        gradeDistribution[rangeKey] = 0;
+      }
+
+      // Count grades in each range, rounding appropriately
+      validGrades.forEach(grade => {
+        let totalGrade = grade.grade;
+        
+        // Round the grade: floor if < 0.5, ceiling if >= 0.5
+        if (totalGrade % 1 !== 0) {
+          const decimal = totalGrade % 1;
+          if (decimal < 0.5) {
+            totalGrade = Math.floor(totalGrade);
+          } else {
+            totalGrade = Math.ceil(totalGrade);
+          }
+        }
+        
+        // Assign to appropriate range (10-14, 15-19, etc.)
+        if (totalGrade >= 10 && totalGrade <= 54) {
+          const rangeStart = Math.floor((totalGrade - 10) / 5) * 5 + 10;
+          const rangeEnd = rangeStart + 4;
+          const rangeKey = `${rangeStart}-${rangeEnd}`;
+          gradeDistribution[rangeKey]++;
+        }
+      });
+
+      // Get total projects and judges counts
+      const totalProjects = await collections.project_schemas.countDocuments({});
+      const totalJudges = await collections.users.countDocuments({ type: 'judge' });
+
+      // Debug logging
+      console.log('Distribution Analytics Debug:');
+      console.log('Total projects in system:', totalProjects);
+      console.log('All project IDs:', allProjectIds);
+      console.log('All graded project IDs (including defaults):', allGradedProjectIds);
+      console.log('Graded project IDs (valid grades only):', gradedProjectIds);
+      console.log('Unique graded projects:', uniqueGradedProjects);
+      console.log('Unique not graded projects:', uniqueNotGradedProjects);
+      console.log('Not assigned projects:', notAssignedProjects);
+      console.log('Sum check:', uniqueGradedProjects + uniqueNotGradedProjects + notAssignedProjects);
+      console.log('Grade distribution:', gradeDistribution);
+
+      res.json({
+        totalProjects,
+        totalJudges,
+        gradedCount,
+        pendingCount,
+        uniqueGradedProjects,
+        uniqueNotGradedProjects,
+        notAssignedProjects,
+        gradeDistribution
+      });
+    } catch (error) {
+      console.error('Error fetching distribution analytics:', error);
+      res.status(500).json({ error: 'An error occurred while fetching distribution analytics' });
     }
   });
 

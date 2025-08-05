@@ -37,6 +37,10 @@ const AdminButtons = observer(() => {
     navigate("/admin/podium");
   };
 
+  const handlePodium2Click = () => {
+    navigate("/admin/podium2");
+  };
+
   const handleAnalyticsClick = () => {
     navigate("/admin/analytics");
   };
@@ -139,6 +143,7 @@ const AdminButtons = observer(() => {
               <li onClick={handleAssignProjectsClick}><span>Assign Projects</span></li>
               <li onClick={handleManageProjectsGradesClick}><span>Manage Grades</span></li>
               <li onClick={handlePodiumClick}><span>Podium</span></li>
+              <li onClick={handlePodium2Click}><span>Podium 2</span></li>
               <li onClick={handleAnalyticsClick}><span>Analytics</span></li>
               <li onClick={handleLogout}><span>Logout</span></li>
             </ul>
