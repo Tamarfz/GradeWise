@@ -752,24 +752,82 @@ router.get('/preferences', async (req, res) => {
       const judgeIds = [...new Set(projectGrades.map(grade => grade.judge_id))];
       console.log('Judge IDs from grades:', judgeIds);
       
-      // Convert judge IDs to strings to match the users collection ID format
-      const judgeIdStrings = judgeIds.map(id => id.toString());
-      console.log('Judge ID strings:', judgeIdStrings);
+      // Get all judges from users collection to debug
+      const allJudges = await collections.users.find({}).toArray();
+      console.log('All users in database:', allJudges.map(u => ({ 
+        ID: u.ID, 
+        name: u.name, 
+        type: u.type,
+        IDType: typeof u.ID,
+        IDAsNumber: parseInt(u.ID)
+      })));
       
-      // Get judge details - remove type filter to see all users
-      const judges = await collections.users.find({ 
-        ID: { $in: judgeIdStrings }
-      }).toArray();
+      console.log('Judge IDs from grades with types:', judgeIds.map(id => ({
+        id: id,
+        type: typeof id,
+        asString: id.toString(),
+        asNumber: parseInt(id)
+      })));
       
-      console.log('Found judges:', judges);
-
-      // Create a map of judge details
+      // Try multiple matching strategies
       const judgeMap = {};
-      judges.forEach(judge => {
-        judgeMap[judge.ID] = judge.name;
+      
+      // Strategy 1: Direct string match
+      judgeIds.forEach(judgeId => {
+        const judgeIdStr = judgeId.toString();
+        const judge = allJudges.find(u => u.ID.toString() === judgeIdStr);
+        if (judge) {
+          judgeMap[judgeId] = judge.name;
+          console.log(`Strategy 1 - Found judge ${judgeId} -> ${judge.name}`);
+        }
       });
       
-      console.log('Judge map:', judgeMap);
+      // Strategy 2: Numeric match (convert both to numbers)
+      judgeIds.forEach(judgeId => {
+        if (!judgeMap[judgeId]) {
+          const judge = allJudges.find(u => {
+            const userIDNum = parseInt(u.ID);
+            const judgeIDNum = parseInt(judgeId);
+            return userIDNum === judgeIDNum;
+          });
+          if (judge) {
+            judgeMap[judgeId] = judge.name;
+            console.log(`Strategy 2 - Found judge ${judgeId} -> ${judge.name}`);
+          }
+        }
+      });
+      
+      // Strategy 3: Look for judges with type 'judge' and numeric match
+      judgeIds.forEach(judgeId => {
+        if (!judgeMap[judgeId]) {
+          const judge = allJudges.find(u => {
+            if (u.type !== 'judge') return false;
+            const userIDNum = parseInt(u.ID);
+            const judgeIDNum = parseInt(judgeId);
+            return userIDNum === judgeIDNum;
+          });
+          if (judge) {
+            judgeMap[judgeId] = judge.name;
+            console.log(`Strategy 3 - Found judge ${judgeId} -> ${judge.name}`);
+          }
+        }
+      });
+      
+      // Strategy 4: Try exact string match for judge type
+      judgeIds.forEach(judgeId => {
+        if (!judgeMap[judgeId]) {
+          const judge = allJudges.find(u => {
+            if (u.type !== 'judge') return false;
+            return u.ID === judgeId.toString();
+          });
+          if (judge) {
+            judgeMap[judgeId] = judge.name;
+            console.log(`Strategy 4 - Found judge ${judgeId} -> ${judge.name}`);
+          }
+        }
+      });
+      
+      console.log('Final judge map:', judgeMap);
 
       // Get individual grades for each judge
       const judgeAnalytics = judgeIds.map(judgeId => {
@@ -777,12 +835,12 @@ router.get('/preferences', async (req, res) => {
         
         if (!judgeGrade) return null;
 
-        const judgeName = judgeMap[judgeId.toString()];
+        const judgeName = judgeMap[judgeId];
         console.log(`Judge ID ${judgeId} (${typeof judgeId}) -> Name: ${judgeName}`);
 
         return {
           judgeId: judgeId,
-          name: judgeName || `Judge ${judgeId}`,
+          name: judgeName || `Judge ${judgeId} (Not Found)`,
           complexity: judgeGrade.complexity,
           usability: judgeGrade.usability,
           innovation: judgeGrade.innovation,

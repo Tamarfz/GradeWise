@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { backendURL } from '../../config';
+import { FaCheckCircle, FaClock, FaTrophy } from 'react-icons/fa';
 
 // Flex container to center its child
 const Wrapper = styled.div`
@@ -11,50 +12,159 @@ const Wrapper = styled.div`
   min-height: 100vh; */
 `;
 
-const Ribbon = styled.div`
-  font-size: 28px;
-  font-weight: bold;
-  color: #fff;
-  
-  /* New ribbon cutout style */
-  --s: 1.8em; /* the ribbon size */
-  --d: 0.8em;  /* the depth */
-  --c: 0.8em;  /* the cutout part */
-  
-  padding: 0 calc(var(--s) + 0.5em) var(--d);
-  line-height: 1.8;
-  background:
-    conic-gradient(at left var(--s) bottom var(--d), #0000 25%, #0008 0 37.5%, #0004 0) 0 / 50% 100% no-repeat,
-    conic-gradient(at right var(--s) bottom var(--d), #0004 62.5%, #0008 0 75%, #0000 0) 100% / 50% 100% no-repeat;
-  clip-path: polygon(
-    0 var(--d),
-    var(--s) var(--d),
-    var(--s) 0,
-    calc(100% - var(--s)) 0,
-    calc(100% - var(--s)) var(--d),
-    100% var(--d),
-    calc(100% - var(--c)) calc(50% + var(--d)/2),
-    100% 100%,
-    calc(100% - var(--s) - var(--d)) 100%,
-    calc(100% - var(--s) - var(--d)) calc(100% - var(--d)),
-    calc(var(--s) + var(--d)) calc(100% - var(--d)),
-    calc(var(--s) + var(--d)) 100%,
-    0 100%,
-    var(--c) calc(50% + var(--d)/2)
-  );
-  background-color: ${props => props.finished ? 'green' : 'rgb(219, 27, 27)'};
-  width: fit-content;
-  margin: 0;
+// Modern badge animation
+const pulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  }
 `;
 
-const StatText = styled.p`
-  font-size: 1.5rem;
-  margin: 0;
-  color: #fff;
+const successPulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(67, 233, 123, 0.6);
+  }
+`;
+
+const warningPulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(219, 27, 27, 0.4);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(219, 27, 27, 0.6);
+  }
+`;
+
+const ModernBadge = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: white;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: 200px;
+  justify-content: center;
+  
+  /* Dynamic styling based on finished state */
+  background: ${props => {
+    if (props.loading) {
+      return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    }
+    return props.finished 
+      ? 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      : 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)';
+  }};
+  
+  box-shadow: ${props => {
+    if (props.loading) {
+      return '0 4px 15px rgba(102, 126, 234, 0.4)';
+    }
+    return props.finished 
+      ? '0 4px 15px rgba(67, 233, 123, 0.4)'
+      : '0 4px 15px rgba(219, 27, 27, 0.4)';
+  }};
+  
+  animation: ${props => {
+    if (props.loading) return pulse;
+    return props.finished ? successPulse : warningPulse;
+  }} 2s ease-in-out infinite;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${props => {
+      if (props.loading) {
+        return '0 8px 25px rgba(102, 126, 234, 0.5)';
+      }
+      return props.finished 
+        ? '0 8px 25px rgba(67, 233, 123, 0.5)'
+        : '0 8px 25px rgba(219, 27, 27, 0.5)';
+    }};
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    border-radius: 50px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover::before {
+    opacity: 1;
+  }
   
   @media (max-width: 768px) {
-    font-size: 1.25rem;
+    padding: 12px 20px;
+    font-size: 1rem;
+    min-width: 180px;
   }
+`;
+
+const BadgeIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  backdrop-filter: blur(5px);
+  font-size: 12px;
+  
+  @media (max-width: 768px) {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+  }
+`;
+
+const StatText = styled.span`
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+`;
+
+const ProgressRing = styled.div`
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255, 255, 255, 0.3) 0deg,
+    transparent ${props => (props.progress || 0) * 3.6}deg,
+    transparent 360deg
+  );
+  z-index: -1;
+  opacity: 0.7;
 `;
 
 const JudgeProjectStats = ({ reload }) => {
@@ -85,18 +195,28 @@ const JudgeProjectStats = ({ reload }) => {
   }, [reload]);
 
   const finished = totalAssigned === totalGraded && totalAssigned !== null;
+  const progress = totalAssigned > 0 ? (totalGraded / totalAssigned) * 100 : 0;
+
+  const getIcon = () => {
+    if (loading) return <FaClock />;
+    if (finished) return <FaTrophy />;
+    return <FaCheckCircle />;
+  };
+
+  const getText = () => {
+    if (loading) return 'Loading...';
+    return `${totalGraded} / ${totalAssigned} Graded`;
+  };
 
   return (
     <Wrapper>
-      {loading ? (
-        <Ribbon>
-          <StatText>Loading...</StatText>
-        </Ribbon>
-      ) : (
-        <Ribbon finished={finished}>
-          <StatText>{totalGraded} / {totalAssigned} Graded</StatText>
-        </Ribbon>
-      )}
+      <ModernBadge finished={finished} loading={loading}>
+        <ProgressRing progress={progress} />
+        <BadgeIcon>
+          {getIcon()}
+        </BadgeIcon>
+        <StatText>{getText()}</StatText>
+      </ModernBadge>
     </Wrapper>
   );
 };

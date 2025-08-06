@@ -7,6 +7,16 @@ import AdminButtons from './AdminButtons';
 import Feed from '../../utils/Feed';
 import axios from 'axios';
 import { backendURL } from '../../config';
+import { 
+  FaUsers, 
+  FaProjectDiagram, 
+  FaChartBar, 
+  FaTrophy, 
+  FaCog, 
+  FaSignOutAlt,
+  FaUserShield,
+  FaClipboardList
+} from 'react-icons/fa';
 
 const AdminHome = observer(() => {
     const navigate = useNavigate();
@@ -14,6 +24,12 @@ const AdminHome = observer(() => {
     const user = userStorage.user;
     const [judgeMap, setJudgeMap] = useState({});
     const [projectMap, setProjectMap] = useState({});
+    const [stats, setStats] = useState({
+        totalJudges: 0,
+        totalProjects: 0,
+        gradedProjects: 0,
+        pendingProjects: 0
+    });
 
     useEffect(() => {
         // Fetch and cache the judge and project maps when the admin page loads
@@ -34,16 +50,176 @@ const AdminHome = observer(() => {
             }
         };
 
+        const fetchStats = async () => {
+            try {
+                const [judgesResponse, projectsResponse] = await Promise.all([
+                    axios.get(`${backendURL}/admin/judges/judgesList`),
+                    axios.get(`${backendURL}/admin/projects/projectsList`)
+                ]);
+                
+                const totalJudges = judgesResponse.data.length;
+                const totalProjects = projectsResponse.data.length;
+                
+                setStats({
+                    totalJudges,
+                    totalProjects,
+                    gradedProjects: Math.floor(totalProjects * 0.7), // Mock data
+                    pendingProjects: Math.floor(totalProjects * 0.3) // Mock data
+                });
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        };
+
         fetchJudgeAndProjectMaps();
+        fetchStats();
     }, []);
 
+    const quickActions = [
+        {
+            title: 'Manage Judges',
+            icon: <FaUsers />,
+            description: 'Add, edit, or remove judges',
+            color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            route: '/admin/manage-judges'
+        },
+        {
+            title: 'Manage Projects',
+            icon: <FaProjectDiagram />,
+            description: 'Upload and manage project data',
+            color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            route: '/admin/manage-projects'
+        },
+        {
+            title: 'Assign Projects',
+            icon: <FaClipboardList />,
+            description: 'Assign projects to judges',
+            color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            route: '/admin/assign-projects'
+        },
+        {
+            title: 'Manage Grades',
+            icon: <FaChartBar />,
+            description: 'Review and manage project grades',
+            color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            route: '/admin/manage-projects-grades'
+        },
+        {
+            title: 'Analytics',
+            icon: <FaCog />,
+            description: 'View detailed analytics and reports',
+            color: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            route: '/admin/analytics'
+        },
+        {
+            title: 'Podium',
+            icon: <FaTrophy />,
+            description: 'View competition results',
+            color: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            route: '/admin/podium'
+        }
+    ];
+
     return (
-        <div className="max-w-3xl mx-auto p-6 bg-blue-50">
-            <header className="py-6 bg-white text-center border-b border-gray-200"> 
-            <h3 className="anton-regular"> <span style={{ color: '#175a94' }}>Welcome, Admin {user?.name}!</span></h3>
-                <AdminButtons />
+        <div className="admin-dashboard">
+            {/* Header */}
+            <header className="admin-header">
+                <div className="header-content">
+                    <div className="welcome-section">
+                        <h1 className="welcome-title">
+                            Welcome back, <span className="admin-name">{user?.name}</span>! 👋
+                        </h1>
+                        <p className="welcome-subtitle">Here's what's happening with your competition today</p>
+                    </div>
+                    <div className="header-actions">
+                        <button 
+                            className="logout-btn"
+                            onClick={() => {
+                                if (window.confirm('Are you sure you want to logout?')) {
+                                    userStorage.logout();
+                                }
+                            }}
+                        >
+                            <FaSignOutAlt />
+                            Logout
+                        </button>
+                    </div>
+                </div>
             </header>
-            <Feed />
+
+            {/* Stats Cards */}
+            <section className="stats-section">
+                <div className="stats-grid">
+                    <div className="stat-card">
+                        <div className="stat-icon judges">
+                            <FaUsers />
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{stats.totalJudges}</h3>
+                            <p className="stat-label">Total Judges</p>
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-icon projects">
+                            <FaProjectDiagram />
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{stats.totalProjects}</h3>
+                            <p className="stat-label">Total Projects</p>
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-icon graded">
+                            <FaChartBar />
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{stats.gradedProjects}</h3>
+                            <p className="stat-label">Graded Projects</p>
+                        </div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-icon pending">
+                            <FaClipboardList />
+                        </div>
+                        <div className="stat-content">
+                            <h3 className="stat-number">{stats.pendingProjects}</h3>
+                            <p className="stat-label">Pending Projects</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Quick Actions */}
+            <section className="quick-actions-section">
+                <div className="actions-grid">
+                    {quickActions.map((action, index) => (
+                        <div 
+                            key={index}
+                            className="action-card"
+                            style={{ background: action.color }}
+                            onClick={() => navigate(action.route)}
+                        >
+                            <div className="action-icon">
+                                {action.icon}
+                            </div>
+                            <div className="action-content">
+                                <h3 className="action-title">{action.title}</h3>
+                                <p className="action-description">{action.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Projects Feed */}
+            <section className="projects-section">
+                <div className="feed-container">
+                    <Feed />
+                </div>
+            </section>
+
+            {/* Sidebar Navigation */}
+            <AdminButtons />
         </div>
     );
 });

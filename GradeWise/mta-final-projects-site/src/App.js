@@ -17,7 +17,6 @@ import Analytics from './users/admin/analytics';
 import './App.css';
 import { observer } from 'mobx-react-lite';
 import { storages } from './stores';
-import { FaComments } from 'react-icons/fa';  // Import the chat icon
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import BackButton from './utils/BackButton';
@@ -63,8 +62,6 @@ const App = observer(() => {
   };
 
   const { userStorage, appStorage } = storages;
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatMessage, setChatMessage] = useState('');
 
   const initiate = useCallback(async () => {
     const token = localStorage.getItem('token');
@@ -77,24 +74,6 @@ const App = observer(() => {
   useEffect(() => {
     initiate();
   }, []);
-
-  const handleChatToggle = () => {
-    setIsChatOpen(!isChatOpen);
-  };
-
-  const handleSendMessage = () => {
-    if (chatMessage.trim()) {
-      console.log(`Message to admin: ${chatMessage}`);
-      setChatMessage('');
-      setIsChatOpen(false);
-      alert('Your message has been sent to the admin.');
-    }
-  };
-
-  const handleInput = (event) => {
-    event.target.style.height = 'auto';
-    event.target.style.height = `${event.target.scrollHeight}px`;
-  };
 
   return (
     <Router>
@@ -122,25 +101,6 @@ const App = observer(() => {
             <Route path="analytics" element={<Analytics />} />
           </Route>
         </Routes>
-        <div className="chat-button-container">
-          <button className="chat-button" onClick={handleChatToggle}>
-            <FaComments size={24} />  {/* Use the chat icon here */}
-          </button>
-          {isChatOpen && (
-            <div className="chat-window">
-              <textarea
-                className="chat-input"
-                value={chatMessage}
-                onChange={(e) => setChatMessage(e.target.value)}
-                onInput={handleInput}
-                placeholder="Ask the admin a question..."
-              />
-              <button className="send-button" onClick={handleSendMessage}>
-                Send
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </Router>
   );

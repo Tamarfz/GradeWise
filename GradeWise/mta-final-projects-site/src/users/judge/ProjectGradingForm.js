@@ -5,44 +5,246 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { storages } from '../../stores';
 import { backendURL } from '../../config';
+import { FaStar, FaComments, FaCalculator, FaCheckCircle } from 'react-icons/fa';
+
+// Modern styled components
+const ModernForm = styled.form`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 600px;
+  margin: 0 auto;
+`;
+
+const FormHeader = styled.div`
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+`;
+
+const HeaderTitle = styled.h2`
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+`;
+
+const HeaderSubtitle = styled.p`
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.9;
+`;
+
+const GradedNotice = styled.div`
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+  font-weight: 600;
+`;
 
 const StyledFormControl = styled(FormControl)`
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  
   .MuiInputLabel-root {
-    color: #175a94;
-    font-weight: bold;
+    color: #667eea !important;
+    font-weight: 600 !important;
+    font-size: 20px !important;
   }
+  
   .MuiInputBase-root {
-    background-color: rgba(240, 248, 255, 0.9); 
-    border-radius: 8px;
-    padding: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1) !important;
+    border: 2px solid rgba(102, 126, 234, 0.2) !important;
+    transition: all 0.3s ease !important;
+    min-height: 60px !important;
+    
+    &:hover {
+      border-color: rgba(102, 126, 234, 0.4) !important;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2) !important;
+    }
+    
+    &.Mui-focused {
+      border-color: #667eea !important;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+    }
+  }
+  
+  .MuiSelect-select {
+    padding: 16px 20px !important;
+    font-weight: 600 !important;
+    font-size: 20px !important;
+    color: #1a202c !important;
+    min-height: 60px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  
+  .MuiOutlinedInput-notchedOutline {
+    border: none !important;
+  }
+  
+  .MuiSelect-icon {
+    font-size: 24px !important;
+    color: #667eea !important;
+  }
+  
+  /* Custom styles for the dropdown menu */
+  .MuiPaper-root {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .MuiMenuItem-root {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    padding: 12px 20px !important;
+    min-height: 50px !important;
+    display: flex !important;
+    align-items: center !important;
+    
+    &:hover {
+      background: rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    &.Mui-selected {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+      color: white !important;
+    }
   }
   
   @media (max-width: 768px) {
     .MuiInputBase-root {
-      width: 100%;
+      width: 100% !important;
     }
   }
 `;
-const StyledButton = styled(Button)`
-  background-color: ${props => props.variant === "outlined" ? "red" : "#175a94"} !important;
-  color: white !important;
-  border-radius: 8px !important;
-  padding: 9px 18px !important;
-  font-weight: bold !important;
-  margin-top: 16px !important;
 
-  &:hover {
-    border-color:rgb(201, 213, 225) !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1) !important;
+const ModernTextarea = styled.textarea`
+  width: 100%;
+  border-radius: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+  font-size: 20px;
+  font-weight: 500;
+  color: #1a202c;
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
   }
   
-  @media (max-width: 768px) {
-    width: 100%;
+  &::placeholder {
+    color: #718096;
+    font-size: 20px;
   }
 `;
 
+const TotalScore = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  margin: 25px 0;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+`;
+
+const TotalScoreValue = styled.span`
+  font-size: 28px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 25px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const ModernButton = styled(Button)`
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-transform: none !important;
+  transition: all 0.3s ease !important;
+  min-width: 120px !important;
+  
+  &.cancel-button {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3) !important;
+    
+    &:hover {
+      background: linear-gradient(135deg, #ff5252 0%, #e64a19 100%) !important;
+      box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4) !important;
+      transform: translateY(-2px) !important;
+    }
+  }
+  
+  &.submit-button {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3) !important;
+    
+    &:hover {
+      background: linear-gradient(135deg, #3dd070 0%, #2dd4bf 100%) !important;
+      box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4) !important;
+      transform: translateY(-2px) !important;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    width: 100% !important;
+  }
+`;
+
+const LoadingSpinner = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #667eea;
+  font-weight: 600;
+`;
 
 const InitialFormData = {
   complexity: 10,
@@ -60,7 +262,7 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState(InitialFormData);
   const [graded, setGraded] = useState(false);
   const [loading, setLoading] = useState(true);
-  const[judgeId, setJudgeId] = useState();
+  const [judgeId, setJudgeId] = useState();
 
   // Calculate the total from grading fields
   const calculateTotal = (data) => {
@@ -78,7 +280,6 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
     const fetchGrade = async () => {
       try {
         const token = localStorage.getItem('token');
-        // Change the endpoint and query parameters as needed
         const response = await axios.get(`${backendURL}/projects/${projectId}/grade`, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -123,7 +324,6 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      // Use PUT if already graded, otherwise use POST.
       const method = graded ? 'PUT' : 'POST';
       const response = await fetch(`${backendURL}/gradeProject`, {
         method,
@@ -138,25 +338,43 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
         }),
       });
       Swal.fire('Success', 'Grade submitted successfully!', 'success');
-      if (onSubmit) onSubmit(); // Notify parent if needed 
+      if (onSubmit) onSubmit();
     } catch (error) {
       Swal.fire('Error', 'Failed to submit grade.', 'error');
     }
   };
 
-  if (loading) return <p>Loading grading info...</p>;
+  if (loading) {
+    return (
+      <LoadingSpinner>
+        <FaStar style={{ marginRight: '10px' }} />
+        Loading grading info...
+      </LoadingSpinner>
+    );
+  }
 
   return (
-    <form onSubmit={handleFormSubmit}>
+    <ModernForm onSubmit={handleFormSubmit}>
+      <FormHeader>
+        <HeaderTitle>
+          <FaStar />
+          Project Grading Form
+        </HeaderTitle>
+        <HeaderSubtitle>
+          Rate each criterion from 1-10 and provide additional comments
+        </HeaderSubtitle>
+      </FormHeader>
+
       {graded && (
-        <h4 className='anton-regular'>
+        <GradedNotice>
+          <FaCheckCircle />
           You have already graded this project. Your previous responses are shown below.
-        </h4>
+        </GradedNotice>
       )}
+
       {['complexity', 'usability', 'innovation', 'presentation', 'proficiency'].map((field) => (
         <StyledFormControl fullWidth key={field} margin="normal" variant="outlined">
-          <InputLabel id={`${field}-label`}
-          sx={{ fontSize: '1.40rem' }} >
+          <InputLabel id={`${field}-label`}>
             {field.charAt(0).toUpperCase() + field.slice(1)} (1-10)
           </InputLabel>
           <Select
@@ -175,40 +393,45 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
           </Select>
         </StyledFormControl>
       ))}
-      <div style={{ marginTop: '16px', color: 'rgb(23, 90, 148)' }}>
-        <h4 className='anton-regular'>Additional Comments</h4>
-        <br />
-        <textarea
+
+      <div style={{ marginTop: '20px' }}>
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '10px', 
+          marginBottom: '15px',
+          color: '#667eea',
+          fontWeight: '600',
+          fontSize: '20px'
+        }}>
+          <FaComments />
+          Additional Comments
+        </div>
+        <ModernTextarea
           id="additionalComment"
           value={formData.additionalComment}
           onChange={handleCommentChange}
-          placeholder="Enter any additional comments..."
-          style={{
-            width: '100%',
-            borderRadius: '6px',
-            padding: '2px',
-            backgroundColor: 'rgba(240, 248, 255, 0.9)',
-            boxShadow: '0 2px 5px rgb(23, 90, 148)',
-            marginTop: '-20px',
-            fontSize: '20px'
-          }}
-          rows="3"
+          placeholder="Enter any additional comments about the project..."
+          rows="4"
         />
       </div>
-      <div style={{ marginTop: '16px', textAlign: 'center' }}>
-        <strong className="playwrite-gb-j-guides-regular">Total:{formData.grade}</strong> 
-      </div>
-      <div style={{ marginTop: '16px', display: 'flex', gap: '16px', justifyContent: 'center' }}>
-        <StyledButton onClick={onCancel} variant="outlined">
+
+      <TotalScore>
+        <FaCalculator />
+        <span>Total Score:</span>
+        <TotalScoreValue>{formData.grade}</TotalScoreValue>
+      </TotalScore>
+
+      <ButtonContainer>
+        <ModernButton onClick={onCancel} className="cancel-button">
           Cancel
-        </StyledButton>
-        <StyledButton type="submit" variant="contained">
+        </ModernButton>
+        <ModernButton type="submit" className="submit-button">
           Submit Grade
-        </StyledButton>
-      </div>
-    </form>
+        </ModernButton>
+      </ButtonContainer>
+    </ModernForm>
   );
 };
-//SUBMITTTT already graded
 
 export default ProjectGradingForm;

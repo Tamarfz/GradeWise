@@ -6,32 +6,40 @@ import styled from 'styled-components';
 import axios from 'axios'; 
 import AdminButtons from './AdminButtons';
 import { backendURL } from '../../config';
-import BackButton from '../../utils/BackButton';
 
-
-// Styled components for layout and button
-const Container = styled.div`
+// Modern styled components
+const ModernContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 50px;
-  gap: 20px;
-  width: 100%; /* Increase width */
-  max-width: 1600px; /* Double the max width */
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 `;
 
-const Button = styled.button`
-  padding: 12px 20px;
-  background-color: #175a94;
-  color: #fff;
+const ModernButton = styled.button`
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
   font-size: 16px;
+  font-weight: 600;
+  min-width: 200px;
+  
   &:hover {
-    background-color: #0e3f6d;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
 `;
 
@@ -39,46 +47,156 @@ const SelectContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  min-width: 40%;
-  max-width: 70%;
-`;
-
-// Add this styled component for the grid
-const ProjectsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Default: 3 items per row for desktop */
   gap: 20px;
   width: 100%;
-  max-width: 70%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const ProjectsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1000px;
+  margin: 20px 0;
 
   @media (max-width: 768px) {
-    display: flex; /* Switch to flexbox for mobile */
-    flex-direction: column; /* Stack items vertically */
-    gap: 10px; /* Reduce gap between items */
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 `;
+
 const ProjectCard = styled.div`
-  padding: 15px;
-  background-color: rgba(240, 248, 255, 0.9);
-  border: 1px solid #175a94;
-  border-radius: 8px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(102, 126, 234, 0.2);
+  border-radius: 16px;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  word-wrap: break-word;
 
   &:hover {
-    transform: scale(1.05);
-    background-color: #e0f7ff;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.4);
   }
 
   &.selected {
-    background-color: #175a94;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
   }
 `;
+
+const SectionTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0 0 15px 0;
+  text-align: center;
+`;
+
+const StatsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 800px;
+  margin-bottom: 30px;
+`;
+
+const StatCard = styled.div`
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const StatNumber = styled.div`
+  font-size: 24px;
+  font-weight: 700;
+  color: #667eea;
+  margin-bottom: 5px;
+`;
+
+const StatLabel = styled.div`
+  font-size: 14px;
+  color: #718096;
+  font-weight: 500;
+`;
+
+// Custom styles for react-select
+const customSelectStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    background: 'rgba(255, 255, 255, 0.95)',
+    border: '2px solid rgba(102, 126, 234, 0.2)',
+    borderRadius: '12px',
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+    '&:hover': {
+      borderColor: 'rgba(102, 126, 234, 0.4)',
+    },
+  }),
+  menu: (provided) => ({
+    ...provided,
+    background: 'rgba(255, 255, 255, 0.95)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid rgba(255, 255, 255, 0.2)',
+    borderRadius: '12px',
+    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    zIndex: 9999, // Add high z-index to ensure it appears above other elements
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999, // Ensure the portal also has high z-index
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    background: state.isSelected ? '#667eea' : 'transparent',
+    color: state.isSelected ? 'white' : '#1a202c',
+    '&:hover': {
+      background: state.isSelected ? '#667eea' : 'rgba(102, 126, 234, 0.1)',
+    },
+  }),
+  multiValue: (provided) => ({
+    ...provided,
+    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    borderRadius: '8px',
+  }),
+  multiValueLabel: (provided) => ({
+    ...provided,
+    color: 'white',
+    fontWeight: '500',
+  }),
+  multiValueRemove: (provided) => ({
+    ...provided,
+    color: 'white',
+    '&:hover': {
+      background: 'rgba(255, 255, 255, 0.2)',
+      color: 'white',
+    },
+  }),
+};
 
 // Main component
 const AssignProjectsToJudges = () => {
@@ -90,9 +208,8 @@ const AssignProjectsToJudges = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token'); // Retrieve the token for authorization
+        const token = localStorage.getItem('token');
 
-        // Fetch judges and projects from the backend
         const [judgeResponse, projectResponse] = await Promise.all([
           axios.get(`${backendURL}/admin/judges/judgesList`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -102,21 +219,18 @@ const AssignProjectsToJudges = () => {
           }),
         ]);
 
-        // Process judge data
         const judgeOptions = judgeResponse.data.map((judge) => ({
           value: judge.ID,
           label: judge.name,
         }));
 
-        // Process and sort project data alphabetically by title
         const projectOptions = projectResponse.data
-          .sort((a, b) => a.Title.localeCompare(b.Title)) // Sort alphabetically
+          .sort((a, b) => a.Title.localeCompare(b.Title))
           .map((project) => ({
             value: project.ProjectNumber,
             label: project.Title,
           }));
 
-        // Update state with the fetched data
         setJudges(judgeOptions);
         setProjects(projectOptions);
       } catch (error) {
@@ -139,7 +253,7 @@ const AssignProjectsToJudges = () => {
       text: 'You are about to assign selected projects to the selected judges.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
+      confirmButtonColor: '#667eea',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Yes, assign them!',
     }).then(async (result) => {
@@ -162,8 +276,6 @@ const AssignProjectsToJudges = () => {
             },
           });
 
-         
-
           if (response.status === 200) {
             Swal.fire('Assigned!', 'Projects have been successfully assigned to judges.', 'success');
           }
@@ -175,47 +287,80 @@ const AssignProjectsToJudges = () => {
   };
 
   return (
-    <div className="admin-page-container">
-      <Container>
-        <div className="admin-header">
-          <h2>Assign Projects to Judges</h2>
+    <div className="admin-dashboard">
+      <div className="admin-header">
+        <div className="header-content">
+          <div className="welcome-section">
+            <h1 className="welcome-title">Assign Projects to Judges</h1>
+            <p className="welcome-subtitle">Select judges and projects to create assignments</p>
+          </div>
         </div>
+      </div>
 
-        <SelectContainer>
-          <Select
-            isMulti
-            options={judges}
-            placeholder="Select Judges"
-            onChange={setSelectedJudges}
-            value={selectedJudges}
-            closeMenuOnSelect={false}
-          />
-        </SelectContainer>
+      <div className="stats-section">
+        <div className="admin-page-container">
+          <ModernContainer>
+            <StatsContainer>
+              <StatCard>
+                <StatNumber>{judges.length}</StatNumber>
+                <StatLabel>Total Judges</StatLabel>
+              </StatCard>
+              <StatCard>
+                <StatNumber>{projects.length}</StatNumber>
+                <StatLabel>Total Projects</StatLabel>
+              </StatCard>
+              <StatCard>
+                <StatNumber>{selectedJudges.length}</StatNumber>
+                <StatLabel>Selected Judges</StatLabel>
+              </StatCard>
+              <StatCard>
+                <StatNumber>{selectedProjects.length}</StatNumber>
+                <StatLabel>Selected Projects</StatLabel>
+              </StatCard>
+            </StatsContainer>
 
-        <ProjectsGrid>
-          {projects.map((project) => (
-            <ProjectCard
-              key={project.value}
-              className={selectedProjects.some((p) => p.value === project.value) ? 'selected' : ''}
-              onClick={() => {
-                setSelectedProjects((prevSelected) =>
-                  prevSelected.some((p) => p.value === project.value)
-                    ? prevSelected.filter((p) => p.value !== project.value)
-                    : [...prevSelected, project]
-                );
-              }}
-            >
-              {project.label || 'Untitled Project'}
-            </ProjectCard>
-          ))}
-        </ProjectsGrid>
+            <SelectContainer>
+              <SectionTitle>Select Judges</SectionTitle>
+              <Select
+                isMulti
+                options={judges}
+                placeholder="Choose judges to assign projects to..."
+                onChange={setSelectedJudges}
+                value={selectedJudges}
+                closeMenuOnSelect={false}
+                styles={customSelectStyles}
+                menuPortalTarget={document.body}
+              />
+            </SelectContainer>
 
-        <Button onClick={handleAssignClick}>Assign Projects</Button>
-        <AdminButtons />
-        <div>
-          <BackButton route="/admin" />
+            <div style={{ width: '100%', maxWidth: '1000px' }}>
+              <SectionTitle>Select Projects</SectionTitle>
+              <ProjectsGrid>
+                {projects.map((project) => (
+                  <ProjectCard
+                    key={project.value}
+                    className={selectedProjects.some((p) => p.value === project.value) ? 'selected' : ''}
+                    onClick={() => {
+                      setSelectedProjects((prevSelected) =>
+                        prevSelected.some((p) => p.value === project.value)
+                          ? prevSelected.filter((p) => p.value !== project.value)
+                          : [...prevSelected, project]
+                      );
+                    }}
+                  >
+                    {project.label || 'Untitled Project'}
+                  </ProjectCard>
+                ))}
+              </ProjectsGrid>
+            </div>
+
+            <ModernButton onClick={handleAssignClick}>
+              Assign Projects to Judges
+            </ModernButton>
+          </ModernContainer>
         </div>
-      </Container>
+      </div>
+      <AdminButtons />
     </div>
   );
 };

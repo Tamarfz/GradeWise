@@ -3,37 +3,49 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { storages } from '../stores';
 import { useLocation } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 
 // Styled component for the Back Button wrapper (positioned in the upper right)
 const BackButtonWrapper = styled.div`
-  position: absolute;
-  top: 10px;
-  right: 10px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
 `;
 
-// Styled component for the Back Button with a classic blue style
+// Styled component for the Back Button with modern blue gradient style
 const BackButtonStyled = styled.button`
-  background-color:rgb(31, 85, 144); /* Classic blue */
-  color: #fff;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
   border: none;
-  border-radius: 30px;
-  padding: 10px 20px;
-  font-size: 30px;
+  border-radius: 50px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  gap: 8px;
+  transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
   &:hover {
-    transform: translateX(-2px);
-    box-shadow: 4px 4px 6px rgb(0, 0, 0);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+    background: linear-gradient(135deg, #3a9bf0 0%, #00d8e0 100%);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
   }
 `;
 
 // Styled component for the arrow icon
-const ArrowIcon = styled.span`
-  font-size: 25px;
+const ArrowIcon = styled(FaArrowLeft)`
+  font-size: 16px;
 `;
 
 // BackButton component using React Router's useNavigate hook
@@ -56,7 +68,8 @@ const BackButton = () => {
     location.pathname !== '/' && (
       <BackButtonWrapper>
         <BackButtonStyled onClick={() => navigate(destination)}>
-          <ArrowIcon>&larr;</ArrowIcon>
+          <ArrowIcon />
+          Back
         </BackButtonStyled>
       </BackButtonWrapper>
     )

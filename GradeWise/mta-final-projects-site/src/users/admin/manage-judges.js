@@ -488,19 +488,29 @@ const ManageJudges = observer(() => {
     };
 
     return (
-        <div className="admin-page-container">
+        <div className="admin-dashboard">
             <div className="admin-header">
-            <h2>Manage Judges</h2>
-            <h3>Upload Potential Judges CSV</h3>
-            <input type="file" onChange={handleFileUpload} accept=".csv" />
-                <div className="admin-buttons">
-                <button className='admin-button' onClick={openJudgesListModal}>Show Judges List</button>
-                <button className='admin-button' onClick={openPotentialJudgesListModal}>Show Potential Judges List</button>
-                
-                <button className="admin-button" onClick={addNewPreference}>Add Preference</button>
-                <button className="admin-button" onClick={removePreferences}>Remove Preference</button>
-                <ExportData url={`${backendURL}/admin/judges/judgesList`} />
-                <BackButton route="/admin" />
+                <div className="header-content">
+                    <div className="welcome-section">
+                        <h1 className="welcome-title">Manage Judges</h1>
+                        <p className="welcome-subtitle">Upload and manage judge data</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="stats-section">
+                <div className="admin-page-container">
+                    <div className="admin-header">
+                        <h2>Upload Potential Judges CSV</h2>
+                        <input type="file" onChange={handleFileUpload} accept=".csv" />
+                        <div className="admin-buttons">
+                            <button className='admin-button' onClick={openJudgesListModal}>Show Judges List</button>
+                            <button className='admin-button' onClick={openPotentialJudgesListModal}>Show Potential Judges List</button>
+                            <button className="admin-button" onClick={addNewPreference}>Add Preference</button>
+                            <button className="admin-button" onClick={removePreferences}>Remove Preference</button>
+                            <ExportData url={`${backendURL}/admin/judges/judgesList`} />
+                        </div>
+                    </div>
                 </div>
             </div>
             <AdminButtons />

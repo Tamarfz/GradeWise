@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import Swal from 'sweetalert2';
 import { storages } from '../../stores';
 import Post from '../../utils/Post';
-import BackButton from '../../utils/BackButton';
 import SearchBar from '../../utils/SearchBar';
 import ProjectGradingForm from './ProjectGradingForm';
 import Dialog from '@mui/material/Dialog';
@@ -15,48 +14,114 @@ import JudgeButtons from './JudgeButtons';
 import { backendURL } from '../../config';
 import Loading from '../../utils/Loader';
 import JudgeProjectStats from './JudgeProjectStats';
+import { FaGavel, FaSearch, FaFilter } from 'react-icons/fa';
 import './GradeProjects.css'; 
 
-const FeedContainer = styled.div`
-  background-color: #f0f8ff;
-  padding: 20px;
-  max-width: 800px;
+// Modern styled components
+const ModernContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
+`;
+
+const SearchSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 800px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const ProjectsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px 0;
+
   @media (max-width: 768px) {
-    padding: 15px;
-    max-width: 100%;
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 `;
 
-const EndMessage = styled.p`
-  color: #555;
+const SectionTitle = styled.h2`
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 20px 0;
   text-align: center;
-  @media (max-width: 768px) {
-    font-size: 14px;
-  }
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const EmptyIcon = styled.div`
+  font-size: 48px;
+  color: #667eea;
+  margin-bottom: 20px;
+`;
+
+const EmptyText = styled.p`
+  font-size: 18px;
+  color: #718096;
+  font-weight: 500;
+  margin: 0;
 `;
 
 const StyledCancelButton = styled(Button)`
-  background-color: #d33 !important;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important;
   color: white !important;
-  border-radius: 8px !important;
-  padding: 8px 16px !important;
-  font-weight: bold !important;
-  margin-top: 8px !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  margin-top: 16px !important;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3) !important;
+  
   &:hover {
-    background-color: #c82333 !important;
+    background: linear-gradient(135deg, #ff5252 0%, #e64a19 100%) !important;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4) !important;
+    transform: translateY(-2px) !important;
   }
 `;
 
 const StyledSubmitButton = styled(Button)`
-  background-color: #175a94 !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   color: white !important;
-  border-radius: 8px !important;
-  padding: 8px 16px !important;
-  font-weight: bold !important;
-  margin-top: 8px !important;
+  border-radius: 12px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  margin-top: 16px !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+  
   &:hover {
-    background-color: #0e3f6d !important;
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    transform: translateY(-2px) !important;
   }
 `;
 
@@ -64,7 +129,7 @@ const DialogActionsContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 16px;
-  margin-top: 16px;
+  margin-top: 24px;
   margin-bottom: 16px;
 `;
 
@@ -130,8 +195,8 @@ const GradeProjects = observer(() => {
       text: "You will lose all the unsaved changes.",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#ff6b6b',
+      cancelButtonColor: '#667eea',
       confirmButtonText: 'Yes, cancel it!',
       cancelButtonText: 'No, keep it',
     }).then((result) => {
@@ -165,7 +230,7 @@ const GradeProjects = observer(() => {
     setSearchTerm('');
     setSearchField('');
     setFiltersActive(false);
-    fetchProjects(); // Fetch projects without query to reset the list
+    fetchProjects();
   };
 
   if (loading) {
@@ -173,46 +238,91 @@ const GradeProjects = observer(() => {
   }
 
   return (
-    <FeedContainer>
-      <header className="py-6 bg-white text-center border-b border-gray-200">
-      <h3 className="anton-regular">
-       <span style={{ color:'rgb(23, 90, 148)'}}>
-          Let's grade some projects!
-        </span>
-        </h3>
-        <JudgeButtons />
-      </header>
-      <BackButton route="/judge" />
-      <JudgeProjectStats reload={counterReload} />
-      <SearchBar
-        searchTerm={searchTerm}
-        searchField={searchField}
-        onSearchInputChange={(e) => setSearchTerm(e.target.value)}
-        onSearchFieldChange={(e) => setSearchField(e.target.value)}
-        onSearchButtonClick={handleSearch}
-        onClearFilters={handleClearFilters}
-        filtersActive={filtersActive}
-      />
-
-      <div className="projects-list">
-        {projects.length > 0 ? (
-          projects.map((project) => (
-            <Post
-              key={project._id}
-              project={project}
-              onGrade={() => handleOpenDialog(project)}
-              showGradeButton={true}
-              reloadGrade={counterReload}
-            />
-          ))
-        ) : (
-          <EndMessage>No projects assigned to you at the moment.</EndMessage>
-        )}
+    <div className="admin-dashboard">
+      <div className="admin-header">
+        <div className="header-content">
+          <div className="welcome-section">
+            <h1 className="welcome-title">
+              Grade Projects <FaGavel style={{ marginLeft: '10px' }} />
+            </h1>
+            <p className="welcome-subtitle">Review and grade your assigned projects</p>
+          </div>
+        </div>
       </div>
 
-      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="md">
+      <div className="stats-section">
+        <div className="admin-page-container">
+          <ModernContainer>
+            <JudgeProjectStats reload={counterReload} />
+            
+            <SearchSection>
+              <SectionTitle>Search & Filter Projects</SectionTitle>
+              <SearchBar
+                searchTerm={searchTerm}
+                searchField={searchField}
+                onSearchInputChange={(e) => setSearchTerm(e.target.value)}
+                onSearchFieldChange={(e) => setSearchField(e.target.value)}
+                onSearchButtonClick={handleSearch}
+                onClearFilters={handleClearFilters}
+                filtersActive={filtersActive}
+              />
+            </SearchSection>
+
+            <div style={{ width: '100%' }}>
+              <SectionTitle>Assigned Projects</SectionTitle>
+              {projects.length > 0 ? (
+                <ProjectsGrid>
+                  {projects.map((project) => (
+                    <Post
+                      key={project._id}
+                      project={project}
+                      onGrade={() => handleOpenDialog(project)}
+                      showGradeButton={true}
+                      reloadGrade={counterReload}
+                    />
+                  ))}
+                </ProjectsGrid>
+              ) : (
+                <EmptyState>
+                  <EmptyIcon>
+                    <FaGavel />
+                  </EmptyIcon>
+                  <EmptyText>No projects assigned to you at the moment.</EmptyText>
+                </EmptyState>
+              )}
+            </div>
+          </ModernContainer>
+        </div>
+      </div>
+
+      <Dialog 
+        open={dialogOpen} 
+        onClose={handleCloseDialog} 
+        fullWidth 
+        maxWidth="md"
+        PaperProps={{
+          style: {
+            borderRadius: '20px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+          }
+        }}
+      >
         <DialogTitle>
-          <h2  className="boldonse-regular">Grading: {selectedProject?.Title}</h2>
+          <h2 style={{ 
+            color: '#667eea', 
+            fontSize: '24px', 
+            fontWeight: '700',
+            margin: '0',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            Grading: {selectedProject?.Title}
+          </h2>
         </DialogTitle>
         <DialogContent>
           <ProjectGradingForm
@@ -222,7 +332,9 @@ const GradeProjects = observer(() => {
           />
         </DialogContent>
       </Dialog>
-    </FeedContainer>
+
+      <JudgeButtons />
+    </div>
   );
 });
 

@@ -9,12 +9,11 @@
 /* Left half: occupies 50% and displays the TA logo */
 .left-half {
   width: 50%;
-  background-color: #61b0f4b8; /* or a background image if needed */
+  background-color: #61b0f4b8;
   display: flex;
   align-items: center;
   justify-content: center;
   padding-right: 0;
-  
 }
 
 /* The logo remains sized as configured */
@@ -31,57 +30,87 @@
   align-items: center;
   justify-content: center;
   background: #ffff;
-  
 }
 
-/* Login box styling */
+/* Modern login box styling */
 .login-box {
-  width: 350px;         /* Reduced from 400px to 350px */
-  padding: 30px;        /* Reduced padding */
-  border: 2px solid #1e88e5;
-  border-radius: 10px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeInUp 0.8s ease-out;
 }
 
-/* General input styling inside the login box */
-.login-box input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px;
-  border: 1px solid #bbdefb;
-  border-radius: 4px;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Form styling */
+/* Modern form styling */
 h2 {
-  color: #1e88e5;
-  margin-bottom: 20px;
+  color: #1a202c;
+  margin-bottom: 30px;
   text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 24px;
 }
 
 label {
   display: block;
-  color: #1565c0;
-  margin-bottom: 5px;
+  color: #4a5568;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
+/* Modern input styling */
 input {
-  width: 500px;
-  padding: 10px;
-  border: 1px solid #bbdefb;
-  border-radius: 4px;
+  width: 100%;
+  padding: 16px 16px 16px 50px;
+  border: 2px solid rgba(33, 150, 243, 0.2);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a202c;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(33, 150, 243, 0.1);
+  box-sizing: border-box;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+  transform: translateY(-2px);
+}
+
+input::placeholder {
+  color: #a0aec0;
 }
 
 input[type="text"] {
   padding-left: 50px;
 }
 
-input[type="password"]  {
+input[type="password"] {
   padding-left: 50px;
 }
 
@@ -89,18 +118,40 @@ input[type="email"] {
   padding-left: 50px;
 }
 
+/* Modern button styling */
 button {
-  padding: 10px 20px;
-  background-color: #2196f3;
-  color: #fff;
+  width: 100%;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
   border: none;
-  margin: 5px;
-  border-radius: 4px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+  margin: 8px 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 button:hover {
-  background-color: #1976d2;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(0);
 }
 
 /* Register button styling */
@@ -112,37 +163,24 @@ button:hover {
   color: #fafafa;
   background-color: transparent;
   text-decoration: none;
+  display: block;
+  text-align: center;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .login-container {
-    flex-direction: column;
-    min-height: 100vh; /* Make the container occupy the full viewport height */
-    align-items: center;
-  }
-  
-  .left-half{
-    width: 95%;
-    min-height: 25vh; /* Each half occupies at least half the screen */
-    padding-right: 0; /* Remove right padding on smaller screens */
-  }
-  .right-half {
-    width: 95%;
-    min-height: 75vh; /* Each half occupies at least half the screen */
-  }
-  
-  /* Increase logo size on smaller screens */
-  .logo_TA {
-    max-width: 60%;
-    margin-bottom: 20px; /* Add some space below the logo */
-  }
-  
-  .login-box {
-    width: 90%;
-    padding: 20px;
-    min-height: 60vh;
-  }
+/* Login link styling */
+.login-link {
+  color: #2196f3;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: block;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.login-link:hover {
+  color: #1976d2;
+  text-decoration: underline;
 }
 
 /* Update the icon inputs to respect the container width */
@@ -150,16 +188,31 @@ button:hover {
 .input-with-icon-password,
 .input-with-icon-email,
 .input-with-icon-name {
-  width: 100%; /* Ensure the input takes up the full width of its container */
+  width: 100%;
   box-sizing: border-box;
-  padding: 10px;
-  padding-left: 40px; /* Adjust padding for icon space */
-  background-position: 10px center; /* Position the icon */
-  background-repeat: no-repeat; /* Prevent the icon from repeating */
-  background-size: 20px 20px; /* Set the size of the icon */
-  border: 1px solid #bbdefb;
-  border-radius: 4px;
-  height: 40px; /* Ensure the input has a consistent height */
+  padding: 16px 16px 16px 50px;
+  background-position: 16px center;
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+  border: 2px solid rgba(33, 150, 243, 0.2);
+  border-radius: 12px;
+  height: 50px;
+  font-size: 1rem;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.9);
+  color: #1a202c;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(33, 150, 243, 0.1);
+}
+
+.input-with-icon-id:focus,
+.input-with-icon-password:focus,
+.input-with-icon-email:focus,
+.input-with-icon-name:focus {
+  outline: none;
+  border-color: #2196f3;
+  box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+  transform: translateY(-2px);
 }
 
 /* Specific background images for each input */
@@ -177,4 +230,34 @@ button:hover {
 
 .input-with-icon-name {
   background-image: url("/public/Assets/icons/id2.png");
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .login-container {
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+  }
+  
+  .left-half{
+    width: 95%;
+    min-height: 25vh;
+    padding-right: 0;
+  }
+  .right-half {
+    width: 95%;
+    min-height: 75vh;
+  }
+  
+  .logo_TA {
+    max-width: 60%;
+    margin-bottom: 20px;
+  }
+  
+  .login-box {
+    width: 90%;
+    padding: 30px;
+    min-height: 60vh;
+  }
 }

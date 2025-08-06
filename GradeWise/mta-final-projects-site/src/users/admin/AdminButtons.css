@@ -1,97 +1,566 @@
+/* Modern Admin Dashboard Styles */
+.admin-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Header Styles */
+.admin-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 2rem 3rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-section {
+  flex: 1;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.admin-name {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.welcome-subtitle {
+  font-size: 1.1rem;
+  color: #718096;
+  margin: 0;
+  font-weight: 400;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* Stats Section */
+.stats-section {
+  padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.stat-icon.judges {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-icon.projects {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-icon.graded {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-icon.pending {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 0.25rem 0;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #718096;
+  margin: 0;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Quick Actions Section */
+.quick-actions-section {
+  padding: 0 3rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 2rem 0;
+  text-align: center;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.action-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  border-radius: inherit;
+  z-index: -1;
+}
+
+.action-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.action-icon {
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 1rem;
+}
+
+.action-content {
+  color: white;
+}
+
+.action-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+}
+
+.action-description {
+  font-size: 0.95rem;
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+/* Projects Section */
+.projects-section {
+  padding: 0 3rem 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.feed-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Sidebar Styles */
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  transition: left 0.3s ease;
+  z-index: 1000;
+  overflow-y: auto;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.side-menu.open {
+  left: 0;
+}
+
+.menu-toggle {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  color: #1a202c;
+}
+
+.menu-toggle:hover {
+  background: white;
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.sidebar-header h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+}
+
+.close-sidebar {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-sidebar:hover {
+  background: rgba(102, 126, 234, 0.1);
+  color: #667eea;
+}
+
+.sidebar-nav {
+  padding: 1rem 1.5rem;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-nav ul li {
+  margin-bottom: 0.5rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  color: #1a202c;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.menu-item:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateX(5px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.menu-icon {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.menu-label {
+  font-size: 0.95rem;
+}
+
+.admin-buttons {
+  padding: 2rem;
+}
+
+.admin-buttons nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-buttons nav ul li {
+  margin-bottom: 0.5rem;
+}
+
+.admin-buttons nav ul li span {
+  display: block;
+  padding: 1.5rem 0.5rem;
+  color: #1a202c;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(102, 126, 234, 0.1);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  width: 100%;
+  min-height: 60px;
+  line-height: 1.3;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.admin-buttons nav ul li span:hover {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transform: translateX(5px);
+}
+
+.admin-buttons nav ul li:last-child span {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.admin-buttons nav ul li:last-child span:hover {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+  color: white;
+  transform: translateX(5px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 1.5rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .welcome-title {
+    font-size: 2rem;
+  }
+  
+  .stats-section,
+  .quick-actions-section,
+  .projects-section {
+    padding: 1.5rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1.5rem;
+  }
+  
+  .action-card {
+    padding: 1.5rem;
+  }
+  
+  .feed-container {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  
+  .welcome-subtitle {
+    font-size: 1rem;
+  }
+  
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .stat-number {
+    font-size: 2rem;
+  }
+  
+  .action-title {
+    font-size: 1.25rem;
+  }
+}
+
+/* Legacy styles for backward compatibility */
 .admin-page-container {
-  /* padding: 20px; */
   background-color: #f0f8ff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   width: 90%;
   margin: 20px auto;
 }
-  .admin-buttons {
-    display: flex;
-    flex-direction: column;
-    align-self: center;
-    align-items: center;
-    text-align: center;
-    gap: 16px;
-    margin-top: 20px; /* Adjusted for some spacing at the top */
-  }
-  
-  .admin-button {
-    padding: 12px 24px;
-    background-color: #175a94;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    width: 300px; /* Fixed width for all buttons */
-    height: 50px; /* Fixed height for all buttons */
-    align-items: center;
-    justify-content: center; /* Ensures content is centered */
-  }
-  
-  .admin-button:hover {
-    background-color: #0e3f6d;
-    transform: scale(1.05);
-  }
-  
-  .admin-button:active {
-    background-color: #0c365a;
-    transform: scale(1);
-  }
-  
-  .logout-button {
-    color: red;
-    background-color: transparent;
-  }
-  
-  .logout-button:hover {
-    color: #d33;
-    background-color: transparent;
-  }
 
-  .admin-header h3 {
-    font-size: 20px;
-    color: #165ea1;
-    margin-bottom: 15px;
-  }
+.admin-button {
+  padding: 12px 24px;
+  background-color: #175a94;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  width: 300px;
+  height: 50px;
+  align-items: center;
+  justify-content: center;
+}
 
-  .admin-header h2 {
-    font-size: 40px;
-    background-color: #ffffff;
-    color: #165ea1;
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 20px;
-    border-radius: 8px 8px 0 0;
-  }
+.admin-button:hover {
+  background-color: #0e3f6d;
+  transform: scale(1.05);
+}
 
-  .admin-header h1{
-    font-size: 50px;
-    color: #165ea1;
-    margin-bottom: 15px;
-  }
+.admin-button:active {
+  background-color: #0c365a;
+  transform: scale(1);
+}
 
-  .back-button {
-    padding: 10px 20px;
-    background-color: #ddd;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 2000px;
-  }
-  
-  .back-button:hover {
-    background-color: #ccc;
-  }
+.logout-button {
+  color: red;
+  background-color: transparent;
+}
 
-  .admin-buttons nav ul li span {
-    font-size: 16px; /* adjust as necessary */
-    font-weight: 600;
-    text-align: center;
-    
-  }
+.logout-button:hover {
+  color: #d33;
+  background-color: transparent;
+}
+
+.admin-header h3 {
+  font-size: 20px;
+  color: #165ea1;
+  margin-bottom: 15px;
+}
+
+.admin-header h2 {
+  font-size: 40px;
+  background-color: #ffffff;
+  color: #165ea1;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+  border-radius: 8px 8px 0 0;
+}
+
+.admin-header h1 {
+  font-size: 50px;
+  color: #165ea1;
+  margin-bottom: 15px;
+}
+
+.back-button {
+  padding: 10px 20px;
+  background-color: #ddd;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 2000px;
+}
+
+.back-button:hover {
+  background-color: #ccc;
+}
 
 

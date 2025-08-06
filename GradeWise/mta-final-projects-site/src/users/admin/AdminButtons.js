@@ -113,10 +113,9 @@ const AdminButtons = observer(() => {
         style={{ cursor: 'pointer', position: 'fixed', top: '20px', left: '20px', zIndex: 1000 }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <AiOutlineMenu size={50} />
+        <AiOutlineMenu size={40} />
       </div>
       <div
-      
         ref={sidebarRef} // Add ref to the sidebar for outside click detection
         className={`side-menu ${isOpen ? 'open' : ''}`} // Toggle open/close class
         style={{
@@ -126,10 +125,8 @@ const AdminButtons = observer(() => {
           left: isOpen ? '0' : '-300px',
           width: '250px',
           height: '100%',
-        
           background: 'linear-gradient(135deg,rgba(222, 229, 232, 0.96))', // Applied gradient background
           padding: '20px',
-          
           boxShadow: '2px 0px 5px rgba(222, 229, 232, 0.96)',
           zIndex: 999,
           transition: 'left 0.3s ease',
@@ -149,8 +146,8 @@ const AdminButtons = observer(() => {
             </ul>
           </nav>
         </div>
-        </div>
       </div>
+    </div>
   );
 });
 

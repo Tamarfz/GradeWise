@@ -1,177 +1,154 @@
-import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React from 'react';
+import styled from 'styled-components';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import "./SearchBar.css"
 
 const FormContainer = styled.form`
     width: 100%;
     max-width: 800px;
-    margin: 0 auto;
-    padding: 10px 0;
+    margin: 0 auto 2rem;
+    padding: 0;
 `;
 
 const InputContainer = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    
-    -webkit-transition: width 2s ease-in-out;
-    transition: width 2s ease-in-out;
-    
-    &:focus {
-        width: 100%;
-    }
+    gap: 1rem;
+    width: 100%;
     
     /* On desktop, use full width; on mobile, use 90% of viewport */
     @media (max-width: 768px) {
         width: 90%;
         flex-direction: column;
-        gap: 5px;
+        gap: 0.5rem;
         margin: 0 auto;
     }
 `;
 
-// Modified keyframes for expanding with extra bounce
-const expandAnimation = keyframes`
-  0% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-  70% {
-    transform: scaleX(1.2);
-    opacity: 1;
-  }
-  85% {
-    transform: scaleX(0.95);
-  }
-  100% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-`;
-
-// Keyframes for collapsing (from right to left)
-const collapseAnimation = keyframes`
-  0% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-  20% {
-    transform: scaleX(0.9);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
-`;
-
-// ToggleFields uses the keyframe animations with transform-origin left.
-const ToggleFields = styled.div`
+const SearchIcon = styled.div`
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a202c;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    height: 50px;
+    width: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     
-    transform-origin: left;
-    animation: ${props => (props.expanded ? expandAnimation : collapseAnimation)} 0.5s ease forwards;
+    @media (max-width: 768px) {
+        height: 45px;
+        width: 45px;
+    }
+`;
+
+const SearchFields = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex: 1;
     
     @media (max-width: 768px) {
         flex-direction: column;
-        gap: 5px;
+        gap: 0.5rem;
         width: 100%;
     }
 `;
 
-// ToggleButton remains always visible. On mobile the button shrinks a bit and the icon scales.
-const ToggleButton = styled.button`
-    padding: 8px;
-    background-color: ${props => (props.expanded ? "black" : "white")};
-    color: ${props => (props.expanded ? "white" : "black")};
-    border: 3px solid black;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    font-size: 16px;
-    height: 60px;
-    width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &:hover {
-        background-color: ${props => (props.expanded ? "rgba(0, 0, 0, 0.8)" : "white")};
-    }
-    object-fit: fill;
-
-    @media (max-width: 768px) {
-        height: 50px;
-        width: 50px;
-        font-size: 14px;
-    }
-`;
-
 const SelectField = styled.select`
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    background-color: #fff; 
-    color: black;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease, width 0.4s ease;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a202c;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
     width: 200px;
+    backdrop-filter: blur(10px);
+    
     &:hover {
-        background-color: #fff;
+        border-color: rgba(102, 126, 234, 0.4);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     }
+    
+    &:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
     @media (max-width: 768px) {
         width: 100%;
     }
 `;
 
 const InputField = styled.input`
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    background-color: #fff; 
-    color: black;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    width: 130px;
-    -webkit-transition: width 0.4s ease-in-out;
-    transition: width 0.4s ease-in-out;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.9);
+    color: #1a202c;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 250px;
+    transition: all 0.3s ease-in-out;
+    backdrop-filter: blur(10px);
     
     &:focus {
-        width: 100%;
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
+    
+    &::placeholder {
+        color: #718096;
+    }
+    
     @media (max-width: 768px) {
         width: 100%;
     }
 `;
 
 const Button = styled.button`
-    padding: 12px 20px;
-    background-color: rgb(0, 2, 3);
-    color: #fff;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    font-size: 16px;
-    height: 40px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    font-size: 0.9rem;
+    font-weight: 600;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    
     &:hover {
-          background-color: rgba(0, 2, 3, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
+    
     @media (max-width: 768px) {
         width: 100%;
     }
 `;
 
 const ClearButton = styled(Button)`
-    background-color: #dc3545;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    
     &:hover {
-        background-color: #c82333;
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
     }
+    
     @media (max-width: 768px) {
         width: 100%;
     }
@@ -186,19 +163,14 @@ const SearchBar = ({
     onClearFilters, 
     filtersActive 
 }) => {
-    const [expanded, setExpanded] = useState(false);
-
     return (
         <FormContainer onSubmit={(e) => { e.preventDefault(); onSearchButtonClick(e); }}>
             <InputContainer>
-                <ToggleButton expanded={expanded} type="button" onClick={() => setExpanded(prev => !prev)}>
-                    {expanded 
-                        ? "–" 
-                        : <img className="input-with-icon-search" style={{width: "20px", height:"20px"}} src={process.env.PUBLIC_URL +"/Assets/icons/search.png"} alt="Search" />
-                    }
-                </ToggleButton>
+                <SearchIcon>
+                    <FaSearch size={16} />
+                </SearchIcon>
                 
-                <ToggleFields expanded={expanded}>
+                <SearchFields>
                     <SelectField value={searchField} onChange={onSearchFieldChange}>
                         <option value="">Select field</option>
                         <option value="name">Name</option>
@@ -216,17 +188,19 @@ const SearchBar = ({
                         type="text"
                         value={searchTerm}
                         onChange={onSearchInputChange}
-                        placeholder="Search..."
+                        placeholder="Search projects..."
                     />
                     <Button type="submit">
+                        <FaSearch size={14} />
                         Search
                     </Button>
                     {filtersActive && (
                         <ClearButton type="button" onClick={onClearFilters}>
-                            Clear Filters
+                            <FaTimes size={14} />
+                            Clear
                         </ClearButton>
                     )}
-                </ToggleFields>
+                </SearchFields>
             </InputContainer>
         </FormContainer>
     );

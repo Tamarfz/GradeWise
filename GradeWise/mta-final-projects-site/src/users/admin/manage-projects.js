@@ -324,22 +324,33 @@ const ManageProjects = observer(() => {
     
 
     return (
-        <div className='admin-page-container'>
-        <div className='admin-header'>
-            <h2>Manage Projects</h2>
-            <div className='admin-buttons'>
-                <h3>Upload Projects Data</h3>
-                <input type="file" onChange={handleFileUpload} accept=".csv" />
-                <button className='admin-button' onClick={handleAddNewProject}>Add Project</button>
-                <button className='admin-button' onClick={handleRemoveProject}>Remove Project</button>
-                <button className='admin-button' onClick={handleEditProject}>Edit Project</button>
-                <ExportData url={`${backendURL}/admin/projects/projectsList`} />
+        <div className="admin-dashboard">
+            <div className="admin-header">
+                <div className="header-content">
+                    <div className="welcome-section">
+                        <h1 className="welcome-title">Manage Projects</h1>
+                        <p className="welcome-subtitle">Upload and manage project data</p>
+                    </div>
+                </div>
             </div>
-            <div>
-                <BackButton route="/admin" />
+
+            <div className="stats-section">
+                <div className="admin-page-container">
+                    <div className="admin-header">
+                        <h2>Upload Projects Data</h2>
+                        <div className="file-upload-section">
+                            <input type="file" onChange={handleFileUpload} accept=".csv" />
+                        </div>
+                        <div className="admin-buttons">
+                            <button className='admin-button' onClick={handleAddNewProject}>Add Project</button>
+                            <button className='admin-button' onClick={handleRemoveProject}>Remove Project</button>
+                            <button className='admin-button' onClick={handleEditProject}>Edit Project</button>
+                            <ExportData url={`${backendURL}/admin/projects/projectsList`} />
+                        </div>
+                    </div>
+                </div>
             </div>
             <AdminButtons />
-        </div>
         </div>
     );
 });
