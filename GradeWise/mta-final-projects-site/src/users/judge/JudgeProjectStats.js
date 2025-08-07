@@ -6,10 +6,126 @@ import { FaCheckCircle, FaClock, FaTrophy } from 'react-icons/fa';
 // Flex container to center its child
 const Wrapper = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  /* If you want to center vertically relative to viewport height, un-comment next line:
-  min-height: 100vh; */
+  gap: 20px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+`;
+
+// Progress bar container
+const ProgressContainer = styled.div`
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+`;
+
+const ProgressHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const ProgressTitle = styled.h3`
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const ProgressPercentage = styled.span`
+  font-size: 18px;
+  font-weight: 700;
+  color: ${props => props.finished ? '#43e97b' : '#667eea'};
+`;
+
+const ProgressBarWrapper = styled.div`
+  width: 100%;
+  height: 12px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 15px;
+`;
+
+const ProgressBarFill = styled.div`
+  height: 100%;
+  background: ${props => {
+    if (props.loading) return 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
+    return props.finished 
+      ? 'linear-gradient(90deg, #43e97b 0%, #38f9d7 100%)'
+      : 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)';
+  }};
+  border-radius: 6px;
+  transition: width 0.8s ease-in-out;
+  width: ${props => props.progress}%;
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+  }
+`;
+
+const shimmer = keyframes`
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+`;
+
+const ProgressStats = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #718096;
+  font-weight: 500;
+`;
+
+const StatItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const StatIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: ${props => {
+    if (props.loading) return 'rgba(102, 126, 234, 0.2)';
+    return props.finished ? 'rgba(67, 233, 123, 0.2)' : 'rgba(102, 126, 234, 0.2)';
+  }};
+  border-radius: 50%;
+  color: ${props => {
+    if (props.loading) return '#667eea';
+    return props.finished ? '#43e97b' : '#667eea';
+  }};
+  font-size: 10px;
 `;
 
 // Modern badge animation
@@ -210,6 +326,38 @@ const JudgeProjectStats = ({ reload }) => {
 
   return (
     <Wrapper>
+      <ProgressContainer>
+        <ProgressHeader>
+          <ProgressTitle>Grading Progress</ProgressTitle>
+          <ProgressPercentage finished={finished}>
+            {loading ? '...' : `${Math.round(progress)}%`}
+          </ProgressPercentage>
+        </ProgressHeader>
+        
+        <ProgressBarWrapper>
+          <ProgressBarFill 
+            progress={progress} 
+            finished={finished} 
+            loading={loading}
+          />
+        </ProgressBarWrapper>
+        
+        <ProgressStats>
+          <StatItem>
+            <StatIcon finished={finished} loading={loading}>
+              <FaCheckCircle />
+            </StatIcon>
+            <span>Graded: {totalGraded || 0}</span>
+          </StatItem>
+          <StatItem>
+            <StatIcon finished={finished} loading={loading}>
+              <FaClock />
+            </StatIcon>
+            <span>Total: {totalAssigned || 0}</span>
+          </StatItem>
+        </ProgressStats>
+      </ProgressContainer>
+
       <ModernBadge finished={finished} loading={loading}>
         <ProgressRing progress={progress} />
         <BadgeIcon>

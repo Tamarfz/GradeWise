@@ -18,7 +18,7 @@ const BackButtonStyled = styled.button`
   background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
   color: white;
   border: none;
-  border-radius: 50px;
+  border-radius: 0 80px 0 70px;
   padding: 12px 20px;
   font-size: 14px;
   font-weight: 600;
