@@ -10,11 +10,11 @@ const SearchContainer = styled.div`
     max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
-    background: var(--card-bg);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     border-radius: 16px;
-    box-shadow: 0 8px 32px var(--shadow-light);
-    border: 1px solid var(--card-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     position: relative;
     z-index: 9999;
 `;
@@ -41,7 +41,7 @@ const SearchSelect = styled.select`
     color: var(--text-primary);
     min-width: 180px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 10px var(--shadow-light);
+    box-shadow: 0 4px 20px var(--shadow-light);
 
     &:focus {
         outline: none;
@@ -60,94 +60,71 @@ const SearchSelect = styled.select`
     }
 `;
 
-const StyledSelect = styled(Select)`
+// Custom styles for react-select - matching assign-projects design
+const customSelectStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    background: 'var(--input-bg)',
+    border: '2px solid var(--input-border)',
+    borderRadius: '12px',
+    boxShadow: '0 4px 20px var(--shadow-light)',
+    color: 'var(--text-primary)',
+    minHeight: '50px',
+    transition: 'all 0.3s ease',
+    minWidth: '300px',
+    flex: 1,
+    '&:hover': {
+      borderColor: 'var(--accent-primary)',
+      boxShadow: '0 4px 15px var(--shadow-medium)',
+    },
+  }),
+  menu: (provided) => ({
+    ...provided,
+    background: 'var(--card-bg)',
+    backdropFilter: 'blur(10px)',
+    border: '1px solid var(--card-border)',
+    borderRadius: '12px',
+    boxShadow: '0 8px 32px var(--shadow-light)',
+    zIndex: 9999,
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: 9999,
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    background: state.isSelected ? 'var(--accent-primary)' : 'transparent',
+    color: state.isSelected ? 'white' : 'var(--text-primary)',
+    padding: '12px 16px',
+    fontSize: '17.6px',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      background: state.isSelected ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+    },
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-secondary)',
+    fontSize: '17.6px',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-primary)',
+    fontSize: '17.6px',
+    fontWeight: '500',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-primary)',
+    fontSize: '17.6px',
+  }),
+};
+
+const SelectContainer = styled.div`
     min-width: 300px;
     flex: 1;
     position: relative;
     z-index: 9999;
-    
-    .select__control {
-        background: var(--input-bg);
-        border: 2px solid var(--input-border);
-        border-radius: 12px;
-        box-shadow: 0 2px 10px var(--shadow-light);
-        min-height: 50px;
-        transition: all 0.3s ease;
-        
-        &:hover {
-            border-color: var(--accent-primary);
-            box-shadow: 0 4px 15px var(--shadow-medium);
-        }
-
-        &.select__control--is-focused {
-            border-color: var(--accent-primary);
-            box-shadow: 0 4px 20px var(--shadow-medium);
-        }
-    }
-    
-    .select__menu {
-        background: #000000 !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid #333333 !important;
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        z-index: 99999 !important;
-        position: absolute !important;
-    }
-    
-    .select__option {
-        padding: 12px 16px;
-        font-size: 17.6px; /* Increased by 10% */
-        transition: all 0.2s ease;
-        color: #ffffff !important;
-        background: #000000 !important;
-        
-        &:hover {
-            background: #333333 !important;
-            color: #ffffff !important;
-        }
-
-        &.select__option--is-focused {
-            background: #333333 !important;
-            color: #ffffff !important;
-        }
-
-        &.select__option--is-selected {
-            background: #2196f3 !important;
-            color: white !important;
-        }
-    }
-
-    .select__placeholder {
-        color: var(--text-secondary);
-        font-size: 17.6px; /* Increased by 10% */
-    }
-
-    .select__single-value {
-        color: #000000 !important;
-        font-size: 17.6px; /* Increased by 10% */
-        font-weight: 500;
-    }
-
-    /* Force consistent styling regardless of theme */
-    .select__option,
-    .select__option:hover,
-    .select__option:focus {
-        color: #ffffff !important;
-        background: #000000 !important;
-    }
-
-    /* Hover and focus states */
-    .select__option:hover,
-    .select__option:focus {
-        background: #333333 !important;
-    }
-
-    /* Only selected option should be white */
-    .select__option--is-selected {
-        color: white !important;
-        background: #2196f3 !important;
-    }
 
     @media (max-width: 768px) {
         width: 100%;
@@ -217,7 +194,7 @@ const ButtonContainer = styled.div`
 const NoResultsMessage = styled.div`
     text-align: center;
     padding: 20px;
-    color: var(--text-secondary);
+    color: #718096;
     font-size: 16px;
     font-style: italic;
 `;
@@ -282,16 +259,21 @@ const GradesSearchBar = ({
                 </SearchSelect>
                 
                 {searchField && (
-                    <StyledSelect
-                        value={getFieldOptions().find(option => option.value === searchTerm) || null}
-                        onChange={handleChange}
-                        options={getFieldOptions()}
-                        placeholder={`Select or type to search ${searchField.replace('_', ' ')}...`}
-                        isClearable
-                        isSearchable
-                        noOptionsMessage={() => "No options available"}
-                        loadingMessage={() => "Loading..."}
-                    />
+                    <SelectContainer>
+                        <Select
+                            value={getFieldOptions().find(option => option.value === searchTerm) || null}
+                            onChange={handleChange}
+                            options={getFieldOptions()}
+                            placeholder={`Select or type to search ${searchField.replace('_', ' ')}...`}
+                            isClearable
+                            isSearchable
+                            noOptionsMessage={() => "No options available"}
+                            loadingMessage={() => "Loading..."}
+                            styles={customSelectStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </SelectContainer>
                 )}
                 
                 <ButtonContainer>

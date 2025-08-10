@@ -145,14 +145,14 @@
 .stat-number {
   font-size: 2.75rem;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--text-primary);
   margin: 0 0 0.25rem 0;
   line-height: 1;
 }
 
 .stat-label {
   font-size: 0.99rem;
-  color: #718096;
+  color: var(--text-primary);
   margin: 0;
   font-weight: 500;
   text-transform: uppercase;
@@ -175,12 +175,12 @@
 }
 
 .actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: flex;
   gap: 2rem;
-  justify-items: center;
+  justify-content: center;
   max-width: 800px;
   margin: 0 auto;
+  flex-wrap: wrap;
 }
 
 /* Admin specific actions grid - 3 items per row, same size */
@@ -191,7 +191,7 @@
 }
 
 .admin-dashboard .action-card {
-  width: 100%;
+  width: 27%;
   height: 200px;
   display: flex;
   flex-direction: column;
@@ -210,6 +210,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
+  width: 30%;
 }
 
 .action-card::before {
