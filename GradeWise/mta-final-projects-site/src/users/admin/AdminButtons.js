@@ -1,82 +1,200 @@
 //V
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { saveAs } from 'file-saver'; // For saving the CSV file
-import Papa from 'papaparse'; // For CSV parsing
-import axios from 'axios';
-import ExportData from './export-data';
+import { 
+  FaUsers, 
+  FaProjectDiagram, 
+  FaClipboardList, 
+  FaChartBar, 
+  FaTrophy, 
+  FaSignOutAlt, 
+  FaBars, 
+  FaTimes,
+  FaHome,
+  FaCog
+} from 'react-icons/fa';
 import { storages } from '../../stores';
-import { AiOutlineUser, AiOutlineProject, AiOutlineStar, AiOutlineFileAdd, AiOutlineLogout, AiOutlineMenu } from 'react-icons/ai'; // Import icons
 import Swal from 'sweetalert2';
-import './AdminButtons.css'; // Import CSS file for styling
+import styled from 'styled-components';
+import './AdminButtons.css';
+
+// Modern styled components - same as JudgeButtons
+const MenuContainer = styled.div`
+  position: relative;
+`;
+
+const HamburgerButton = styled.button`
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 15px;
+  width: 65px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  color: white;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+`;
+
+const SideMenu = styled.div`
+  position: fixed;
+  top: 0;
+  left: ${props => props.isOpen ? '0' : '-320px'};
+  width: 320px;
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 100px 0 20px 0;
+  overflow-y: auto;
+`;
+
+const MenuHeader = styled.div`
+  padding: 0 30px 30px 30px;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+  margin-bottom: 20px;
+`;
+
+const MenuTitle = styled.h2`
+  font-size: 1.815rem; /* Increased by 10% */
+  font-weight: 700;
+  color: #1a202c;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const MenuSubtitle = styled.p`
+  font-size: 1.089rem; /* Increased by 10% */
+  color: #718096;
+  margin: 0;
+  font-weight: 500;
+`;
+
+const NavigationList = styled.nav`
+  padding: 0 20px;
+`;
+
+const MenuItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  margin: 8px 0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #4a5568;
+  font-weight: 600;
+  font-size: 1.21rem; /* Increased by 10% */
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateX(8px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  }
+  
+  &:active {
+    transform: translateX(8px) scale(0.98);
+  }
+`;
+
+const MenuIcon = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 1.21rem; /* Increased by 10% */
+`;
+
+const MenuText = styled.span`
+  flex: 1;
+`;
+
+const LogoutItem = styled(MenuItem)`
+  margin-top: 30px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
+  padding-top: 20px;
+  
+  &:hover {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+  }
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: ${props => props.isOpen ? 1 : 0};
+  visibility: ${props => props.isOpen ? 'visible' : 'hidden'};
+  transition: all 0.3s ease;
+`;
 
 const AdminButtons = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
-  const sidebarRef = useRef(null);
   const navigate = useNavigate();
   const { userStorage } = storages;
 
+  const handleHomeClick = () => {
+    navigate("/admin");
+    setIsOpen(false);
+  };
+
   const handleManageJudgesClick = () => {
     navigate("/admin/manage-judges");
+    setIsOpen(false);
   };
 
   const handleManageProjectsClick = () => {
     navigate("/admin/manage-projects");
+    setIsOpen(false);
   };
 
   const handleAssignProjectsClick = () => {
     navigate("/admin/assign-projects");
+    setIsOpen(false);
   };
 
   const handleManageProjectsGradesClick = () => {
     navigate("/admin/manage-projects-grades");
+    setIsOpen(false);
   };
 
   const handlePodiumClick = () => {
     navigate("/admin/podium");
-  };
-
-  const handlePodium2Click = () => {
-    navigate("/admin/podium2");
+    setIsOpen(false);
   };
 
   const handleAnalyticsClick = () => {
     navigate("/admin/analytics");
-  };
-  //DELETE!!
-  const handleExportToCsvClick = async () => {
-    try {
-      console.log("hi");
-      // Fetch all projects
-      const projects = await fetchProjects();
-
-      // Prepare CSV data using PapaParse
-      const csvData = Papa.unparse(projects, {
-        quotes: true, // Enable quotes around fields
-        delimiter: ',', // CSV delimiter
-        header: true, // Include header row based on field names
-      });
-
-      // Create a Blob containing the CSV data
-      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8' });
-
-      // Save the CSV file using FileSaver.js
-      saveAs(blob, 'projects.csv');
-    } catch (error) {
-      console.error('Error exporting to CSV:', error);
-      // Handle error (e.g., show error message to user)
-    }
-  };
-
-  const fetchProjects = async () => {
-    try {
-      const response = await axios.get('/projects/projectsList');
-      return response.data; // Return the fetched projects
-    } catch (error) {
-      console.error('Error fetching projects:', error);
-      throw error; // Handle or propagate the error
-    }
+    setIsOpen(false);
   };
 
   const handleLogout = () => {
@@ -85,69 +203,105 @@ const AdminButtons = observer(() => {
       text: 'Are you sure you want to logout?',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Logout'
+      confirmButtonColor: '#ff6b6b',
+      cancelButtonColor: '#667eea',
+      confirmButtonText: 'Yes, logout',
+      cancelButtonText: 'Cancel',
+      background: 'var(--card-bg)',
+      color: 'var(--text-primary)',
+      backdrop: 'rgba(0, 0, 0, 0.4)',
+      customClass: {
+        popup: 'swal2-popup-dark-mode',
+        title: 'swal2-title-dark-mode',
+        content: 'swal2-content-dark-mode',
+        confirmButton: 'swal2-confirm-dark-mode',
+        cancelButton: 'swal2-cancel-dark-mode'
+      }
     }).then((result) => {
-      if (result.isConfirmed) userStorage.logout();
+      if (result.isConfirmed) {
+        setIsOpen(false);
+        userStorage.logout();
+      }
     });
   };
 
-  // Handle clicks outside the sidebar - closes the sidebar
-  const handleClickOutside = (event) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-      setIsOpen(false); // Close sidebar if clicked outside
-    }
+  const toggleMenu = () => {
+    setIsOpen(!isOpen);
   };
 
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside); // Cleanup listener on unmount
-    };
-  }, []);
-
   return (
-    <div style={{ position: 'relative' }}>
-      <div 
-        style={{ cursor: 'pointer', position: 'fixed', top: '20px', left: '20px', zIndex: 1000 }}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <AiOutlineMenu size={40} />
-      </div>
-      <div
-        ref={sidebarRef} // Add ref to the sidebar for outside click detection
-        className={`side-menu ${isOpen ? 'open' : ''}`} // Toggle open/close class
-        style={{
-          position: 'fixed',
-          top: '70px',
-          // Use left: 0 to show the sidebar, and left: -300px to hide it
-          left: isOpen ? '0' : '-300px',
-          width: '250px',
-          height: '100%',
-          background: 'linear-gradient(135deg,rgba(222, 229, 232, 0.96))', // Applied gradient background
-          padding: '20px',
-          boxShadow: '2px 0px 5px rgba(222, 229, 232, 0.96)',
-          zIndex: 999,
-          transition: 'left 0.3s ease',
-        }}
-      >
-        <div className="admin-buttons">
-          <nav>
-            <ul className="anton-regular">
-              <li onClick={handleManageJudgesClick}><span>Manage Judges</span></li>
-              <li onClick={handleManageProjectsClick}><span>Manage Projects</span></li>
-              <li onClick={handleAssignProjectsClick}><span>Assign Projects</span></li>
-              <li onClick={handleManageProjectsGradesClick}><span>Manage Grades</span></li>
-              <li onClick={handlePodiumClick}><span>Podium</span></li>
-              <li onClick={handlePodium2Click}><span>Podium 2</span></li>
-              <li onClick={handleAnalyticsClick}><span>Analytics</span></li>
-              <li onClick={handleLogout}><span>Logout</span></li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-    </div>
+    <MenuContainer>
+      <HamburgerButton onClick={toggleMenu}>
+        {isOpen ? <FaTimes size={28} /> : <FaBars size={28} />}
+      </HamburgerButton>
+      
+      <Overlay isOpen={isOpen} onClick={toggleMenu} />
+      
+      <SideMenu isOpen={isOpen}>
+        <MenuHeader>
+          <MenuTitle>Admin Dashboard</MenuTitle>
+          <MenuSubtitle>Welcome back, {userStorage.user?.name}</MenuSubtitle>
+        </MenuHeader>
+        
+        <NavigationList>
+          <MenuItem onClick={handleHomeClick}>
+            <MenuIcon>
+              <FaHome />
+            </MenuIcon>
+            <MenuText>Home</MenuText>
+          </MenuItem>
+          
+          <MenuItem onClick={handleManageJudgesClick}>
+            <MenuIcon>
+              <FaUsers />
+            </MenuIcon>
+            <MenuText>Manage Judges</MenuText>
+          </MenuItem>
+          
+          <MenuItem onClick={handleManageProjectsClick}>
+            <MenuIcon>
+              <FaProjectDiagram />
+            </MenuIcon>
+            <MenuText>Manage Projects</MenuText>
+          </MenuItem>
+          
+          <MenuItem onClick={handleAssignProjectsClick}>
+            <MenuIcon>
+              <FaClipboardList />
+            </MenuIcon>
+            <MenuText>Assign Projects</MenuText>
+          </MenuItem>
+          
+          <MenuItem onClick={handleManageProjectsGradesClick}>
+            <MenuIcon>
+              <FaChartBar />
+            </MenuIcon>
+            <MenuText>Manage Grades</MenuText>
+          </MenuItem>
+          
+          <MenuItem onClick={handlePodiumClick}>
+            <MenuIcon>
+              <FaTrophy />
+            </MenuIcon>
+            <MenuText>Podium</MenuText>
+          </MenuItem>
+          
+          <MenuItem onClick={handleAnalyticsClick}>
+            <MenuIcon>
+              <FaCog />
+            </MenuIcon>
+            <MenuText>Analytics</MenuText>
+          </MenuItem>
+          
+          <LogoutItem onClick={handleLogout}>
+            <MenuIcon>
+              <FaSignOutAlt />
+            </MenuIcon>
+            <MenuText>Logout</MenuText>
+          </LogoutItem>
+        </NavigationList>
+      </SideMenu>
+    </MenuContainer>
   );
 });
 

@@ -64,7 +64,7 @@ const SelectField = styled.select`
     padding: 0.75rem 1rem;
     border-radius: 12px;
     border: 1px solid rgba(102, 126, 234, 0.2);
-    font-size: 0.9rem;
+    font-size: 0.99rem;
     background: rgba(255, 255, 255, 0.9);
     color: #1a202c;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -92,7 +92,7 @@ const InputField = styled.input`
     padding: 0.75rem 1rem;
     border-radius: 12px;
     border: 1px solid rgba(102, 126, 234, 0.2);
-    font-size: 0.9rem;
+    font-size: 0.99rem;
     background: rgba(255, 255, 255, 0.9);
     color: #1a202c;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -116,20 +116,23 @@ const InputField = styled.input`
 `;
 
 const Button = styled.button`
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 600;
-    height: 45px;
+    height: 35px;
+    width: 28%;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.4rem;
+    text-align: center;
     
     &:hover {
         transform: translateY(-2px);
@@ -166,10 +169,6 @@ const SearchBar = ({
     return (
         <FormContainer onSubmit={(e) => { e.preventDefault(); onSearchButtonClick(e); }}>
             <InputContainer>
-                <SearchIcon>
-                    <FaSearch size={16} />
-                </SearchIcon>
-                
                 <SearchFields>
                     <SelectField value={searchField} onChange={onSearchFieldChange}>
                         <option value="">Select field</option>

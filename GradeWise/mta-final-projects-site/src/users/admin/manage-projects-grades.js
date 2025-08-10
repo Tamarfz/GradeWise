@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import Swal from 'sweetalert2'; 
 import GradesManager from './GradesTable'; // Updated from GradesTable
-import BackButton from '../../utils/BackButton';
+
 import AdminButtons from './AdminButtons';
 import GradesSearchBar from './GradesSearchBar'; // Import the custom search bar
 import './ManageGrades.css';
@@ -105,7 +105,13 @@ const ManageGrades = () => {
     };
 
     if (loading) {
-        return <h4>Loading grades...</h4>;
+        return (
+            <div className="manage-grades-container">
+                <div className="loading">
+                    <h4>Loading grades...</h4>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -127,7 +133,6 @@ const ManageGrades = () => {
             <div className="grades-manager-table">
                 <GradesManager grades={filteredGrades} /> {/* Display filtered grades */} {/*GradesTable is now GradesManager*/}
             </div>
-            <BackButton route="/admin" />
             <AdminButtons />
         </div>
     );

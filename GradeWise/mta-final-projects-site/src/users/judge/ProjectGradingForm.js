@@ -9,12 +9,12 @@ import { FaStar, FaComments, FaCalculator, FaCheckCircle } from 'react-icons/fa'
 
 // Modern styled components
 const ModernForm = styled.form`
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
   max-width: 600px;
   margin: 0 auto;
 `;
@@ -62,27 +62,27 @@ const StyledFormControl = styled(FormControl)`
   margin-bottom: 20px;
   
   .MuiInputLabel-root {
-    color: #667eea !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
     font-size: 20px !important;
   }
   
   .MuiInputBase-root {
-    background: rgba(255, 255, 255, 0.9) !important;
+    background: var(--input-bg) !important;
     border-radius: 12px !important;
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1) !important;
-    border: 2px solid rgba(102, 126, 234, 0.2) !important;
+    box-shadow: 0 2px 10px var(--shadow-light) !important;
+    border: 2px solid var(--input-border) !important;
     transition: all 0.3s ease !important;
     min-height: 60px !important;
     
     &:hover {
-      border-color: rgba(102, 126, 234, 0.4) !important;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2) !important;
+      border-color: var(--accent-primary) !important;
+      box-shadow: 0 4px 15px var(--shadow-medium) !important;
     }
     
     &.Mui-focused {
-      border-color: #667eea !important;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3) !important;
+      border-color: var(--accent-primary) !important;
+      box-shadow: 0 4px 20px var(--shadow-medium) !important;
     }
   }
   
@@ -90,7 +90,7 @@ const StyledFormControl = styled(FormControl)`
     padding: 16px 20px !important;
     font-weight: 600 !important;
     font-size: 20px !important;
-    color: #1a202c !important;
+    color: var(--text-primary) !important;
     min-height: 60px !important;
     display: flex !important;
     align-items: center !important;
@@ -107,11 +107,11 @@ const StyledFormControl = styled(FormControl)`
   
   /* Custom styles for the dropdown menu */
   .MuiPaper-root {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: var(--card-bg) !important;
     backdrop-filter: blur(10px) !important;
     border-radius: 12px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px var(--shadow-light) !important;
+    border: 1px solid var(--card-border) !important;
   }
   
   .MuiMenuItem-root {
@@ -121,9 +121,10 @@ const StyledFormControl = styled(FormControl)`
     min-height: 50px !important;
     display: flex !important;
     align-items: center !important;
+    color: var(--text-primary) !important;
     
     &:hover {
-      background: rgba(102, 126, 234, 0.1) !important;
+      background: var(--bg-secondary) !important;
     }
     
     &.Mui-selected {
@@ -143,24 +144,24 @@ const ModernTextarea = styled.textarea`
   width: 100%;
   border-radius: 12px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(102, 126, 234, 0.2);
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+  background: var(--input-bg);
+  border: 2px solid var(--input-border);
+  box-shadow: 0 2px 10px var(--shadow-light);
   font-size: 20px;
   font-weight: 500;
-  color: #1a202c;
+  color: var(--text-primary);
   resize: vertical;
   min-height: 100px;
   transition: all 0.3s ease;
   
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 20px var(--shadow-medium);
   }
   
   &::placeholder {
-    color: #718096;
+    color: var(--text-secondary);
     font-size: 20px;
   }
 `;
@@ -242,7 +243,7 @@ const LoadingSpinner = styled.div`
   align-items: center;
   justify-content: center;
   padding: 40px;
-  color: #667eea;
+  color: var(--accent-primary);
   font-weight: 600;
 `;
 

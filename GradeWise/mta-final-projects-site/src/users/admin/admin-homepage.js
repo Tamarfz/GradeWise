@@ -13,7 +13,6 @@ import {
   FaChartBar, 
   FaTrophy, 
   FaCog, 
-  FaSignOutAlt,
   FaUserShield,
   FaClipboardList
 } from 'react-icons/fa';
@@ -131,19 +130,7 @@ const AdminHome = observer(() => {
                         </h1>
                         <p className="welcome-subtitle">Here's what's happening with your competition today</p>
                     </div>
-                    <div className="header-actions">
-                        <button 
-                            className="logout-btn"
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to logout?')) {
-                                    userStorage.logout();
-                                }
-                            }}
-                        >
-                            <FaSignOutAlt />
-                            Logout
-                        </button>
-                    </div>
+
                 </div>
             </header>
 

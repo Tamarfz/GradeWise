@@ -179,27 +179,37 @@ const GradesManager = ({ grades }) => {
     return sortConfig.key === fieldName && sortConfig.direction === direction;
   };
 
-  const renderSortButtons = (displayName) => (
-    <HeaderContent>
-      {displayName}
-      <div>
-        <SortButton
-          onClick={() => handleSort(displayName, 'asc')}
-          className={isSortActive(displayName, 'asc') ? 'active' : ''}
-          title="Sort ascending"
-        >
-          ▲
-        </SortButton>
-        <SortButton
-          onClick={() => handleSort(displayName, 'desc')}
-          className={isSortActive(displayName, 'desc') ? 'active' : ''}
-          title="Sort descending"
-        >
-          ▼
-        </SortButton>
-      </div>
-    </HeaderContent>
-  );
+  const renderSortButtons = (displayName) => {
+    const fieldName = fieldNameMap[displayName];
+    const isCurrentlySorted = sortConfig.key === fieldName;
+    const currentDirection = sortConfig.direction;
+    
+    const handleToggleSort = () => {
+      if (isCurrentlySorted) {
+        // If already sorted by this column, toggle direction
+        const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+        handleSort(displayName, newDirection);
+      } else {
+        // If not sorted by this column, start with ascending
+        handleSort(displayName, 'asc');
+      }
+    };
+
+    return (
+      <HeaderContent>
+        {displayName}
+        <div>
+          <SortButton
+            onClick={handleToggleSort}
+            className={isCurrentlySorted ? 'active' : ''}
+            title={isCurrentlySorted ? `Sort ${currentDirection === 'asc' ? 'descending' : 'ascending'}` : 'Sort ascending'}
+          >
+            {isCurrentlySorted && currentDirection === 'desc' ? '▼' : '▲'}
+          </SortButton>
+        </div>
+      </HeaderContent>
+    );
+  };
 
   return (
     <TableContainer>

@@ -12,20 +12,20 @@ import { FaUser, FaEnvelope, FaLock, FaSave, FaCog, FaUserShield } from 'react-i
 // Modern styled components
 const ModernContainer = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-primary);
   padding: 20px;
   display: flex;
   flex-direction: column;
 `;
 
 const DashboardHeader = styled.header`
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 30px;
   margin-bottom: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
   text-align: center;
 `;
 
@@ -41,18 +41,18 @@ const WelcomeTitle = styled.h1`
 
 const WelcomeSubtitle = styled.p`
   font-size: 1.1rem;
-  color: #718096;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 500;
 `;
 
 const ProfileCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
@@ -65,7 +65,7 @@ const FormSection = styled.div`
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a202c;
+  color: #ffffff;
   margin-bottom: 25px;
   display: flex;
   align-items: center;
@@ -79,7 +79,7 @@ const FormField = styled.div`
 const FieldLabel = styled.label`
   display: block;
   font-weight: 600;
-  color: #4a5568;
+  color: var(--text-primary);
   margin-bottom: 8px;
   font-size: 1rem;
 `;
@@ -93,7 +93,7 @@ const InputContainer = styled.div`
 const FieldIcon = styled.div`
   position: absolute;
   left: 16px;
-  color: #667eea;
+  color: var(--accent-primary);
   font-size: 18px;
   z-index: 2;
 `;
@@ -101,33 +101,33 @@ const FieldIcon = styled.div`
 const ModernInput = styled.input`
   width: 100%;
   padding: 16px 16px 16px 50px;
-  border: 2px solid rgba(102, 126, 234, 0.2);
+  border: 2px solid var(--input-border);
   border-radius: 12px;
   font-size: 1rem;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.9);
-  color: #1a202c;
+  background: var(--input-bg);
+  color: var(--text-primary);
   transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 2px 10px var(--shadow-light);
 
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 20px var(--shadow-medium);
     transform: translateY(-2px);
   }
 
   &::placeholder {
-    color: #a0aec0;
+    color: var(--text-secondary);
   }
 `;
 
 const PreferencesSection = styled.div`
-  background: rgba(248, 250, 252, 0.8);
+  background: var(--bg-secondary);
   border-radius: 16px;
   padding: 25px;
   margin-top: 30px;
-  border: 1px solid rgba(102, 126, 234, 0.1);
+  border: 1px solid var(--border-color);
 `;
 
 const ButtonContainer = styled.div`
@@ -189,7 +189,7 @@ const LoadingSpinner = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 200px;
-  color: #667eea;
+  color: var(--accent-primary);
   font-weight: 600;
   font-size: 1.1rem;
 `;

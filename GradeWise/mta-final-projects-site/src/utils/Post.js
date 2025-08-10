@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FaGithub, FaCheck, FaEye, FaInfoCircle, FaTrophy, FaStar } from 'react-icons/fa'; // Import additional icons
+import { FaGithub, FaCheck, FaEye, FaInfoCircle, FaTrophy, FaStar, FaCheckCircle } from 'react-icons/fa'; // Import additional icons
 import { MdGrading } from "react-icons/md";
 import { convertWixImageUrl } from './Utils';
 import { backendURL } from '../config';  // Adjust path as needed
@@ -101,22 +101,47 @@ const ScoreValue = styled.span`
     text-align: center;
 `;
 
+// Judge Graded Badge - similar to GradedNotice from ProjectGradingForm
+const JudgeGradedBadge = styled.div`
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 15px rgba(67, 233, 123, 0.3);
+    z-index: 20;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(67, 233, 123, 0.4);
+    }
+`;
+
 const PostContainer = styled.div`
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px var(--shadow-light);
     transition: all 0.3s ease;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid var(--card-border);
     height: 420px;
     cursor: ${props => props.showGradeButton ? 'pointer' : 'default'};
     
     &:hover {
         transform: translateY(-8px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-        border-color: rgba(102, 126, 234, 0.3);
+        box-shadow: 0 12px 40px var(--shadow-medium);
+        border-color: var(--accent-primary);
     }
     
     ${props => props.showGradeButton && `
@@ -126,7 +151,7 @@ const PostContainer = styled.div`
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(102, 126, 234, 0.9);
+            background: var(--accent-primary);
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -152,7 +177,7 @@ const Image = styled.img`
     width: 100%;
     height: 100%;
     object-fit: contain;
-    background: #f8f9fa;
+    background: var(--bg-secondary);
     transition: transform 0.3s ease;
     
     ${PostContainer}:hover & {
@@ -166,7 +191,7 @@ const ImageOverlay = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     opacity: 0;
     transition: opacity 0.3s ease;
     display: flex;
@@ -179,7 +204,7 @@ const ImageOverlay = styled.div`
 `;
 
 const OverlayContent = styled.div`
-    color: #1a202c;
+    color: var(--text-primary);
     text-align: center;
     padding: 1rem;
 `;
@@ -188,13 +213,13 @@ const OverlayTitle = styled.h3`
     font-size: 1.3rem;
     font-weight: 700;
     margin: 0 0 0.5rem 0;
-    color: #1a202c;
+    color: var(--text-primary);
 `;
 
 const OverlaySubtitle = styled.p`
     font-size: 1rem;
     margin: 0;
-    color: #718096;
+    color: var(--text-secondary);
     font-weight: 500;
 `;
 
@@ -207,9 +232,9 @@ const ContentSection = styled.div`
 
 const Title = styled.h2`
     margin: 0 0 0.5rem 0;
-    font-size: 1.1rem;
+    font-size: 1.21rem;
     font-weight: 700;
-    color: #1a202c;
+    color: var(--text-primary);
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -219,8 +244,8 @@ const Title = styled.h2`
 
 const Content = styled.p`
     margin: 0 0 0.5rem 0;
-    font-size: 0.85rem;
-    color: #718096;
+    font-size: 0.935rem;
+    color: var(--text-secondary);
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -239,11 +264,14 @@ const CardActions = styled.div`
 
 const ActionButtons = styled.div`
     display: flex;
+    flex-direction: row;
+    align-items: center;
     gap: 0.5rem;
+    flex-wrap: nowrap;
 `;
 
 const ActionButton = styled.button`
-    padding: 0.6rem;
+    padding: 5px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
@@ -254,10 +282,13 @@ const ActionButton = styled.button`
     align-items: center;
     justify-content: center;
     font-size: 0.9rem;
-    height: 42px;
-    width: 42px;
+    height: 40px;
+    width: 40px;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
     text-decoration: none;
+    box-sizing: border-box;
+    min-width: 40px;
+    min-height: 40px;
 
     &:hover {
         transform: translateY(-3px);
@@ -267,10 +298,30 @@ const ActionButton = styled.button`
     }
 `;
 
-const ActionLink = styled(ActionButton).attrs({ as: 'a' })`
+const ActionLink = styled.a`
+    padding: 5px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    height: 40px;
+    width: 40px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
     text-decoration: none;
+    box-sizing: border-box;
+    min-width: 40px;
+    min-height: 40px;
 
     &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
         text-decoration: none;
     }
 `;
@@ -278,14 +329,14 @@ const ActionLink = styled(ActionButton).attrs({ as: 'a' })`
 const GithubLink = styled.a`
     display: flex;
     align-items: center;
-    color: #667eea;
+    color: var(--accent-primary);
     text-decoration: none;
     font-weight: 600;
     transition: all 0.3s ease;
     font-size: 0.8rem;
 
     &:hover {
-        color: #764ba2;
+        color: var(--accent-secondary);
         transform: translateX(3px);
     }
 
@@ -325,7 +376,7 @@ const ExpandableInfo = styled.div`
     left: 0;
         right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--card-bg);
     backdrop-filter: blur(10px);
     border-radius: 20px;
     padding: 1.5rem;
@@ -347,13 +398,13 @@ const InfoHeader = styled.div`
     align-items: center;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+    border-bottom: 1px solid var(--border-color);
 `;
 
 const InfoTitle = styled.h3`
     font-size: 1.2rem;
     font-weight: 700;
-    color: #1a202c;
+    color: var(--text-primary);
         margin: 0;
 `;
 
@@ -361,15 +412,15 @@ const CloseButton = styled.button`
     background: none;
     border: none;
     font-size: 1.5rem;
-    color: #718096;
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 50%;
     transition: all 0.3s ease;
     
     &:hover {
-        background: rgba(102, 126, 234, 0.1);
-        color: #667eea;
+        background: var(--bg-secondary);
+        color: var(--accent-primary);
     }
 `;
 
@@ -382,14 +433,14 @@ const ProjectInfo = styled.div`
 
 const InfoItem = styled.div`
     padding: 0.75rem;
-    background: rgba(102, 126, 234, 0.05);
+    background: var(--bg-secondary);
     border-radius: 8px;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid var(--border-color);
 `;
 
 const InfoLabel = styled.span`
     font-weight: 600;
-    color: #1a202c;
+    color: var(--text-primary);
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -399,7 +450,7 @@ const InfoLabel = styled.span`
 
 const InfoValue = styled.span`
     display: block;
-    color: #718096;
+    color: var(--text-secondary);
     font-size: 0.85rem;
     line-height: 1.4;
 `;
@@ -443,6 +494,7 @@ const ShowInfoButton = styled.button`
 const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
     const [showInfo, setShowInfo] = useState(false);
     const [gradeInfo, setGradeInfo] = useState(null);
+    const [judgeGraded, setJudgeGraded] = useState(false);
 
     useEffect(() => {
         const fetchGradeInfo = async () => {
@@ -464,10 +516,28 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
             }
         };
 
+        const checkJudgeGraded = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${backendURL}/projects/${project.ProjectNumber || project._id}/grade`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setJudgeGraded(!!(data && data.gradeInfo));
+                }
+            } catch (error) {
+                console.error('Error checking judge grade:', error);
+            }
+        };
+
         if (project._id) {
-        fetchGradeInfo();
+            fetchGradeInfo();
+            if (showGradeButton) {
+                checkJudgeGraded();
+            }
         }
-    }, [project._id, reloadGrade]);
+    }, [project._id, reloadGrade, showGradeButton]);
 
     const handleGradeClick = () => {
         if (onGrade) {
@@ -531,29 +601,20 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
                 </ScoreBadge>
             )}
 
-            {/* Temporary test badge for debugging */}
-            {gradeInfo && (
-                <div style={{
-                    position: 'absolute',
-                    top: '15px',
-                    left: '15px',
-                    background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)',
-                    color: 'white',
-                    padding: '8px 12px',
-                    borderRadius: '20px',
-                    fontSize: '0.8rem',
-                    fontWeight: '700',
-                    zIndex: 30,
-                    boxShadow: '0 4px 15px rgba(255, 107, 107, 0.4)',
-                    border: '2px solid rgba(255, 255, 255, 0.3)'
-                }}>
-                    TEST: {gradeInfo.gradedBy?.length || 0} judges
-                </div>
-            )}
+
 
             {/* Image Section */}
             <ImageContainer>
                 <Image src={imageUrl} alt={project.Title || project.name} />
+                
+                {/* Judge Graded Badge - shows when current judge has graded this project */}
+                {judgeGraded && (
+                    <JudgeGradedBadge>
+                        <FaCheckCircle size={12} />
+                        GRADED
+                    </JudgeGradedBadge>
+                )}
+                
                 <ImageOverlay>
                     <OverlayContent>
                         <OverlayTitle>{project.Title || project.name}</OverlayTitle>

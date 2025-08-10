@@ -11,7 +11,7 @@ const PreferencesContainer = styled.div`
 const PreferencesTitle = styled.h3`
   font-size: 1.3rem;
   font-weight: 700;
-  color: #1a202c;
+  color: #ffffff;
   margin-bottom: 20px;
   display: flex;
   align-items: center;
@@ -27,8 +27,8 @@ const PreferencesList = styled.ul`
 `;
 
 const PreferenceItem = styled.li`
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(102, 126, 234, 0.1);
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 16px;
   transition: all 0.3s ease;
@@ -36,25 +36,25 @@ const PreferenceItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.05);
+  box-shadow: 0 2px 10px var(--shadow-light);
 
   &:hover {
-    border-color: rgba(102, 126, 234, 0.3);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px var(--shadow-medium);
     transform: translateY(-2px);
   }
 
   &.selected {
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-    border-color: rgba(102, 126, 234, 0.4);
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px var(--shadow-medium);
   }
 `;
 
 const PreferenceLabel = styled.label`
   flex: 1;
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text-primary);
   cursor: pointer;
   margin: 0;
   font-size: 1rem;
@@ -74,9 +74,9 @@ const ModernCheckbox = styled.input`
   appearance: none;
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(102, 126, 234, 0.3);
+  border: 2px solid var(--border-color);
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--input-bg);
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
@@ -99,8 +99,8 @@ const ModernCheckbox = styled.input`
   }
 
   &:hover {
-    border-color: rgba(102, 126, 234, 0.5);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    border-color: var(--accent-primary);
+    box-shadow: 0 2px 8px var(--shadow-light);
   }
 `;
 
@@ -109,7 +109,7 @@ const LoadingMessage = styled.div`
   align-items: center;
   justify-content: center;
   padding: 20px;
-  color: #667eea;
+  color: var(--accent-primary);
   font-weight: 600;
   gap: 10px;
 `;

@@ -9,6 +9,7 @@
   max-width: 100%; /* Ensure it doesn't exceed the screen width */
   box-sizing: border-box;
   overflow-x: hidden; /* Prevent horizontal scrolling */
+  font-size: 1.1em; /* Increase base font size by 10% */
 }
 
 /* Header styling */

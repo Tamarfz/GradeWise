@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { apiUrl } from '../../config';
+import AdminButtons from './AdminButtons';
 import './Podium.css';
 
 const Podium = () => {
@@ -220,33 +221,11 @@ const Podium = () => {
             )}
           </div>
 
-          <div className="podium-stats">
-            <div className="stats-card">
-              <h4>🏆 Competition Stats</h4>
-              <div className="stats-grid">
-                <div className="stat-item">
-                  <span className="stat-value">{topProjects.length}</span>
-                  <span className="stat-label">Top Projects</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value">
-                    {topProjects.length > 0 ? topProjects[0].averageTotal.toFixed(2) : '0.00'}
-                  </span>
-                  <span className="stat-label">Highest Score</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-value">
-                    {topProjects.length > 0 ? 
-                      (topProjects.reduce((sum, project) => sum + project.averageTotal, 0) / topProjects.length).toFixed(2) : '0.00'
-                    }
-                  </span>
-                  <span className="stat-label">Average Score</span>
-                </div>
-              </div>
-            </div>
-          </div>
+
         </div>
       )}
+      
+      <AdminButtons />
     </div>
   );
 };

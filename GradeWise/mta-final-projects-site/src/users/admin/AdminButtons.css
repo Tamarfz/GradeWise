@@ -1,18 +1,20 @@
 /* Modern Admin Dashboard Styles */
 .admin-dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 1.1em; /* Increase base font size by 10% */
 }
 
 /* Header Styles */
 .admin-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid var(--border-color);
   padding: 2rem 3rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px var(--shadow-light);
 }
 
 .header-content {
@@ -28,9 +30,9 @@
 }
 
 .welcome-title {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--text-primary);
   margin: 0 0 0.5rem 0;
   line-height: 1.2;
 }
@@ -43,8 +45,8 @@
 }
 
 .welcome-subtitle {
-  font-size: 1.1rem;
-  color: #718096;
+  font-size: 1.21rem;
+  color: var(--text-secondary);
   margin: 0;
   font-weight: 400;
 }
@@ -90,13 +92,14 @@
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 2rem;
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  border: 1px solid var(--card-border);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -140,7 +143,7 @@
 }
 
 .stat-number {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
   font-weight: 700;
   color: #1a202c;
   margin: 0 0 0.25rem 0;
@@ -148,7 +151,7 @@
 }
 
 .stat-label {
-  font-size: 0.9rem;
+  font-size: 0.99rem;
   color: #718096;
   margin: 0;
   font-weight: 500;
@@ -164,7 +167,7 @@
 }
 
 .section-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: white;
   margin: 0 0 2rem 0;
@@ -175,6 +178,26 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
+  justify-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Admin specific actions grid - 3 items per row, same size */
+.admin-dashboard .actions-grid {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: none;
+  justify-items: stretch;
+}
+
+.admin-dashboard .action-card {
+  width: 100%;
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .action-card {
@@ -217,14 +240,14 @@
 }
 
 .action-title {
-  font-size: 1.5rem;
+  font-size: 1.65rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   color: white;
 }
 
 .action-description {
-  font-size: 0.95rem;
+  font-size: 1.045rem;
   margin: 0;
   opacity: 0.9;
   line-height: 1.5;
@@ -270,18 +293,20 @@
   position: fixed;
   top: 20px;
   left: 20px;
-  z-index: 1001;
+  z-index: 9999;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 50%;
   width: 50px;
   height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   color: #1a202c;
+  margin: 0;
+  padding: 0;
 }
 
 .menu-toggle:hover {
@@ -444,8 +469,17 @@
   }
   
   .actions-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1rem;
+    justify-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .admin-dashboard .actions-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: none;
+    justify-items: stretch;
   }
   
   .stat-card {
@@ -458,6 +492,17 @@
   
   .feed-container {
     padding: 1rem;
+  }
+  
+  /* Ensure menu toggle stays fixed on mobile */
+  .menu-toggle {
+    position: fixed !important;
+    top: 60px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
 
@@ -480,6 +525,25 @@
   
   .action-title {
     font-size: 1.25rem;
+  }
+  
+  .admin-dashboard .actions-grid {
+    grid-template-columns: 1fr;
+    max-width: none;
+    justify-items: stretch;
+  }
+  
+  /* Ensure menu toggle stays fixed on small mobile devices */
+  .menu-toggle {
+    position: fixed !important;
+    top: 50px !important;
+    right: 15px !important;
+    z-index: 9999 !important;
+    width: 45px !important;
+    height: 45px !important;
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
 

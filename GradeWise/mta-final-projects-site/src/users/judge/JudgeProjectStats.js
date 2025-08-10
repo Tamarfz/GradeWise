@@ -358,13 +358,7 @@ const JudgeProjectStats = ({ reload }) => {
         </ProgressStats>
       </ProgressContainer>
 
-      <ModernBadge finished={finished} loading={loading}>
-        <ProgressRing progress={progress} />
-        <BadgeIcon>
-          {getIcon()}
-        </BadgeIcon>
-        <StatText>{getText()}</StatText>
-      </ModernBadge>
+
     </Wrapper>
   );
 };

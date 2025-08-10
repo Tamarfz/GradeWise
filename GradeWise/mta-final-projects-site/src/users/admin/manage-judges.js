@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import React, { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
 import ReactDOM from 'react-dom/client';
-import BackButton from '../../utils/BackButton';
+
 import ExportData from './export-data';
 import AdminButtons from './AdminButtons';
 import { backendURL } from '../../config';
@@ -113,11 +113,11 @@ const ManageJudges = observer(() => {
     
     const openJudgesListModal = () => {
         Swal.fire({
-            title: '<span style="font-size: 75%; color: #175a94;">Registered Judges</span>',
-            html: '<div id="judgesListContainer" style="font-size: 75%; color: #175a94;"></div>',
+            title: '<span style="font-size: 75%; color: var(--text-primary);">Registered Judges</span>',
+            html: '<div id="judgesListContainer" style="font-size: 75%; color: var(--text-primary);"></div>',
             showCancelButton: true,
-            confirmButtonText: '<span style="font-size: 75%;">Remove Selected Judges</span>',
-            cancelButtonText: '<span style="font-size: 75%;">Close</span>',
+            confirmButtonText: '<span style="font-size: 75%; color: var(--text-primary);">Remove Selected Judges</span>',
+            cancelButtonText: '<span style="font-size: 75%; color: var(--text-primary);">Close</span>',
             preConfirm: () => {
                 const selectedJudges = JSON.parse(localStorage.getItem('selectedJudges')) || [];
                 removeSelectedJudges(selectedJudges);
@@ -137,10 +137,12 @@ const ManageJudges = observer(() => {
         }
     };
     
-    // Updated JudgesList component with left-aligned checkbox and text
+    // Updated JudgesList component with sorting functionality
     const JudgesList = () => {
         const [filterText, setFilterText] = React.useState('');
         const [selectedJudges, setSelectedJudges] = React.useState([]);
+        const [sortField, setSortField] = React.useState('name');
+        const [sortDirection, setSortDirection] = React.useState('asc');
       
         React.useEffect(() => {
           localStorage.setItem('selectedJudges', JSON.stringify(selectedJudges));
@@ -153,6 +155,57 @@ const ManageJudges = observer(() => {
               : [...prevSelectedJudges, id]
           );
         };
+
+        const handleSort = (field) => {
+            if (sortField === field) {
+                setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+            } else {
+                setSortField(field);
+                setSortDirection('asc');
+            }
+        };
+
+        const renderSortButton = (field, label) => (
+            <button
+                onClick={() => handleSort(field)}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    color: 'var(--text-primary)',
+                    fontWeight: 'bold',
+                    padding: '2px 5px',
+                    margin: '0 5px'
+                }}
+            >
+                {label} {sortField === field ? (sortDirection === 'asc' ? '▲' : '▼') : '↕'}
+            </button>
+        );
+
+        const sortedJudges = [...judges]
+            .filter(
+                (judge) =>
+                    judge.name.toLowerCase().includes(filterText.toLowerCase()) ||
+                    judge.ID.toString().includes(filterText)
+            )
+            .sort((a, b) => {
+                let aValue, bValue;
+                
+                if (sortField === 'name') {
+                    aValue = a.name.toLowerCase();
+                    bValue = b.name.toLowerCase();
+                } else if (sortField === 'id') {
+                    aValue = parseInt(a.ID);
+                    bValue = parseInt(b.ID);
+                }
+                
+                if (sortDirection === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
       
         return (
           <div>
@@ -161,29 +214,37 @@ const ManageJudges = observer(() => {
               id="filterInput"
               placeholder="Filter by name or ID"
               onChange={(e) => setFilterText(e.target.value)}
+              style={{ 
+                marginBottom: '10px', 
+                width: '100%', 
+                padding: '5px',
+                backgroundColor: 'var(--input-bg)',
+                border: '1px solid var(--input-border)',
+                color: 'var(--text-primary)'
+              }}
             />
+            <div style={{ marginBottom: '10px', display: 'flex', gap: '10px' }}>
+                {renderSortButton('name', 'Name')}
+                {renderSortButton('id', 'ID')}
+            </div>
             <ul id="judgesList" style={{ listStyleType: 'none', padding: 0 }}>
-              {judges
-                .filter(
-                  (judge) =>
-                    judge.name.toLowerCase().includes(filterText.toLowerCase()) ||
-                    judge.ID.toString().includes(filterText)
-                )
-                .map((judge, index) => (
+              {sortedJudges.map((judge, index) => (
                   <li key={judge.ID} style={{ marginBottom: '10px' }}>
                     <div
                       style={{
                         display: 'flex',
-                        alignItems: 'flex-start', // Align content at the top/left
+                        alignItems: 'flex-start',
                         justifyContent: 'flex-start',
-                        border: '1px solid #ccc',
-                        padding: '10px'
+                        border: '1px solid var(--border-color)',
+                        padding: '10px',
+                        backgroundColor: 'var(--card-bg)',
+                        color: 'var(--text-primary)'
                       }}
                     >
                       <input
                         type="checkbox"
                         id={`judge-${index}`}
-                        style={{ marginLeft: '20px', marginRight: '10px' }} // Use same margins as potential judges modal
+                        style={{ marginLeft: '20px', marginRight: '10px' }}
                         checked={selectedJudges.includes(judge.ID.toString())}
                         onChange={() => toggleSelection(judge.ID.toString())}
                       />
@@ -193,7 +254,8 @@ const ManageJudges = observer(() => {
                           flex: 1,
                           whiteSpace: 'nowrap',
                           textOverflow: 'ellipsis',
-                          marginRight: '200px'
+                          marginRight: '200px',
+                          color: 'var(--text-primary)'
                         }}
                       >
                         {judge.name} (ID: {judge.ID})
@@ -229,11 +291,11 @@ const ManageJudges = observer(() => {
 
     const openPotentialJudgesListModal = () => {
         Swal.fire({
-            title: '<span style="font-size: 75%; color: #175a94;">Potential Judges</span>',
-            html: '<div id="potentialJudgesListContainer" style="font-size: 75%; color: #175a94;"></div>',
+            title: '<span style="font-size: 75%; color: var(--text-primary);">Potential Judges</span>',
+            html: '<div id="potentialJudgesListContainer" style="font-size: 75%; color: var(--text-primary);"></div>',
             showCancelButton: true,
-            confirmButtonText: '<span style="font-size: 75%; color:;">Remove Selected Potential Judges</span>',
-            cancelButtonText: '<span style="font-size: 75%; color: ;">Close</span>',
+            confirmButtonText: '<span style="font-size: 75%; color: var(--text-primary);">Remove Selected Potential Judges</span>',
+            cancelButtonText: '<span style="font-size: 75%; color: var(--text-primary);">Close</span>',
             preConfirm: () => {
                 const selectedIds = JSON.parse(localStorage.getItem('selectedPotentialJudges')) || [];
                 removeSelectedIdsInternal(selectedIds);
@@ -255,26 +317,57 @@ const ManageJudges = observer(() => {
     const PotentialJudgesList = () => {
         const [filterText, setFilterText] = React.useState('');
         const [selectedIds, setSelectedIds] = React.useState([]);
+        const [sortDirection, setSortDirection] = React.useState('asc');
     
         React.useEffect(() => {
             localStorage.setItem('selectedPotentialJudges', JSON.stringify(selectedIds));
         }, [selectedIds]);
     
 
-        //Do we need this function? is it a duplicate of the one above?
         const toggleSelection = (id) => {
             setSelectedIds((prevSelectedIds) => {
-                //if the id is already in the list, remove it
                 if (prevSelectedIds.includes(id)) {
                     return prevSelectedIds.filter((judgeId) => judgeId !== id);
-
-                }
-                //if the id is not in the list, add it 
-                else {
+                } else {
                     return [...prevSelectedIds, id];
                 }
             });
         };
+
+        const handleSort = () => {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        };
+
+        const renderSortButton = () => (
+            <button
+                onClick={handleSort}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    color: 'var(--text-primary)',
+                    fontWeight: 'bold',
+                    padding: '2px 5px',
+                    margin: '0 5px'
+                }}
+            >
+                ID {sortDirection === 'asc' ? '▲' : '▼'}
+            </button>
+        );
+
+        const sortedPotentialJudges = [...potentialJudges]
+            .filter((judge) => judge.ID.toString().includes(filterText))
+            .sort((a, b) => {
+                const aValue = parseInt(a.ID);
+                const bValue = parseInt(b.ID);
+                
+                if (sortDirection === 'asc') {
+                    return aValue - bValue;
+                } else {
+                    return bValue - aValue;
+                }
+            });
     
         return (
             <div>
@@ -283,31 +376,76 @@ const ManageJudges = observer(() => {
                     id="filterInput"
                     placeholder="Filter by ID"
                     onChange={(e) => setFilterText(e.target.value)}
+                    style={{ 
+                        marginBottom: '10px', 
+                        width: '100%', 
+                        padding: '5px',
+                        backgroundColor: 'var(--input-bg)',
+                        border: '1px solid var(--input-border)',
+                        color: 'var(--text-primary)'
+                    }}
                 />
+                <div style={{ marginBottom: '10px' }}>
+                    {renderSortButton()}
+                </div>
                 <ul id="potentialJudgesList" style={{ listStyleType: 'none', padding: 0 }}>
-                    {potentialJudges
-                        .filter((judge) => judge.ID.toString().includes(filterText))
-                        .map((judge, index) => (
-                            <li key={judge.ID} style={{ marginBottom: '10px' }}>
-                                <div style={{ display: 'flex', alignItems: 'left', justifyContent: 'normal', border: '1px solid #ccc', padding: '10px' }}>
-                                    
-                                    <input
-                                        type="checkbox"
-                                        id={`potential-judge-${index}`}
-                                        checked={selectedIds.includes(judge.ID.toString())}
-                                        onChange={() => toggleSelection(judge.ID.toString())}
-                                        style={{ marginLeft: '20px', marginRight: '10px' }} // Ensure checkbox sticks to the right without margin
-                                    />
-                                    <label htmlFor={`potential-judge-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '200px' }}>
-                                        ID: {judge.ID}
-                                    </label>
-                                </div>
-                            </li>
-                        ))}
+                    {sortedPotentialJudges.map((judge, index) => (
+                        <li key={judge.ID} style={{ marginBottom: '10px' }}>
+                            <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'left', 
+                                justifyContent: 'normal', 
+                                border: '1px solid var(--border-color)', 
+                                padding: '10px',
+                                backgroundColor: 'var(--card-bg)',
+                                color: 'var(--text-primary)'
+                            }}>
+                                <input
+                                    type="checkbox"
+                                    id={`potential-judge-${index}`}
+                                    checked={selectedIds.includes(judge.ID.toString())}
+                                    onChange={() => toggleSelection(judge.ID.toString())}
+                                    style={{ marginLeft: '20px', marginRight: '10px' }}
+                                />
+                                <label htmlFor={`potential-judge-${index}`} style={{ 
+                                    flex: 1, 
+                                    whiteSpace: 'nowrap', 
+                                    textOverflow: 'ellipsis', 
+                                    marginRight: '200px',
+                                    color: 'var(--text-primary)'
+                                }}>
+                                    ID: {judge.ID}
+                                </label>
+                            </div>
+                        </li>
+                    ))}
                 </ul>
                 <div>
-                    <input type="text" id="newIdInput" placeholder="Enter new ID" />
-                    <button onClick={addNewId}>Add New ID</button>
+                    <input 
+                        type="text" 
+                        id="newIdInput" 
+                        placeholder="Enter new ID" 
+                        style={{
+                            backgroundColor: 'var(--input-bg)',
+                            border: '1px solid var(--input-border)',
+                            color: 'var(--text-primary)',
+                            padding: '5px',
+                            marginRight: '10px'
+                        }}
+                    />
+                    <button 
+                        onClick={addNewId}
+                        style={{
+                            backgroundColor: 'var(--accent-primary)',
+                            color: 'white',
+                            border: 'none',
+                            padding: '5px 10px',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        Add New ID
+                    </button>
                 </div>
             </div>
         );
@@ -396,11 +534,11 @@ const ManageJudges = observer(() => {
             const preferences = await response.json();
     
             Swal.fire({
-                title: '<span style="font-size: 75%; color: #175a94;">Remove Preferences</span>',
-                html: '<div id="preferencesListContainer" style="font-size: 75%; color: #175a94;"></div>',
+                title: '<span style="font-size: 75%; color: var(--text-primary);">Remove Preferences</span>',
+                html: '<div id="preferencesListContainer" style="font-size: 75%; color: var(--text-primary);"></div>',
                 showCancelButton: true,
-                confirmButtonText: '<span style="font-size: 75%;">Remove Selected Preferences</span>',
-                cancelButtonText: '<span style="font-size: 75%;">Close</span>',
+                confirmButtonText: '<span style="font-size: 75%; color: var(--text-primary);">Remove Selected Preferences</span>',
+                cancelButtonText: '<span style="font-size: 75%; color: var(--text-primary);">Close</span>',
                 preConfirm: () => {
                     const selectedPreferences = JSON.parse(localStorage.getItem('selectedPreferences')) || [];
                     removeSelectedPreferences(selectedPreferences);
@@ -425,12 +563,12 @@ const ManageJudges = observer(() => {
 
     const PreferencesList = ({ preferences }) => {
         const [selectedPreferences, setSelectedPreferences] = React.useState([]);
+        const [sortDirection, setSortDirection] = React.useState('asc');
 
         React.useEffect(() => {
             localStorage.setItem('selectedPreferences', JSON.stringify(selectedPreferences));
         }, [selectedPreferences]);
 
-        //Do we need this function? is it a duplicate of the one above?
         const toggleSelection = (id) => {
             setSelectedPreferences((prevSelectedPreferences) => {
                 if (prevSelectedPreferences.includes(id)) {
@@ -441,21 +579,70 @@ const ManageJudges = observer(() => {
             });
         };
 
+        const handleSort = () => {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        };
+
+        const renderSortButton = () => (
+            <button
+                onClick={handleSort}
+                style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '12px',
+                    color: 'var(--text-primary)',
+                    fontWeight: 'bold',
+                    padding: '2px 5px',
+                    margin: '0 5px'
+                }}
+            >
+                ID {sortDirection === 'asc' ? '▲' : '▼'}
+            </button>
+        );
+
+        const sortedPreferences = [...preferences].sort((a, b) => {
+            const aValue = parseInt(a.ID);
+            const bValue = parseInt(b.ID);
+            
+            if (sortDirection === 'asc') {
+                return aValue - bValue;
+            } else {
+                return bValue - aValue;
+            }
+        });
+
         return (
             <div>
+                <div style={{ marginBottom: '10px' }}>
+                    {renderSortButton()}
+                </div>
                 <ul id="preferencesList" style={{ listStyleType: 'none', padding: 0 }}>
-                    {preferences.map((preference, index) => (
+                    {sortedPreferences.map((preference, index) => (
                         <li key={preference.ID} style={{ marginBottom: '10px' }}>
-                            <div style={{ display: 'flex',justifyContent: 'normal', alignItems: 'left', border: '1px solid #ccc', padding: '10px' }}>
-                                
+                            <div style={{ 
+                                display: 'flex',
+                                justifyContent: 'normal', 
+                                alignItems: 'left', 
+                                border: '1px solid var(--border-color)', 
+                                padding: '10px',
+                                backgroundColor: 'var(--card-bg)',
+                                color: 'var(--text-primary)'
+                            }}>
                                 <input
                                     type="checkbox"
                                     id={`preference-${index}`}
                                     checked={selectedPreferences.includes(preference.ID)}
                                     onChange={() => toggleSelection(preference.ID)}
-                                    style={{ marginLeft: '90px', marginRight: '100px' }} // Ensure checkbox sticks to the right without margin
+                                    style={{ marginLeft: '90px', marginRight: '100px' }}
                                 />
-                                <label htmlFor={`preference-${index}`} style={{ flex: 1, whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginRight: '200px' }}>
+                                <label htmlFor={`preference-${index}`} style={{ 
+                                    flex: 1, 
+                                    whiteSpace: 'nowrap', 
+                                    textOverflow: 'ellipsis', 
+                                    marginRight: '200px',
+                                    color: 'var(--text-primary)'
+                                }}>
                                     {preference.ID}
                                 </label>
                             </div>

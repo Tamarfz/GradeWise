@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import axios from 'axios';
 import { backendURL } from '../../config';
+import AdminButtons from './AdminButtons';
 import './Analytics.css';
 
 const Analytics = observer(() => {
@@ -15,29 +15,96 @@ const Analytics = observer(() => {
 
   useEffect(() => {
     fetchJudgesAndProjects();
+    // Automatically load distribution analytics when page loads
+    fetchDistributionAnalytics();
   }, []);
 
   const fetchJudgesAndProjects = async () => {
     try {
+      const token = localStorage.getItem('token');
+      
       // Fetch judges
-      const judgesResponse = await axios.get(`${backendURL}/admin/judges/judgesList`);
-      setJudges(judgesResponse.data);
+      const judgesResponse = await fetch(`${backendURL}/admin/judges/judgesList`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!judgesResponse.ok) {
+        throw new Error('Failed to fetch judges');
+      }
+
+      const judgesData = await judgesResponse.json();
+      setJudges(judgesData);
 
       // Fetch projects
-      const projectsResponse = await axios.get(`${backendURL}/admin/projects/projectsList`);
-      setProjects(projectsResponse.data);
+      const projectsResponse = await fetch(`${backendURL}/admin/projects/projectsList`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!projectsResponse.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+
+      const projectsData = await projectsResponse.json();
+      setProjects(projectsData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching judges and projects:', error);
     }
   };
 
   const fetchJudgeAnalytics = async (judgeId) => {
     setLoading(true);
     try {
-      console.log('Fetching:', `${backendURL}/admin/analytics/judge/${judgeId}`);
-      const response = await axios.get(`${backendURL}/admin/analytics/judge/${judgeId}`);
+      const token = localStorage.getItem('token');
+      // Use the same endpoint as Manage Grades to get all grades data
+      const response = await fetch(`${backendURL}/admin/grades`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch grades data');
+      }
+
+      const data = await response.json();
       
-      setAnalyticsData(response.data);
+      // Filter grades to only show projects assigned to the selected judge
+      // Convert judgeId to string for comparison since grades data might have string IDs
+      const judgeGrades = data.grades.filter(grade => grade.judge_id.toString() === judgeId.toString());
+      
+      // Get judge name from the judges list
+      const selectedJudge = judges.find(judge => judge.ID.toString() === judgeId.toString());
+      const judgeName = selectedJudge ? selectedJudge.name : 'Unknown Judge';
+      
+              // Transform the data to match the expected format for the analytics table
+        const projectsData = judgeGrades.map(grade => {
+          // Get project name from the projects list
+          const project = projects.find(p => p.ProjectNumber.toString() === grade.project_id.toString());
+          const projectTitle = project ? project.Title : `Project ${grade.project_id}`;
+        
+        return {
+          title: projectTitle,
+          avgComplexity: grade.complexity,
+          avgUsability: grade.usability,
+          avgInnovation: grade.innovation,
+          avgPresentation: grade.presentation,
+          avgProficiency: grade.proficiency,
+          avgTotal: grade.grade,
+          projectId: grade.project_id
+        };
+      });
+      
+      setAnalyticsData({
+        judgeName: judgeName,
+        projects: projectsData
+      });
     } catch (error) {
       console.error('Error fetching judge analytics:', error);
     } finally {
@@ -48,14 +115,52 @@ const Analytics = observer(() => {
   const fetchProjectAnalytics = async (projectId) => {
     setLoading(true);
     try {
-      console.log('Fetching project analytics for projectId:', projectId);
-      console.log('API URL:', `${backendURL}/admin/analytics/project/${projectId}`);
-      const response = await axios.get(`${backendURL}/admin/analytics/project/${projectId}`);
-      console.log('Project analytics response:', response.data);
-      setAnalyticsData(response.data);
+      const token = localStorage.getItem('token');
+      // Use the same endpoint as Manage Grades to get all grades data
+      const response = await fetch(`${backendURL}/admin/grades`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch grades data');
+      }
+
+      const data = await response.json();
+      
+      // Filter grades to only show judges assigned to the selected project
+      const projectGrades = data.grades.filter(grade => grade.project_id.toString() === projectId.toString());
+      
+      // Get project name from the projects list
+      const selectedProject = projects.find(project => project.ProjectNumber.toString() === projectId.toString());
+      const projectTitle = selectedProject ? selectedProject.Title : `Project ${projectId}`;
+      
+      // Transform the data to match the expected format for the analytics table
+      const judgesData = projectGrades.map(grade => {
+        // Get judge name from the judges list
+        const judge = judges.find(j => j.ID.toString() === grade.judge_id.toString());
+        const judgeName = judge ? judge.name : `Judge ${grade.judge_id}`;
+        
+        return {
+          name: judgeName,
+          complexity: grade.complexity,
+          usability: grade.usability,
+          innovation: grade.innovation,
+          presentation: grade.presentation,
+          proficiency: grade.proficiency,
+          totalGrade: grade.grade,
+          judgeId: grade.judge_id
+        };
+      });
+      
+      setAnalyticsData({
+        projectTitle: projectTitle,
+        judges: judgesData
+      });
     } catch (error) {
       console.error('Error fetching project analytics:', error);
-      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -64,13 +169,22 @@ const Analytics = observer(() => {
   const fetchDistributionAnalytics = async () => {
     setLoading(true);
     try {
-      console.log('Fetching distribution analytics...');
-      const response = await axios.get(`${backendURL}/admin/analytics/distribution`);
-      console.log('Distribution analytics response:', response.data);
-      setAnalyticsData(response.data);
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${backendURL}/admin/analytics/distribution`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch distribution analytics');
+      }
+
+      const data = await response.json();
+      setAnalyticsData(data);
     } catch (error) {
       console.error('Error fetching distribution analytics:', error);
-      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -191,7 +305,7 @@ const Analytics = observer(() => {
     if (viewMode === 'judge') {
       return (
         <div className="analytics-table-container">
-          <h3>Projects Assigned to Judge: {analyticsData.judgeName}</h3>
+          <h3>Projects Assigned to Judge: {analyticsData.judgeName || 'Unknown'}</h3>
           <table className="analytics-table">
             <thead>
               <tr>
@@ -206,26 +320,34 @@ const Analytics = observer(() => {
               </tr>
             </thead>
             <tbody>
-              {analyticsData.projects.map((project, index) => (
-                <tr key={index}>
-                  <td>{project.title}</td>
-                  <td>{project.avgComplexity?.toFixed(2) || 'N/A'}</td>
-                  <td>{project.avgUsability?.toFixed(2) || 'N/A'}</td>
-                  <td>{project.avgInnovation?.toFixed(2) || 'N/A'}</td>
-                  <td>{project.avgPresentation?.toFixed(2) || 'N/A'}</td>
-                  <td>{project.avgProficiency?.toFixed(2) || 'N/A'}</td>
-                  <td>{project.avgTotal?.toFixed(2) || 'N/A'}</td>
-                  <td>
-                    {project.avgComplexity === 1 && project.avgUsability === 1 && 
-                     project.avgInnovation === 1 && project.avgPresentation === 1 && 
-                     project.avgProficiency === 1 ? (
-                      <span className="not-graded-badge">Not Graded</span>
-                    ) : (
-                      <span className="graded-badge">Graded</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                            {analyticsData.projects && analyticsData.projects.length > 0 ? (
+                analyticsData.projects.map((project, index) => (
+                  <tr key={index}>
+                    <td>{project.title}</td>
+                    <td>{project.avgComplexity?.toFixed(2) || 'N/A'}</td>
+                    <td>{project.avgUsability?.toFixed(2) || 'N/A'}</td>
+                    <td>{project.avgInnovation?.toFixed(2) || 'N/A'}</td>
+                    <td>{project.avgPresentation?.toFixed(2) || 'N/A'}</td>
+                    <td>{project.avgProficiency?.toFixed(2) || 'N/A'}</td>
+                    <td>{project.avgTotal?.toFixed(2) || 'N/A'}</td>
+                    <td>
+                      {project.avgComplexity === 1 && project.avgUsability === 1 && 
+                       project.avgInnovation === 1 && project.avgPresentation === 1 && 
+                       project.avgProficiency === 1 ? (
+                        <span className="not-graded-badge">Not Graded</span>
+                      ) : (
+                        <span className="graded-badge">Graded</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                                 <tr>
+                   <td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>
+                     No projects found for this judge
+                   </td>
+                 </tr>
+               )}
             </tbody>
           </table>
           {renderJudgeAverageGradesBox()}
@@ -235,7 +357,7 @@ const Analytics = observer(() => {
     } else if (viewMode === 'project') {
       return (
         <div className="analytics-table-container">
-          <h3>Judges Assigned to Project: {projects.find(p => p.ProjectNumber === parseInt(selectedProject))?.Title}</h3>
+          <h3>Judges Assigned to Project: {analyticsData.projectTitle || 'Unknown Project'}</h3>
           <table className="analytics-table">
             <thead>
               <tr>
@@ -250,7 +372,8 @@ const Analytics = observer(() => {
               </tr>
             </thead>
             <tbody>
-              {analyticsData.judges.map((judge, index) => (
+              {analyticsData.judges && analyticsData.judges.length > 0 ? (
+                analyticsData.judges.map((judge, index) => (
                 <tr key={index}>
                   <td>{judge.name}</td>
                   <td>{judge.complexity || 'N/A'}</td>
@@ -267,7 +390,14 @@ const Analytics = observer(() => {
                     )}
                   </td>
                 </tr>
-              ))}
+              ))
+              ) : (
+                <tr>
+                  <td colSpan="8" style={{ textAlign: 'center', padding: '20px' }}>
+                    No judges found for this project
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
           {renderAverageGradesBox()}
@@ -300,15 +430,15 @@ const Analytics = observer(() => {
                 <div className="stat-grid">
                   <div className="stat-item">
                     <span className="stat-label">Graded Projects</span>
-                    <span className="stat-value">{analyticsData?.uniqueGradedProjects || 0}</span>
+                    <span className="stat-value">{analyticsData && analyticsData.uniqueGradedProjects ? analyticsData.uniqueGradedProjects : 0}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Ungraded Projects</span>
-                    <span className="stat-value">{analyticsData?.uniqueNotGradedProjects || 0}</span>
+                    <span className="stat-value">{analyticsData && analyticsData.uniqueNotGradedProjects ? analyticsData.uniqueNotGradedProjects : 0}</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-label">Unassigned Projects</span>
-                    <span className="stat-value">{analyticsData?.notAssignedProjects || 0}</span>
+                    <span className="stat-value">{analyticsData && analyticsData.notAssignedProjects ? analyticsData.notAssignedProjects : 0}</span>
                   </div>
                 </div>
               </div>
@@ -648,7 +778,8 @@ const Analytics = observer(() => {
 
         {!loading && !analyticsData && viewMode === 'distribution' && (
           <div className="no-data-message">
-            <p>No distribution data available.</p>
+            <p>No distribution data available. Please check if the backend server is running.</p>
+            <p>Debug info: Judges loaded: {judges.length}, Projects loaded: {projects.length}</p>
           </div>
         )}
 
@@ -657,7 +788,16 @@ const Analytics = observer(() => {
             <p>No analytics data available for the selected {viewMode === 'judge' ? 'judge' : 'project'}.</p>
           </div>
         )}
+
+        {!loading && !analyticsData && viewMode !== 'distribution' && !selectedJudge && !selectedProject && (
+          <div className="no-data-message">
+            <p>Please select a {viewMode === 'judge' ? 'judge' : 'project'} to view analytics data.</p>
+            <p>Debug info: Judges loaded: {judges.length}, Projects loaded: {projects.length}</p>
+          </div>
+        )}
       </div>
+      
+      <AdminButtons />
     </div>
   );
 });

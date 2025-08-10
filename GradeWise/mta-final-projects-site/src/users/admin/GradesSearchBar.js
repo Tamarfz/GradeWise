@@ -10,11 +10,13 @@ const SearchContainer = styled.div`
     max-width: 1200px;
     margin: 20px auto;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
     backdrop-filter: blur(20px);
     border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px var(--shadow-light);
+    border: 1px solid var(--card-border);
+    position: relative;
+    z-index: 9999;
 `;
 
 const SearchInputContainer = styled.div`
@@ -32,24 +34,24 @@ const SearchInputContainer = styled.div`
 const SearchSelect = styled.select`
     padding: 14px 16px;
     border-radius: 12px;
-    border: 2px solid rgba(33, 150, 243, 0.2);
-    font-size: 16px;
+    border: 2px solid var(--input-border);
+    font-size: 17.6px; /* Increased by 10% */
     font-weight: 500;
-    background: rgba(255, 255, 255, 0.9);
-    color: #1a202c;
+    background: var(--input-bg);
+    color: var(--text-primary);
     min-width: 180px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 10px rgba(33, 150, 243, 0.1);
+    box-shadow: 0 2px 10px var(--shadow-light);
 
     &:focus {
         outline: none;
-        border-color: #2196f3;
-        box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+        border-color: var(--accent-primary);
+        box-shadow: 0 4px 20px var(--shadow-medium);
     }
 
     &:hover {
-        border-color: #2196f3;
-        box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+        border-color: var(--accent-primary);
+        box-shadow: 0 4px 15px var(--shadow-medium);
     }
 
     @media (max-width: 768px) {
@@ -61,63 +63,90 @@ const SearchSelect = styled.select`
 const StyledSelect = styled(Select)`
     min-width: 300px;
     flex: 1;
+    position: relative;
+    z-index: 9999;
     
     .select__control {
-        background: rgba(255, 255, 255, 0.9);
-        border: 2px solid rgba(33, 150, 243, 0.2);
+        background: var(--input-bg);
+        border: 2px solid var(--input-border);
         border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(33, 150, 243, 0.1);
+        box-shadow: 0 2px 10px var(--shadow-light);
         min-height: 50px;
         transition: all 0.3s ease;
         
         &:hover {
-            border-color: #2196f3;
-            box-shadow: 0 4px 15px rgba(33, 150, 243, 0.2);
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 15px var(--shadow-medium);
         }
 
         &.select__control--is-focused {
-            border-color: #2196f3;
-            box-shadow: 0 4px 20px rgba(33, 150, 243, 0.3);
+            border-color: var(--accent-primary);
+            box-shadow: 0 4px 20px var(--shadow-medium);
         }
     }
     
     .select__menu {
-        background: rgba(255, 255, 255, 0.95);
+        background: #000000 !important;
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(33, 150, 243, 0.2);
+        border: 1px solid #333333 !important;
         border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        z-index: 99999 !important;
+        position: absolute !important;
     }
     
     .select__option {
         padding: 12px 16px;
-        font-size: 16px;
+        font-size: 17.6px; /* Increased by 10% */
         transition: all 0.2s ease;
+        color: #ffffff !important;
+        background: #000000 !important;
         
         &:hover {
-            background: rgba(33, 150, 243, 0.1);
+            background: #333333 !important;
+            color: #ffffff !important;
         }
 
         &.select__option--is-focused {
-            background: rgba(33, 150, 243, 0.2);
+            background: #333333 !important;
+            color: #ffffff !important;
         }
 
         &.select__option--is-selected {
-            background: #2196f3;
-            color: white;
+            background: #2196f3 !important;
+            color: white !important;
         }
     }
 
     .select__placeholder {
-        color: #a0aec0;
-        font-size: 16px;
+        color: var(--text-secondary);
+        font-size: 17.6px; /* Increased by 10% */
     }
 
     .select__single-value {
-        color: #1a202c;
-        font-size: 16px;
+        color: #000000 !important;
+        font-size: 17.6px; /* Increased by 10% */
         font-weight: 500;
+    }
+
+    /* Force consistent styling regardless of theme */
+    .select__option,
+    .select__option:hover,
+    .select__option:focus {
+        color: #ffffff !important;
+        background: #000000 !important;
+    }
+
+    /* Hover and focus states */
+    .select__option:hover,
+    .select__option:focus {
+        background: #333333 !important;
+    }
+
+    /* Only selected option should be white */
+    .select__option--is-selected {
+        color: white !important;
+        background: #2196f3 !important;
     }
 
     @media (max-width: 768px) {
@@ -188,7 +217,7 @@ const ButtonContainer = styled.div`
 const NoResultsMessage = styled.div`
     text-align: center;
     padding: 20px;
-    color: #718096;
+    color: var(--text-secondary);
     font-size: 16px;
     font-style: italic;
 `;

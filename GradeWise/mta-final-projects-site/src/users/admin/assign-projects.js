@@ -17,6 +17,8 @@ const ModernContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 `;
 
 const ModernButton = styled.button`
@@ -28,7 +30,7 @@ const ModernButton = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-  font-size: 16px;
+  font-size: 17.6px; /* Increased by 10% */
   font-weight: 600;
   min-width: 200px;
   
@@ -50,12 +52,13 @@ const SelectContainer = styled.div`
   gap: 20px;
   width: 100%;
   max-width: 600px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
 `;
 
 const ProjectsGrid = styled.div`
@@ -74,22 +77,23 @@ const ProjectsGrid = styled.div`
 
 const ProjectCard = styled.div`
   padding: 20px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(102, 126, 234, 0.2);
+  border: 2px solid var(--card-border);
   border-radius: 16px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px var(--shadow-light);
   font-weight: 500;
-  font-size: 14px;
+  font-size: 15.4px; /* Increased by 10% */
   line-height: 1.4;
   min-height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   word-wrap: break-word;
+  color: var(--text-primary);
 
   &:hover {
     transform: translateY(-5px);
@@ -106,16 +110,16 @@ const ProjectCard = styled.div`
 `;
 
 const SectionTitle = styled.h3`
-  font-size: 18px;
+  font-size: 19.8px; /* Increased by 10% */
   font-weight: 600;
-  color: #1a202c;
+  color: var(--text-primary);
   margin: 0 0 15px 0;
   text-align: center;
 `;
 
 const StatsContainer = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 20px;
   width: 100%;
   max-width: 800px;
@@ -123,25 +127,26 @@ const StatsContainer = styled.div`
 `;
 
 const StatCard = styled.div`
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 20px var(--shadow-light);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
 `;
 
 const StatNumber = styled.div`
-  font-size: 24px;
+  font-size: 26.4px; /* Increased by 10% */
   font-weight: 700;
   color: #667eea;
   margin-bottom: 5px;
 `;
 
 const StatLabel = styled.div`
-  font-size: 14px;
-  color: #718096;
+  font-size: 15.4px; /* Increased by 10% */
+  color: var(--text-secondary);
   font-weight: 500;
 `;
 
@@ -149,21 +154,22 @@ const StatLabel = styled.div`
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    background: 'rgba(255, 255, 255, 0.95)',
-    border: '2px solid rgba(102, 126, 234, 0.2)',
+    background: 'var(--input-bg)',
+    border: '2px solid var(--input-border)',
     borderRadius: '12px',
-    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 4px 20px var(--shadow-light)',
+    color: 'var(--text-primary)',
     '&:hover': {
-      borderColor: 'rgba(102, 126, 234, 0.4)',
+      borderColor: 'var(--accent-primary)',
     },
   }),
   menu: (provided) => ({
     ...provided,
-    background: 'rgba(255, 255, 255, 0.95)',
+    background: 'var(--card-bg)',
     backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
+    border: '1px solid var(--card-border)',
     borderRadius: '12px',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 8px 32px var(--shadow-light)',
     zIndex: 9999, // Add high z-index to ensure it appears above other elements
   }),
   menuPortal: (provided) => ({
@@ -172,10 +178,10 @@ const customSelectStyles = {
   }),
   option: (provided, state) => ({
     ...provided,
-    background: state.isSelected ? '#667eea' : 'transparent',
-    color: state.isSelected ? 'white' : '#1a202c',
+    background: state.isSelected ? 'var(--accent-primary)' : 'transparent',
+    color: state.isSelected ? 'white' : 'var(--text-primary)',
     '&:hover': {
-      background: state.isSelected ? '#667eea' : 'rgba(102, 126, 234, 0.1)',
+      background: state.isSelected ? 'var(--accent-primary)' : 'var(--bg-secondary)',
     },
   }),
   multiValue: (provided) => ({

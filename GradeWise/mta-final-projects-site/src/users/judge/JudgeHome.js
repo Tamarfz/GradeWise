@@ -90,19 +90,7 @@ const JudgeHome = observer(() => {
                         </h1>
                         <p className="welcome-subtitle">Here's your grading dashboard overview</p>
                     </div>
-                    <div className="header-actions">
-                        <button 
-                            className="logout-btn"
-                            onClick={() => {
-                                if (window.confirm('Are you sure you want to logout?')) {
-                                    userStorage.logout();
-                                }
-                            }}
-                        >
-                            <FaSignOutAlt />
-                            Logout
-                        </button>
-                    </div>
+
                 </div>
             </header>
 

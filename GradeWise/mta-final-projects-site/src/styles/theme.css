@@ -1,0 +1,173 @@
+/* Light Theme Variables */
+.light-theme {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f7fafc;
+    --bg-tertiary: #edf2f7;
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-muted: #718096;
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    --shadow-light: rgba(0, 0, 0, 0.1);
+    --shadow-medium: rgba(0, 0, 0, 0.15);
+    --accent-primary: #667eea;
+    --accent-secondary: #764ba2;
+    --success-color: #48bb78;
+    --warning-color: #ed8936;
+    --error-color: #f56565;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-border: rgba(102, 126, 234, 0.1);
+    --score-item-bg: rgba(102, 126, 234, 0.1);
+    --input-bg: #ffffff;
+    --input-border: #e2e8f0;
+    --button-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --button-secondary: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    --button-danger: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+/* Dark Theme Variables */
+.dark-theme {
+    --bg-primary: #1a202c;
+    --bg-secondary: #2d3748;
+    --bg-tertiary: #4a5568;
+    --text-primary: #f7fafc;
+    --text-secondary: #e2e8f0;
+    --text-muted: #a0aec0;
+    --border-color: #4a5568;
+    --border-light: #2d3748;
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-medium: rgba(0, 0, 0, 0.4);
+    --accent-primary: #667eea;
+    --accent-secondary: #764ba2;
+    --success-color: #48bb78;
+    --warning-color: #ed8936;
+    --error-color: #f56565;
+    --card-bg: rgba(26, 32, 44, 0.95);
+    --card-border: rgba(102, 126, 234, 0.2);
+    --score-item-bg: #000000;
+    --input-bg: #2d3748;
+    --input-border: #4a5568;
+    --button-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --button-secondary: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    --button-danger: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+}
+
+/* Global theme transition */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Body theme styles */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* Common component theme styles */
+.admin-dashboard,
+.judge-dashboard {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.admin-header,
+.judge-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-button,
+.judge-button {
+    background: var(--button-primary);
+    color: white;
+    border: 1px solid var(--border-color);
+}
+
+.admin-button:hover,
+.judge-button:hover {
+    background: var(--button-secondary);
+}
+
+/* Card styles */
+.project-card,
+.admin-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 4px 15px var(--shadow-light);
+}
+
+/* Input styles */
+input, select, textarea {
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--text-primary);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+}
+
+/* Table styles */
+table {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+th, td {
+    border-color: var(--border-color);
+}
+
+tr:hover {
+    background-color: var(--bg-secondary);
+}
+
+/* Navigation styles */
+.nav-menu {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+}
+
+.nav-item {
+    color: var(--text-primary);
+}
+
+.nav-item:hover {
+    background-color: var(--bg-secondary);
+}
+
+/* Modal styles */
+.swal2-popup {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.swal2-input {
+    background-color: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-primary);
+}
+
+/* Logout Modal Dark Mode Styles */
+.swal2-popup-dark-mode {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+}
+
+.swal2-title-dark-mode {
+    color: var(--text-primary) !important;
+}
+
+.swal2-content-dark-mode {
+    color: var(--text-secondary) !important;
+}
+
+.swal2-confirm-dark-mode {
+    background-color: #ff6b6b !important;
+    color: white !important;
+}
+
+.swal2-cancel-dark-mode {
+    background-color: #667eea !important;
+    color: white !important;
+}
