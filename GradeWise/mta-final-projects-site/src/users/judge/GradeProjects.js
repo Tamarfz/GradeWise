@@ -27,6 +27,16 @@ const ModernContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+
+  @media (max-width: 768px) {
+    gap: 20px;
+    padding: 15px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 15px;
+    padding: 10px;
+  }
 `;
 
 const SearchSection = styled.div`
@@ -36,12 +46,24 @@ const SearchSection = styled.div`
   gap: 20px;
   width: 100%;
   max-width: 800px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    gap: 15px;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    gap: 12px;
+    border-radius: 12px;
+  }
 `;
 
 const ProjectsGrid = styled.div`
@@ -55,42 +77,87 @@ const ProjectsGrid = styled.div`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
     gap: 20px;
+    margin: 15px 0;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin: 10px 0;
   }
 `;
 
 const SectionTitle = styled.h2`
   font-size: 24px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--text-primary);
   margin: 0 0 20px 0;
   text-align: center;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    margin: 0 0 15px 0;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+    margin: 0 0 12px 0;
+  }
 `;
 
 const EmptyState = styled.div`
   text-align: center;
   padding: 60px 20px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
+
+  @media (max-width: 768px) {
+    padding: 40px 15px;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 30px 10px;
+    border-radius: 12px;
+  }
 `;
 
 const EmptyIcon = styled.div`
   font-size: 48px;
   color: #667eea;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 40px;
+    margin-bottom: 15px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
 `;
 
 const EmptyText = styled.p`
   font-size: 18px;
-  color: #718096;
+  color: var(--text-secondary);
   font-weight: 500;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 const StyledCancelButton = styled(Button)`
@@ -131,6 +198,20 @@ const DialogActionsContainer = styled.div`
   gap: 16px;
   margin-top: 24px;
   margin-bottom: 16px;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-top: 20px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const GradeProjects = observer(() => {
@@ -303,23 +384,41 @@ const GradeProjects = observer(() => {
         PaperProps={{
           style: {
             borderRadius: '20px',
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: 'var(--card-bg)',
             backdropFilter: 'blur(10px)',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 32px var(--shadow-light)',
+            border: '1px solid var(--card-border)',
+            margin: '16px',
+            maxWidth: 'calc(100% - 32px)',
+            '@media (max-width: 768px)': {
+              borderRadius: '16px',
+              margin: '12px',
+              maxWidth: 'calc(100% - 24px)',
+            },
+            '@media (max-width: 480px)': {
+              borderRadius: '12px',
+              margin: '8px',
+              maxWidth: 'calc(100% - 16px)',
+            }
           }
         }}
       >
         <DialogTitle>
           <h2 style={{ 
-            color: '#667eea', 
+            color: 'var(--accent-primary)', 
             fontSize: '24px', 
             fontWeight: '700',
             margin: '0',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
+            backgroundClip: 'text',
+            '@media (max-width: 768px)': {
+              fontSize: '20px',
+            },
+            '@media (max-width: 480px)': {
+              fontSize: '18px',
+            }
           }}>
             Grading: {selectedProject?.Title}
           </h2>

@@ -1,8 +1,8 @@
 .grading-form {
   padding: 20px;
-  background-color: #f0f8ff;
+  background-color: var(--card-bg);
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px var(--shadow-light);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -15,7 +15,7 @@
 
 .project-item {
   padding: 10px;
-  background-color: #007bff;
+  background-color: var(--accent-primary);
   color: white;
   border-radius: 4px;
   cursor: pointer;
@@ -24,17 +24,17 @@
 }
 
 .project-item:hover {
-  background-color: #0056b3;
+  background-color: var(--accent-secondary);
 }
 
 h3 {
   margin-bottom: 20px;
-  color: #175a94;
+  color: var(--accent-primary);
 }
 
 h4 {
   margin-bottom: 15px;
-  color: #333;
+  color: var(--text-primary);
 }
 
 
@@ -48,6 +48,54 @@ h4 {
   h4.anton-regular {
     margin-top: 0px;
     font-size: 20px;
+  }
+
+  .grading-form {
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  .project-list {
+    gap: 8px;
+  }
+
+  .project-item {
+    padding: 8px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  h2.boldonse-regular {
+    font-size: 24px;
+  }
+
+  h4.anton-regular {
+    font-size: 16px;
+  }
+
+  .grading-form {
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .project-list {
+    gap: 6px;
+  }
+
+  .project-item {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  h4 {
+    font-size: 14px;
+    margin-bottom: 10px;
   }
 }
 

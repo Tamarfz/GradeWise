@@ -21,7 +21,7 @@ import { storages } from './stores';
 import styled from 'styled-components';
 import { useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
-import ThemeToggle from './components/ThemeToggle';
+
 
 // Add FontAwesome CSS
 const fontAwesomeLink = document.createElement('link');
@@ -88,7 +88,6 @@ const App = observer(() => {
     <ThemeProvider>
       <Router>
         <div className="app-container" style={{ position: 'relative' }}>
-          <ThemeToggle />
           <Routes>
             <Route path="/" element={<AuthLayout />}>
               <Route index element={<Login />} />

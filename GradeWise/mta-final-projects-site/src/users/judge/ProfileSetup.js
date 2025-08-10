@@ -16,6 +16,14 @@ const ModernContainer = styled.div`
   padding: 20px;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px;
+  }
 `;
 
 const DashboardHeader = styled.header`
@@ -27,6 +35,18 @@ const DashboardHeader = styled.header`
   box-shadow: 0 8px 32px var(--shadow-light);
   border: 1px solid var(--card-border);
   text-align: center;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 12px;
+  }
 `;
 
 const WelcomeTitle = styled.h1`
@@ -37,6 +57,14 @@ const WelcomeTitle = styled.h1`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const WelcomeSubtitle = styled.p`
@@ -56,6 +84,16 @@ const ProfileCard = styled.div`
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+
+  @media (max-width: 768px) {
+    padding: 25px;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 20px;
+    border-radius: 12px;
+  }
 `;
 
 const FormSection = styled.div`
@@ -70,6 +108,18 @@ const SectionTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    gap: 8px;
+  }
 `;
 
 const FormField = styled.div`
@@ -96,6 +146,16 @@ const FieldIcon = styled.div`
   color: var(--accent-primary);
   font-size: 18px;
   z-index: 2;
+
+  @media (max-width: 768px) {
+    left: 14px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    left: 12px;
+    font-size: 14px;
+  }
 `;
 
 const ModernInput = styled.input`
@@ -120,6 +180,16 @@ const ModernInput = styled.input`
   &::placeholder {
     color: var(--text-secondary);
   }
+
+  @media (max-width: 768px) {
+    padding: 14px 14px 14px 45px;
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px 12px 12px 40px;
+    font-size: 0.9rem;
+  }
 `;
 
 const PreferencesSection = styled.div`
@@ -128,6 +198,18 @@ const PreferencesSection = styled.div`
   padding: 25px;
   margin-top: 30px;
   border: 1px solid var(--border-color);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    margin-top: 25px;
+    border-radius: 12px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 10px;
+  }
 `;
 
 const ButtonContainer = styled.div`
@@ -136,6 +218,18 @@ const ButtonContainer = styled.div`
   justify-content: center;
   margin-top: 30px;
   flex-wrap: wrap;
+
+  @media (max-width: 768px) {
+    gap: 12px;
+    margin-top: 25px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 10px;
+    margin-top: 20px;
+    flex-direction: column;
+    align-items: center;
+  }
 `;
 
 const ModernButton = styled.button`
@@ -278,8 +372,15 @@ const ProfileSetup = observer(() => {
           text: 'Profile updated successfully!',
           icon: 'success',
           confirmButtonColor: '#43e97b',
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'var(--card-bg)',
+          color: 'var(--text-primary)',
           backdrop: 'rgba(0, 0, 0, 0.4)',
+          customClass: {
+            popup: 'swal2-popup-dark-mode',
+            title: 'swal2-title-dark-mode',
+            content: 'swal2-content-dark-mode',
+            confirmButton: 'swal2-confirm-dark-mode'
+          }
         });
       })
       .catch((error) => {
@@ -289,8 +390,15 @@ const ProfileSetup = observer(() => {
           text: 'There was an error updating the information.',
           icon: 'error',
           confirmButtonColor: '#ff6b6b',
-          background: 'rgba(255, 255, 255, 0.95)',
+          background: 'var(--card-bg)',
+          color: 'var(--text-primary)',
           backdrop: 'rgba(0, 0, 0, 0.4)',
+          customClass: {
+            popup: 'swal2-popup-dark-mode',
+            title: 'swal2-title-dark-mode',
+            content: 'swal2-content-dark-mode',
+            confirmButton: 'swal2-confirm-dark-mode'
+          }
         });
       });
   };

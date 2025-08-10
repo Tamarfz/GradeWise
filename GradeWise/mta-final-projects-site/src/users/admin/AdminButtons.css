@@ -550,11 +550,16 @@
 
 /* Legacy styles for backward compatibility */
 .admin-page-container {
-  background-color: #f0f8ff;
+  background-color: var(--bg-primary);
   border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 6px var(--shadow-light);
   width: 90%;
   margin: 20px auto;
+}
+
+/* Dark mode specific background for admin-page-container */
+.dark-theme .admin-page-container {
+  background-color: #3a4148;
 }
 
 .admin-button {

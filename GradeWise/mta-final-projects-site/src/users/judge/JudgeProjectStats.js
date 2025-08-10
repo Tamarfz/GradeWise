@@ -18,12 +18,22 @@ const Wrapper = styled.div`
 // Progress bar container
 const ProgressContainer = styled.div`
   width: 100%;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 30px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid var(--card-border);
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 15px;
+    border-radius: 12px;
+  }
 `;
 
 const ProgressHeader = styled.div`
@@ -31,33 +41,70 @@ const ProgressHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    margin-bottom: 15px;
+  }
+
+  @media (max-width: 480px) {
+    margin-bottom: 12px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
 `;
 
 const ProgressTitle = styled.h3`
   font-size: 20px;
   font-weight: 700;
-  color: #1a202c;
+  color: var(--text-primary);
   margin: 0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 16px;
+  }
 `;
 
 const ProgressPercentage = styled.span`
   font-size: 18px;
   font-weight: 700;
   color: ${props => props.finished ? '#43e97b' : '#667eea'};
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 const ProgressBarWrapper = styled.div`
   width: 100%;
   height: 12px;
-  background: rgba(102, 126, 234, 0.1);
+  background: var(--bg-secondary);
   border-radius: 6px;
   overflow: hidden;
   position: relative;
   margin-bottom: 15px;
+
+  @media (max-width: 768px) {
+    height: 10px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 480px) {
+    height: 8px;
+    margin-bottom: 10px;
+  }
 `;
 
 const ProgressBarFill = styled.div`
@@ -100,14 +147,33 @@ const ProgressStats = styled.div`
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  color: #718096;
+  color: var(--text-secondary);
   font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+  }
 `;
 
 const StatItem = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    gap: 6px;
+  }
+
+  @media (max-width: 480px) {
+    gap: 5px;
+  }
 `;
 
 const StatIcon = styled.div`
