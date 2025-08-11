@@ -93,13 +93,25 @@ const SelectContainer = styled.div`
 
 const ProjectsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(6, 1fr);
   gap: 20px;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 20px 0;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 480px) {
     grid-template-columns: 1fr;
     gap: 15px;
   }
@@ -139,6 +151,26 @@ const ProjectCard = styled.div`
     color: white;
     border-color: rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+  }
+
+  &.animating {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+    animation: pulse-animation 0.8s ease-in-out;
+  }
+
+  @keyframes pulse-animation {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
 `;
 
@@ -266,6 +298,8 @@ const AssignProjectsToJudges = () => {
   const [selectedJudges, setSelectedJudges] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [assignmentStatus, setAssignmentStatus] = useState({});
+  const [isRandomSelecting, setIsRandomSelecting] = useState(false);
+  const [animatingProjects, setAnimatingProjects] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -316,6 +350,71 @@ const AssignProjectsToJudges = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleRandomSelection = async () => {
+    if (projects.length === 0) {
+      Swal.fire('Error', 'No projects available for random selection.', 'error');
+      return;
+    }
+
+    setIsRandomSelecting(true);
+    
+    // Clear current selection
+    setSelectedProjects([]);
+    
+    // Get available unassigned projects
+    const availableProjects = projects.filter(project => !assignmentStatus[project.value]);
+    if (availableProjects.length < 3) {
+      Swal.fire('Warning', `Only ${availableProjects.length} unassigned projects available.`, 'warning');
+      setIsRandomSelecting(false);
+      return;
+    }
+    
+    // Get final 3 random projects
+    const shuffled = [...availableProjects].sort(() => 0.5 - Math.random());
+    const finalRandomProjects = shuffled.slice(0, 3);
+    
+    // Animation phase: Cycle through random projects for 3 seconds
+    const animationDuration = 3000; // 3 seconds
+    const cycleInterval = 300; // Change every 300ms for slower cycling
+    const totalCycles = Math.floor(animationDuration / cycleInterval);
+    
+    let currentCycle = 0;
+    
+    const animationInterval = setInterval(() => {
+      if (currentCycle >= totalCycles) {
+        // Animation complete, show final selection
+        clearInterval(animationInterval);
+        setAnimatingProjects([]);
+        setSelectedProjects(finalRandomProjects);
+        setIsRandomSelecting(false);
+        return;
+      }
+      
+      // Pick 3 random projects for this cycle
+      const cycleProjects = [];
+      const shuffledCycle = [...availableProjects].sort(() => 0.5 - Math.random());
+      
+      for (let i = 0; i < 3; i++) {
+        if (shuffledCycle[i]) {
+          cycleProjects.push(shuffledCycle[i].value);
+        }
+      }
+      
+      // Highlight these 3 random projects
+      setAnimatingProjects(cycleProjects);
+      
+      currentCycle++;
+    }, cycleInterval);
+    
+    // Safety cleanup after 3.5 seconds
+    setTimeout(() => {
+      clearInterval(animationInterval);
+      setAnimatingProjects([]);
+      setSelectedProjects(finalRandomProjects);
+      setIsRandomSelecting(false);
+    }, 3500);
+  };
 
   const handleAssignClick = async () => {
     if (selectedJudges.length === 0 || selectedProjects.length === 0) {
@@ -410,13 +509,64 @@ const AssignProjectsToJudges = () => {
               />
             </SelectContainer>
 
-            <div style={{ width: '100%', maxWidth: '1000px' }}>
+            <div style={{ width: '100%', maxWidth: '1200px' }}>
               <SectionTitle>Select Projects</SectionTitle>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                <button
+                  onClick={handleRandomSelection}
+                  disabled={isRandomSelecting}
+                  style={{
+                    padding: '12px 24px',
+                    width: '200px',
+                    background: isRandomSelecting 
+                      ? 'linear-gradient(135deg, #9ca3af 0%, #6b7280 100%)'
+                      : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: isRandomSelecting ? 'not-allowed' : 'pointer',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isRandomSelecting) {
+                      e.target.style.transform = 'translateY(-2px)';
+                      e.target.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isRandomSelecting) {
+                      e.target.style.transform = 'translateY(0)';
+                      e.target.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.3)';
+                    }
+                  }}
+                >
+                  {isRandomSelecting ? '🎲 Spinning...' : '🎲 Random 3 Projects'}
+                </button>
+                {isRandomSelecting && (
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#6b7280',
+                    fontWeight: '500',
+                    textAlign: 'center'
+                  }}>
+                    🎯 Final selection in progress...
+                  </div>
+                )}
+              </div>
               <ProjectsGrid>
                 {projects.map((project) => (
                   <ProjectCard
                     key={project.value}
-                    className={selectedProjects.some((p) => p.value === project.value) ? 'selected' : ''}
+                    className={
+                      selectedProjects.some((p) => p.value === project.value) ? 'selected' : 
+                      animatingProjects.includes(project.value) ? 'animating' : ''
+                    }
                     onClick={() => {
                       setSelectedProjects((prevSelected) =>
                         prevSelected.some((p) => p.value === project.value)
