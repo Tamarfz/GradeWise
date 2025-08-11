@@ -45,6 +45,36 @@ const ModernButton = styled.button`
   }
 `;
 
+const AssignmentBadge = styled.div`
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #dc3545;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  z-index: 10;
+  white-space: nowrap;
+  animation: pulse 2s infinite;
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+`;
+
 const SelectContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -90,10 +120,13 @@ const ProjectCard = styled.div`
   line-height: 1.4;
   min-height: 80px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   word-wrap: break-word;
   color: var(--text-primary);
+  position: relative;
+  padding-top: 30px; /* Extra padding at top for badge */
 
   &:hover {
     transform: translateY(-5px);
@@ -154,35 +187,57 @@ const StatLabel = styled.div`
 const customSelectStyles = {
   control: (provided, state) => ({
     ...provided,
-    background: 'var(--input-bg)',
-    border: '2px solid var(--input-border)',
+    background: 'var(--input-bg, #ffffff)',
+    border: '2px solid var(--input-border, #e2e8f0)',
     borderRadius: '12px',
-    boxShadow: '0 4px 20px var(--shadow-light)',
-    color: 'var(--text-primary)',
+    boxShadow: '0 4px 20px var(--shadow-light, rgba(0, 0, 0, 0.1))',
+    color: 'var(--text-primary, #1a202c)',
+    minHeight: '50px',
+    transition: 'all 0.3s ease',
     '&:hover': {
-      borderColor: 'var(--accent-primary)',
+      borderColor: 'var(--accent-primary, #667eea)',
+      boxShadow: '0 4px 15px var(--shadow-medium, rgba(0, 0, 0, 0.15))',
     },
   }),
   menu: (provided) => ({
     ...provided,
-    background: 'var(--card-bg)',
+    background: 'var(--card-bg, #ffffff)',
     backdropFilter: 'blur(10px)',
-    border: '1px solid var(--card-border)',
+    border: '1px solid var(--card-border, #e2e8f0)',
     borderRadius: '12px',
-    boxShadow: '0 8px 32px var(--shadow-light)',
-    zIndex: 9999, // Add high z-index to ensure it appears above other elements
+    boxShadow: '0 8px 32px var(--shadow-light, rgba(0, 0, 0, 0.1))',
+    zIndex: 9999,
   }),
   menuPortal: (provided) => ({
     ...provided,
-    zIndex: 9999, // Ensure the portal also has high z-index
+    zIndex: 9999,
   }),
   option: (provided, state) => ({
     ...provided,
-    background: state.isSelected ? 'var(--accent-primary)' : 'transparent',
-    color: state.isSelected ? 'white' : 'var(--text-primary)',
+    background: state.isSelected ? 'var(--accent-primary, #667eea)' : 'transparent',
+    color: state.isSelected ? 'white' : 'var(--text-primary, #1a202c)',
+    padding: '12px 16px',
+    fontSize: '17.6px',
+    transition: 'all 0.2s ease',
     '&:hover': {
-      background: state.isSelected ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+      background: state.isSelected ? 'var(--accent-primary, #667eea)' : 'var(--bg-secondary, #f7fafc)',
     },
+  }),
+  placeholder: (provided) => ({
+    ...provided,
+    color: 'var(--text-secondary, #718096)',
+    fontSize: '17.6px',
+  }),
+  singleValue: (provided) => ({
+    ...provided,
+    color: 'var(--text-primary, #1a202c)',
+    fontSize: '17.6px',
+    fontWeight: '500',
+  }),
+  input: (provided) => ({
+    ...provided,
+    color: 'var(--text-primary, #1a202c)',
+    fontSize: '17.6px',
   }),
   multiValue: (provided) => ({
     ...provided,
@@ -210,41 +265,55 @@ const AssignProjectsToJudges = () => {
   const [projects, setProjects] = useState([]);
   const [selectedJudges, setSelectedJudges] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
+  const [assignmentStatus, setAssignmentStatus] = useState({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem('token');
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem('token');
 
-        const [judgeResponse, projectResponse] = await Promise.all([
-          axios.get(`${backendURL}/admin/judges/judgesList`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${backendURL}/admin/projects/projectsList`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+      const [judgeResponse, projectResponse, assignmentResponse] = await Promise.all([
+        axios.get(`${backendURL}/admin/judges/judgesList`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${backendURL}/admin/projects/projectsList`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        axios.get(`${backendURL}/admin/projects/assignmentStatus`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
 
-        const judgeOptions = judgeResponse.data.map((judge) => ({
-          value: judge.ID,
-          label: judge.name,
+      const judgeOptions = judgeResponse.data.map((judge) => ({
+        value: judge.ID,
+        label: judge.name,
+      }));
+
+      const projectOptions = projectResponse.data
+        .sort((a, b) => a.Title.localeCompare(b.Title))
+        .map((project) => ({
+          value: project.ProjectNumber,
+          label: project.Title,
         }));
 
-        const projectOptions = projectResponse.data
-          .sort((a, b) => a.Title.localeCompare(b.Title))
-          .map((project) => ({
-            value: project.ProjectNumber,
-            label: project.Title,
-          }));
-
-        setJudges(judgeOptions);
-        setProjects(projectOptions);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        Swal.fire('Error', 'Failed to fetch data. Please try again.', 'error');
+      setJudges(judgeOptions);
+      setProjects(projectOptions);
+      
+      // Process assignment status
+      const assignmentMap = {};
+      if (assignmentResponse.data) {
+        assignmentResponse.data.forEach(project => {
+          assignmentMap[project.projectId] = project.isAssigned;
+        });
+        setAssignmentStatus(assignmentMap);
+        console.log('Assignment status loaded:', assignmentMap);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      Swal.fire('Error', 'Failed to fetch data. Please try again.', 'error');
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -284,6 +353,8 @@ const AssignProjectsToJudges = () => {
 
           if (response.status === 200) {
             Swal.fire('Assigned!', 'Projects have been successfully assigned to judges.', 'success');
+            // Refresh assignment status
+            fetchData();
           }
         } catch (error) {
           Swal.fire('Error', error.response?.data?.error || 'An error occurred while assigning projects.', 'error');
@@ -355,6 +426,9 @@ const AssignProjectsToJudges = () => {
                     }}
                   >
                     {project.label || 'Untitled Project'}
+                    {!assignmentStatus[project.value] && (
+                      <AssignmentBadge>Not assigned to any judge</AssignmentBadge>
+                    )}
                   </ProjectCard>
                 ))}
               </ProjectsGrid>

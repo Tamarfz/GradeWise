@@ -1,7 +1,8 @@
 //V
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { useTheme } from '../../context/ThemeContext';
 import { 
   FaUsers, 
   FaProjectDiagram, 
@@ -24,11 +25,17 @@ const MenuContainer = styled.div`
   position: relative;
 `;
 
-const HamburgerButton = styled.button`
+const ButtonContainer = styled.div`
   position: fixed;
   top: 20px;
   left: 20px;
   z-index: 1001;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+`;
+
+const HamburgerButton = styled.button`
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   border-radius: 15px;
@@ -45,6 +52,38 @@ const HamburgerButton = styled.button`
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+`;
+
+const ThemeToggleButton = styled.button`
+  background: #000000;
+  color: white;
+  border: none;
+  border-radius: 100%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  font-size: 24px;
+  padding: 5px;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .fa-sun {
+    color: #fbbf24;
+    text-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
+  }
+
+  .fa-moon {
+    color: #8b5cf6;
+    text-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
   }
 `;
 
@@ -159,8 +198,10 @@ const Overlay = styled.div`
 
 const AdminButtons = observer(() => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showToggle, setShowToggle] = useState(false);
   const navigate = useNavigate();
   const { userStorage } = storages;
+  const { isDarkMode, toggleTheme } = useTheme();
 
   const handleHomeClick = () => {
     navigate("/admin");
@@ -229,11 +270,40 @@ const AdminButtons = observer(() => {
     setIsOpen(!isOpen);
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        setShowToggle(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setShowToggle(false);
+    }
+  }, [isOpen]);
+
   return (
     <MenuContainer>
-      <HamburgerButton onClick={toggleMenu}>
-        {isOpen ? <FaTimes size={28} /> : <FaBars size={28} />}
-      </HamburgerButton>
+      <ButtonContainer>
+        <HamburgerButton onClick={toggleMenu}>
+          {isOpen ? <FaTimes size={28} /> : <FaBars size={28} />}
+        </HamburgerButton>
+        {showToggle && (
+          <ThemeToggleButton
+            onClick={toggleTheme}
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            style={{
+              background: isDarkMode ? '#ffffff' : '#000000',
+              color: isDarkMode ? '#1a202c' : '#f7fafc',
+            }}
+          >
+            {isDarkMode ? (
+              <i className="fas fa-sun"></i>
+            ) : (
+              <i className="fas fa-moon"></i>
+            )}
+          </ThemeToggleButton>
+        )}
+      </ButtonContainer>
       
       <Overlay isOpen={isOpen} onClick={toggleMenu} />
       

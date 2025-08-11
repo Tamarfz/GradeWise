@@ -12,6 +12,7 @@ const Analytics = observer(() => {
   const [selectedProject, setSelectedProject] = useState('');
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [birdViewData, setBirdViewData] = useState([]);
 
   useEffect(() => {
     fetchJudgesAndProjects();
@@ -190,6 +191,93 @@ const Analytics = observer(() => {
     }
   };
 
+  const fetchBirdViewData = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      
+      // Ensure we have projects data, fetch if not available
+      let projectsData = projects;
+      if (!projectsData || projectsData.length === 0) {
+        console.log('Projects not loaded, fetching projects data...');
+        const projectsResponse = await fetch(`${backendURL}/admin/projects/projectsList`, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        
+        if (!projectsResponse.ok) {
+          throw new Error('Failed to fetch projects data');
+        }
+        
+        projectsData = await projectsResponse.json();
+        setProjects(projectsData);
+      }
+      
+      // Fetch all grades data
+      const gradesResponse = await fetch(`${backendURL}/admin/grades`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!gradesResponse.ok) {
+        throw new Error('Failed to fetch grades data');
+      }
+
+      const gradesData = await gradesResponse.json();
+      
+      // Group projects by judge
+      const judgeProjectMap = {};
+      
+      gradesData.grades.forEach(grade => {
+        const judgeId = grade.judge_id.toString();
+        const projectId = grade.project_id.toString();
+        
+        if (!judgeProjectMap[judgeId]) {
+          judgeProjectMap[judgeId] = [];
+        }
+        
+        // Check if project already exists for this judge
+        const existingProject = judgeProjectMap[judgeId].find(p => p.projectId === projectId);
+        if (!existingProject) {
+          // Get project details from the fetched projects data
+          const project = projectsData.find(p => p.ProjectNumber.toString() === projectId);
+          const projectTitle = project ? project.Title : `Project ${projectId}`;
+          
+          // Check if project is graded (not default scores)
+          const isGraded = !(grade.complexity === 1 && grade.usability === 1 && 
+                           grade.innovation === 1 && grade.presentation === 1 && 
+                           grade.proficiency === 1);
+          
+          judgeProjectMap[judgeId].push({
+            projectId: projectId,
+            projectTitle: projectTitle,
+            isGraded: isGraded,
+            grade: grade.grade
+          });
+        }
+      });
+      
+      // Transform to array format with judge details
+      const birdViewArray = judges.map(judge => ({
+        judgeId: judge.ID,
+        judgeName: judge.name,
+        projects: judgeProjectMap[judge.ID.toString()] || []
+      }));
+      
+      console.log('Bird view data prepared:', birdViewArray);
+      setBirdViewData(birdViewArray);
+    } catch (error) {
+      console.error('Error fetching bird view data:', error);
+      setBirdViewData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleJudgeChange = (e) => {
     const judgeId = Number(e.target.value);
     setSelectedJudge(judgeId);
@@ -217,6 +305,8 @@ const Analytics = observer(() => {
     setAnalyticsData(null);
     if (mode === 'distribution') {
       fetchDistributionAnalytics();
+    } else if (mode === 'bird-view') {
+      fetchBirdViewData();
     }
   };
 
@@ -702,6 +792,54 @@ const Analytics = observer(() => {
     );
   };
 
+  const renderBirdView = () => {
+    if (!birdViewData || birdViewData.length === 0) {
+      return <div className="no-data-message">No bird view data available</div>;
+    }
+
+    return (
+      <div className="bird-view-container">
+        {birdViewData.map((judge) => (
+          <div key={judge.judgeId} className="judge-card">
+            <div className="judge-header">
+              <h3 className="judge-name">{judge.judgeName}</h3>
+              <span className="project-count">
+                {judge.projects.length} project{judge.projects.length !== 1 ? 's' : ''}
+              </span>
+            </div>
+            <div className="projects-grid">
+              {judge.projects.length > 0 ? (
+                judge.projects.map((project) => (
+                  <div 
+                    key={project.projectId} 
+                    className={`project-card ${project.isGraded ? 'graded' : 'not-graded'}`}
+                  >
+                    <div className="project-title">{project.projectTitle}</div>
+                    <div className="project-status">
+                      {project.isGraded ? (
+                        <span className="status-graded">
+                          ✅ Graded ({project.grade}/50)
+                        </span>
+                      ) : (
+                        <span className="status-not-graded">
+                          ❌ Not Graded
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="no-projects">
+                  <p>No projects assigned to this judge</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div className="analytics-container">
       <div className="analytics-header">
@@ -724,6 +862,12 @@ const Analytics = observer(() => {
             onClick={() => handleViewModeChange('distribution')}
           >
             View by Distribution
+          </button>
+          <button
+            className={`mode-button ${viewMode === 'bird-view' ? 'active' : ''}`}
+            onClick={() => handleViewModeChange('bird-view')}
+          >
+            Bird View
           </button>
         </div>
       </div>
@@ -776,10 +920,11 @@ const Analytics = observer(() => {
 
         {!loading && analyticsData && renderAnalyticsTable()}
 
+        {!loading && viewMode === 'bird-view' && renderBirdView()}
+
         {!loading && !analyticsData && viewMode === 'distribution' && (
           <div className="no-data-message">
             <p>No distribution data available. Please check if the backend server is running.</p>
-            <p>Debug info: Judges loaded: {judges.length}, Projects loaded: {projects.length}</p>
           </div>
         )}
 
@@ -792,7 +937,6 @@ const Analytics = observer(() => {
         {!loading && !analyticsData && viewMode !== 'distribution' && !selectedJudge && !selectedProject && (
           <div className="no-data-message">
             <p>Please select a {viewMode === 'judge' ? 'judge' : 'project'} to view analytics data.</p>
-            <p>Debug info: Judges loaded: {judges.length}, Projects loaded: {projects.length}</p>
           </div>
         )}
       </div>

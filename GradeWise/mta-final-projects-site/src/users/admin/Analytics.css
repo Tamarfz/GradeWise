@@ -839,4 +839,157 @@
   color: var(--text-secondary);
   font-weight: 500;
   text-align: center;
+}
+
+/* Bird View Styles */
+.bird-view-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 30px;
+  padding: 20px 0;
+}
+
+.judge-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 20px var(--shadow-light);
+  transition: all 0.3s ease;
+}
+
+.judge-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px var(--shadow-medium);
+}
+
+.judge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid var(--card-border);
+}
+
+.judge-name {
+  color: var(--text-primary);
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.project-count {
+  background: var(--accent-primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.project-card {
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.project-card.graded {
+  background: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+}
+
+.project-card.not-graded {
+  background: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+}
+
+.project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.project-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.project-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.status-graded {
+  color: #28a745;
+}
+
+.status-not-graded {
+  color: #dc3545;
+}
+
+.no-projects {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Responsive Design for Bird View */
+@media (max-width: 1024px) {
+  .bird-view-container {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .bird-view-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .judge-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+  
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .judge-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .judge-name {
+    font-size: 20px;
+  }
+  
+  .project-card {
+    padding: 15px;
+  }
+  
+  .project-title {
+    font-size: 15px;
+  }
 } 

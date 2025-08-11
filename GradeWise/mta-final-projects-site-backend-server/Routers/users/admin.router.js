@@ -326,6 +326,24 @@ router.get('/preferences', async (req, res) => {
       if (!judgeIds || !projectIds || judgeIds.length === 0 || projectIds.length === 0) {
         return res.status(400).json({ error: 'Both judges and projects must be selected.' });
       }
+
+      // Check for existing assignments to prevent duplicates
+      const existingAssignments = await collections.projects_judges_groups.find({}).toArray();
+      
+      for (const judgeId of judgeIds) {
+        for (const projectId of projectIds) {
+          // Check if this judge-project combination already exists
+          const isDuplicate = existingAssignments.some(assignment => 
+            assignment.judge_ids.includes(judgeId) && assignment.project_ids.includes(projectId)
+          );
+          
+          if (isDuplicate) {
+            return res.status(400).json({ 
+              error: `Project ${projectId} is already assigned to Judge ${judgeId}. Cannot assign the same project to the same judge twice.` 
+            });
+          }
+        }
+      }
   
       // Create a new entry in projects_judges_group
       const newAssignment = new ProjectsJudgesGroup({
@@ -341,6 +359,18 @@ router.get('/preferences', async (req, res) => {
       const defaultGrades = [];
       for (const judgeId of judgeIds) {
         for (const projectId of projectIds) {
+          // Check if grade already exists for this judge-project combination
+          const existingGrade = await collections.grades.findOne({
+            project_id: parseInt(projectId),
+            judge_id: parseInt(judgeId)
+          });
+          
+          if (existingGrade) {
+            return res.status(400).json({ 
+              error: `Grade already exists for Project ${projectId} and Judge ${judgeId}. Cannot assign the same project to the same judge twice.` 
+            });
+          }
+          
           defaultGrades.push({
             project_id: parseInt(projectId),
             judge_id: parseInt(judgeId),
@@ -949,6 +979,37 @@ router.get('/preferences', async (req, res) => {
     } catch (error) {
       console.error('Error fetching distribution analytics:', error);
       res.status(500).json({ error: 'An error occurred while fetching distribution analytics' });
+    }
+  });
+
+  // Get assignment status for all projects
+  router.get('/projects/assignmentStatus', async (req, res) => {
+    try {
+      // Get all projects
+      const allProjects = await collections.project_schemas.find({}).toArray();
+      
+      // Get all assignments from projects_judges_groups
+      const allAssignments = await collections.projects_judges_groups.find({}).toArray();
+      
+      // Create a set of assigned project IDs
+      const assignedProjectIds = new Set();
+      allAssignments.forEach(assignment => {
+        assignment.project_ids.forEach(projectId => {
+          assignedProjectIds.add(projectId);
+        });
+      });
+      
+      // Map projects with assignment status
+      const projectsWithStatus = allProjects.map(project => ({
+        projectId: project.ProjectNumber,
+        title: project.Title,
+        isAssigned: assignedProjectIds.has(project.ProjectNumber.toString())
+      }));
+      
+      res.json(projectsWithStatus);
+    } catch (error) {
+      console.error('Error fetching project assignment status:', error);
+      res.status(500).json({ error: 'An error occurred while fetching project assignment status' });
     }
   });
 

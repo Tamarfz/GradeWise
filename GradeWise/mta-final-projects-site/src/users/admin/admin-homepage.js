@@ -30,46 +30,118 @@ const AdminHome = observer(() => {
         pendingProjects: 0
     });
 
-    useEffect(() => {
-        // Fetch and cache the judge and project maps when the admin page loads
-        const fetchJudgeAndProjectMaps = async () => {
-            try {
-                const response = await fetch(`${backendURL}/admin/judgesProjectsMaps`, {
+    const fetchJudgeAndProjectMaps = async () => {
+        try {
+            const response = await fetch(`${backendURL}/admin/judgesProjectsMaps`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+
+            // Optionally, store the data in localStorage for future sessions
+            localStorage.setItem('judgeMap', JSON.stringify(data.judges));
+            localStorage.setItem('projectMap', JSON.stringify(data.projects));
+        } catch (error) {
+            console.error('Error fetching judge and project maps:', error);
+        }
+    };
+
+    const fetchStats = async () => {
+        try {
+            console.log('Fetching stats...');
+            const token = localStorage.getItem('token');
+            
+            const [judgesResponse, projectsResponse, gradesResponse] = await Promise.all([
+                axios.get(`${backendURL}/admin/judges/judgesList`),
+                axios.get(`${backendURL}/admin/projects/projectsList`),
+                axios.get(`${backendURL}/admin/grades`, {
                     headers: {
-                        'Content-Type': 'application/json',
-                    },
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                })
+            ]);
+            
+            const totalJudges = judgesResponse.data.length;
+            const totalProjects = projectsResponse.data.length;
+            
+            console.log('Basic counts:', { totalJudges, totalProjects });
+            
+            // Calculate real grading statistics
+            const gradesData = gradesResponse.data.grades;
+            console.log('Grades data received:', gradesData ? gradesData.length : 'No grades data');
+            
+            let gradedProjects = 0;
+            let pendingProjects = 0;
+            
+            if (gradesData && gradesData.length > 0) {
+                // Group grades by project to count unique graded projects
+                const projectGrades = {};
+                
+                gradesData.forEach(grade => {
+                    const projectId = grade.project_id.toString();
+                    if (!projectGrades[projectId]) {
+                        projectGrades[projectId] = [];
+                    }
+                    projectGrades[projectId].push(grade);
                 });
-                const data = await response.json();
-
-                // Optionally, store the data in localStorage for future sessions
-                localStorage.setItem('judgeMap', JSON.stringify(data.judges));
-                localStorage.setItem('projectMap', JSON.stringify(data.projects));
-            } catch (error) {
-                console.error('Error fetching judge and project maps:', error);
+                
+                console.log('Project grades grouped:', Object.keys(projectGrades).length, 'unique projects');
+                
+                // Count projects that have been graded (not just default scores)
+                Object.values(projectGrades).forEach(projectGradeList => {
+                    const hasValidGrade = projectGradeList.some(grade => 
+                        !(grade.complexity === 1 && grade.usability === 1 && 
+                          grade.innovation === 1 && grade.presentation === 1 && 
+                          grade.proficiency === 1)
+                    );
+                    
+                    if (hasValidGrade) {
+                        gradedProjects++;
+                    } else {
+                        pendingProjects++;
+                    }
+                });
+                
+                console.log('Grading calculation:', { gradedProjects, pendingProjects });
             }
-        };
-
-        const fetchStats = async () => {
+            
+            const finalStats = {
+                totalJudges,
+                totalProjects,
+                gradedProjects,
+                pendingProjects
+            };
+            
+            console.log('Final stats being set:', finalStats);
+            setStats(finalStats);
+            
+        } catch (error) {
+            console.error('Error fetching stats:', error);
+            // Fallback to basic stats if grades fetch fails
             try {
                 const [judgesResponse, projectsResponse] = await Promise.all([
                     axios.get(`${backendURL}/admin/judges/judgesList`),
                     axios.get(`${backendURL}/admin/projects/projectsList`)
                 ]);
                 
-                const totalJudges = judgesResponse.data.length;
-                const totalProjects = projectsResponse.data.length;
+                const fallbackStats = {
+                    totalJudges: judgesResponse.data.length,
+                    totalProjects: projectsResponse.data.length,
+                    gradedProjects: 0,
+                    pendingProjects: 0
+                };
                 
-                setStats({
-                    totalJudges,
-                    totalProjects,
-                    gradedProjects: Math.floor(totalProjects * 0.7), // Mock data
-                    pendingProjects: Math.floor(totalProjects * 0.3) // Mock data
-                });
-            } catch (error) {
-                console.error('Error fetching stats:', error);
+                console.log('Setting fallback stats:', fallbackStats);
+                setStats(fallbackStats);
+            } catch (fallbackError) {
+                console.error('Error fetching fallback stats:', fallbackError);
             }
-        };
+        }
+    };
 
+    useEffect(() => {
         fetchJudgeAndProjectMaps();
         fetchStats();
     }, []);
