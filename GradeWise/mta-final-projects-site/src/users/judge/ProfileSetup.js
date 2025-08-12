@@ -288,6 +288,58 @@ const LoadingSpinner = styled.div`
   font-size: 1.1rem;
 `;
 
+const AvatarSection = styled.div`
+  margin-bottom: 30px;
+`;
+
+const AvatarGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+const AvatarOption = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 12px;
+  border: 3px solid transparent;
+  transition: all 0.3s ease;
+  background: var(--bg-secondary);
+  
+  ${props => props.selected && `
+    border-color: var(--accent-primary);
+    background: var(--card-bg);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  `}
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+  }
+`;
+
+const AvatarImage = styled.img`
+  width: 100px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: contain;
+  margin-bottom: 10px;
+`;
+
+const AvatarName = styled.span`
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-weight: 500;
+`;
+
 const ProfileSetup = observer(() => {
   const { userStorage } = storages;
   const user = userStorage.user;
@@ -296,8 +348,29 @@ const ProfileSetup = observer(() => {
   const [formData, setFormData] = useState({
     email: user?.email || '',
     name: user?.name || '',
-    password: user?.password || ''
+    password: user?.password || '',
+    avatar: user?.avatar || 'default'
   });
+
+  // Available avatars
+  const availableAvatars = [
+    { id: 'default', url: '/Assets/icons/default-avatar.png', name: 'Default' },
+    { id: 'michael-jordan', url: '/Assets/icons/michael-jordan.jpg', name: 'Michael Jordan' },
+    { id: 'ohad-avidar', url: '/Assets/icons/ohad-avidar.jpg', name: 'Ohad Avidar' },
+    { id: 'trump', url: '/Assets/icons/trump.jpg', name: 'Trump' },
+    { id: 'harry-potter', url: '/Assets/icons/harry-potter.jpg', name: 'Harry Potter' },
+    { id: 'the-rock', url: '/Assets/icons/the-rock.jpg', name: 'The Rock' },
+    { id: 'jimmy-hendrix', url: '/Assets/icons/jimmy-hendrix.jpg', name: 'Jimmy Hendrix' },
+    { id: 'messi', url: '/Assets/icons/lionel-messi.jpg', name: 'Lionel Messi' },
+    { id: 'cristiano-ronaldo', url: '/Assets/icons/cristiano-ronaldo.jpg', name: 'Cristiano Ronaldo' },
+    { id: 'spongebob', url: '/Assets/icons/spongebob.png', name: 'Spongebob' },
+    { id: 'pikachu', url: '/Assets/icons/pikachu.png', name: 'Pikachu' },
+    { id: 'spiderman', url: '/Assets/icons/spiderman.webp', name: 'Spiderman' },
+    { id: 'batman', url: '/Assets/icons/batman.png', name: 'Batman' },
+    { id: 'voldemort', url: '/Assets/icons/voldemort.jpg', name: 'Voldemort' },
+    { id: 'aladdin', url: '/Assets/icons/aladdin.jpeg', name: 'Aladdin' },
+    { id: 'mufasa', url: '/Assets/icons/lion_king_Mufasa.webp', name: 'Mufasa' }
+  ];
   
   // Call the backend to load current judge data when component mounts.
   useEffect(() => {
@@ -319,7 +392,8 @@ const ProfileSetup = observer(() => {
         setFormData({
           email: data.email || '',
           name: data.name || '',
-          password: data.password || ''
+          password: data.password || '',
+          avatar: data.avatar || 'default'
         });
       })
       .catch(error => {
@@ -346,7 +420,7 @@ const ProfileSetup = observer(() => {
   // Handle form submission to persist changes via an API call.
   const handleSubmit = (e) => {
     e.preventDefault();
-    const fieldsToUpdate = ['email', 'password', 'name'];
+    const fieldsToUpdate = ['email', 'password', 'name', 'avatar'];
     
     // For each field, call the update endpoint using the local formData
     const updatePromises = fieldsToUpdate.map(field => {
@@ -367,6 +441,7 @@ const ProfileSetup = observer(() => {
         userStorage.user.email = formData.email;
         userStorage.user.name = formData.name;
         userStorage.user.password = formData.password;
+        userStorage.user.avatar = formData.avatar;
         Swal.fire({
           title: 'Success!',
           text: 'Profile updated successfully!',
@@ -474,6 +549,22 @@ const ProfileSetup = observer(() => {
                 />
               </InputContainer>
             </FormField>
+
+            <AvatarSection>
+              <FieldLabel>Choose Your Avatar</FieldLabel>
+              <AvatarGrid>
+                {availableAvatars.map((avatar) => (
+                  <AvatarOption
+                    key={avatar.id}
+                    selected={formData.avatar === avatar.id}
+                    onClick={() => handleChange('avatar', avatar.id)}
+                  >
+                    <AvatarImage src={avatar.url} alt={avatar.name} />
+                    <AvatarName>{avatar.name}</AvatarName>
+                  </AvatarOption>
+                ))}
+              </AvatarGrid>
+            </AvatarSection>
 
             <PreferencesSection>
               <AvailablePreferences token={localStorage.getItem('token')} />

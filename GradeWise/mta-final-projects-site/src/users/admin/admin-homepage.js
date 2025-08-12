@@ -7,6 +7,7 @@ import AdminButtons from './AdminButtons';
 import Feed from '../../utils/Feed';
 import axios from 'axios';
 import { backendURL } from '../../config';
+import { getAvatarUrl } from '../../utils/avatarUtils';
 import { 
   FaUsers, 
   FaProjectDiagram, 
@@ -197,12 +198,20 @@ const AdminHome = observer(() => {
             <header className="admin-header">
                 <div className="header-content">
                     <div className="welcome-section">
-                        <h1 className="welcome-title">
-                            Welcome back, <span className="admin-name">{user?.name}</span>! 👋
-                        </h1>
-                        <p className="welcome-subtitle">Here's what's happening with your competition today</p>
+                        <div className="welcome-avatar">
+                            <img 
+                                src={getAvatarUrl(user?.avatar)} 
+                                alt="Admin Avatar" 
+                                className="admin-avatar"
+                            />
+                        </div>
+                        <div className="welcome-text">
+                            <h1 className="welcome-title">
+                                Welcome back, <span className="admin-name">{user?.name}</span>!
+                            </h1>
+                            <p className="welcome-subtitle">Here's what's happening with your competition today</p>
+                        </div>
                     </div>
-
                 </div>
             </header>
 

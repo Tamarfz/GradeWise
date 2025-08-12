@@ -43,12 +43,16 @@ const HamburgerButton = styled.button`
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   color: white;
+  overflow: hidden;
+  position: relative;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
   }
 `;
+
+
 
 const SideMenu = styled.div`
   position: fixed;
@@ -88,6 +92,22 @@ const MenuSubtitle = styled.p`
   color: #718096;
   margin: 0;
   font-weight: 500;
+`;
+
+const AvatarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+`;
+
+const UserAvatar = styled.img`
+  width: 90px;
+  height: 70px;
+  border-radius: 12px;
+  object-fit: contain;
+  border: 3px solid var(--accent-primary);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 `;
 
 const MenuHeaderTop = styled.div`
@@ -291,12 +311,37 @@ const JudgeButtons = observer(() => {
       
       <SideMenu isOpen={isOpen}>
         <MenuHeader>
-          <MenuHeaderTop>
+          <AvatarContainer>
+            <UserAvatar 
+              src={(() => {
+                const avatar = userStorage.user?.avatar || 'default';
+                const avatars = {
+                  'default': '/Assets/icons/default-avatar.png',
+                  'michael-jordan': '/Assets/icons/michael-jordan.jpg',
+                  'ohad-avidar': '/Assets/icons/ohad-avidar.jpg',
+                  'trump': '/Assets/icons/trump.jpg',
+                  'harry-potter': '/Assets/icons/harry-potter.jpg',
+                  'the-rock': '/Assets/icons/the-rock.jpg',
+                  'jimmy-hendrix': '/Assets/icons/jimmy-hendrix.jpg',
+                  'messi': '/Assets/icons/lionel-messi.jpg',
+                  'cristiano-ronaldo': '/Assets/icons/cristiano-ronaldo.jpg',
+                  'spongebob': '/Assets/icons/spongebob.png',
+                  'pikachu': '/Assets/icons/pikachu.png',
+                  'spiderman': '/Assets/icons/spiderman.webp',
+                  'batman': '/Assets/icons/batman.png',
+                  'voldemort': '/Assets/icons/voldemort.jpg',
+                  'aladdin': '/Assets/icons/aladdin.jpeg',
+                  'mufasa': '/Assets/icons/lion_king_Mufasa.webp'
+                };
+                return avatars[avatar] || avatars['default'];
+              })()}
+              alt="User Avatar"
+            />
             <div>
               <MenuTitle>Judge Dashboard</MenuTitle>
               <MenuSubtitle>Welcome back, {userStorage.user?.name}</MenuSubtitle>
             </div>
-          </MenuHeaderTop>
+          </AvatarContainer>
         </MenuHeader>
         
         <NavigationList>

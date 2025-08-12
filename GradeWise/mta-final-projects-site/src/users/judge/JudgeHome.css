@@ -6,3 +6,46 @@
     color:'#175a94';
     
   }
+
+/* Avatar styles for judge homepage */
+.welcome-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome-avatar {
+  flex-shrink: 0;
+}
+
+.judge-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent-primary, #667eea);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.judge-avatar:hover {
+  transform: scale(1.05);
+}
+
+.welcome-text {
+  flex: 1;
+}
+
+/* Responsive design for avatars */
+@media (max-width: 768px) {
+  .welcome-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .judge-avatar {
+    width: 60px;
+    height: 60px;
+  }
+}

@@ -225,6 +225,9 @@ class UsersService {
         console.log("reached email"); 
         user.email = newValue;
         await user.save();
+      } else if (field === 'avatar') {
+        user.avatar = newValue;
+        await user.save();
       } else {
         return { success: false, error: 'Invalid field' };
       }

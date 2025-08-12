@@ -8,6 +8,7 @@ import JudgeButtons from './JudgeButtons';
 import Feed from '../../utils/Feed';
 import axios from 'axios';
 import { backendURL } from '../../config';
+import { getAvatarUrl } from '../../utils/avatarUtils';
 import { 
   FaUserShield, 
   FaClipboardList, 
@@ -85,12 +86,20 @@ const JudgeHome = observer(() => {
             <header className="admin-header">
                 <div className="header-content">
                     <div className="welcome-section">
-                        <h1 className="welcome-title">
-                            Welcome back, <span className="admin-name">{user?.name}</span>! 👋
-                        </h1>
-                        <p className="welcome-subtitle">Here's your grading dashboard overview</p>
+                        <div className="welcome-avatar">
+                            <img 
+                                src={getAvatarUrl(user?.avatar)} 
+                                alt="Judge Avatar" 
+                                className="judge-avatar"
+                            />
+                        </div>
+                        <div className="welcome-text">
+                            <h1 className="welcome-title">
+                                Welcome back, <span className="admin-name">{user?.name}</span>!
+                            </h1>
+                            <p className="welcome-subtitle">Here's your grading dashboard overview</p>
+                        </div>
                     </div>
-
                 </div>
             </header>
 
