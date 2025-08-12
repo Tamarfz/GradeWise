@@ -39,3 +39,4 @@ async function addUniqueConstraints() {
 
 // Run the script
 addUniqueConstraints().catch(console.error);
+

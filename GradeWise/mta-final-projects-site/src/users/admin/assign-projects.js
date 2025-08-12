@@ -239,6 +239,8 @@ const customSelectStyles = {
     borderRadius: '12px',
     boxShadow: '0 8px 32px var(--shadow-light, rgba(0, 0, 0, 0.1))',
     zIndex: 9999,
+    width: '100%',
+    minWidth: '600px',
   }),
   menuPortal: (provided) => ({
     ...provided,

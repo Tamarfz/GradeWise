@@ -52,3 +52,4 @@ The new validation logic is already in place and will work immediately.
 2. **Fair distribution**: Each judge gets unique projects
 3. **Clear feedback**: Users know exactly why assignment failed
 4. **Multiple protection layers**: Both application and database level prevention
+

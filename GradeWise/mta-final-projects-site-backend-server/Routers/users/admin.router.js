@@ -338,8 +338,15 @@ router.get('/preferences', async (req, res) => {
           );
           
           if (isDuplicate) {
+            // Fetch project and judge names for better error message
+            const project = await collections.project_schemas.findOne({ ProjectNumber: parseInt(projectId) });
+            const judge = await collections.users.findOne({ ID: parseInt(judgeId) });
+            
+            const projectName = project ? project.Title : `Project ${projectId}`;
+            const judgeName = judge ? judge.name : `Judge ${judgeId}`;
+            
             return res.status(400).json({ 
-              error: `Project ${projectId} is already assigned to Judge ${judgeId}. Cannot assign the same project to the same judge twice.` 
+              error: `${projectName} is already assigned to ${judgeName}. Cannot assign the same project to the same judge twice.` 
             });
           }
         }
@@ -366,8 +373,15 @@ router.get('/preferences', async (req, res) => {
           });
           
           if (existingGrade) {
+            // Fetch project and judge names for better error message
+            const project = await collections.project_schemas.findOne({ ProjectNumber: parseInt(projectId) });
+            const judge = await collections.users.findOne({ ID: parseInt(judgeId) });
+            
+            const projectName = project ? project.Title : `Project ${projectId}`;
+            const judgeName = judge ? judge.name : `Judge ${judgeId}`;
+            
             return res.status(400).json({ 
-              error: `Grade already exists for Project ${projectId} and Judge ${judgeId}. Cannot assign the same project to the same judge twice.` 
+              error: `Grade already exists for ${projectName} and ${judgeName}. Cannot assign the same project to the same judge twice.` 
             });
           }
           

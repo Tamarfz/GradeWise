@@ -409,18 +409,24 @@ const InfoTitle = styled.h3`
 `;
 
 const CloseButton = styled.button`
-    background: none;
+    background: var(--bg-secondary);
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     color: var(--text-secondary);
     cursor: pointer;
-    padding: 0.5rem;
+    padding: 0.3rem;
     border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
     
     &:hover {
-        background: var(--bg-secondary);
-        color: var(--accent-primary);
+        background: var(--accent-primary);
+        color: white;
+        transform: scale(1.1);
     }
 `;
 
@@ -672,7 +678,10 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
             <ExpandableInfo className={showInfo ? 'expanded' : ''}>
                 <InfoHeader>
                     <InfoTitle>Project Details</InfoTitle>
-                    <CloseButton onClick={handleCloseInfo}>×</CloseButton>
+                    <CloseButton onClick={(e) => {
+                        e.stopPropagation();
+                        handleCloseInfo();
+                    }}>×</CloseButton>
                 </InfoHeader>
                 
                 <ProjectInfo>
