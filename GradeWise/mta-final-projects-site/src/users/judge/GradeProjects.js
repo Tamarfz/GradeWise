@@ -322,7 +322,7 @@ const GradeProjects = observer(() => {
     <div className="admin-dashboard">
       <div className="admin-header">
         <div className="header-content">
-          <div className="welcome-section">
+          <div className="welcome-section" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
             <h1 className="welcome-title">
               Grade Projects <FaGavel style={{ marginLeft: '10px' }} />
             </h1>

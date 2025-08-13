@@ -11,7 +11,7 @@ const PreferencesContainer = styled.div`
 const PreferencesTitle = styled.h3`
   font-size: 1.3rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   margin-bottom: 20px;
   display: flex;
   align-items: center;

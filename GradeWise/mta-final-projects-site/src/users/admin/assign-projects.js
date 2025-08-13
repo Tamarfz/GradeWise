@@ -468,9 +468,8 @@ const AssignProjectsToJudges = () => {
     <div className="admin-dashboard">
       <div className="admin-header">
         <div className="header-content">
-          <div className="welcome-section">
+          <div className="welcome-section" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <h1 className="welcome-title">Assign Projects to Judges</h1>
-            <p className="welcome-subtitle">Select judges and projects to create assignments</p>
           </div>
         </div>
       </div>

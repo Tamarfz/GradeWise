@@ -389,6 +389,13 @@ const Analytics = observer(() => {
            presentation === 1 && proficiency === 1;
   };
 
+  const isProjectGraded = (project) => {
+    // Check if any of the average scores are not 1 (meaning it has been graded)
+    return !(project.avgComplexity === 1 && project.avgUsability === 1 && 
+             project.avgInnovation === 1 && project.avgPresentation === 1 && 
+             project.avgProficiency === 1);
+  };
+
   const renderAnalyticsTable = () => {
     if (!analyticsData) return null;
 
@@ -421,12 +428,10 @@ const Analytics = observer(() => {
                     <td>{project.avgProficiency?.toFixed(2) || 'N/A'}</td>
                     <td>{project.avgTotal?.toFixed(2) || 'N/A'}</td>
                     <td>
-                      {project.avgComplexity === 1 && project.avgUsability === 1 && 
-                       project.avgInnovation === 1 && project.avgPresentation === 1 && 
-                       project.avgProficiency === 1 ? (
-                        <span className="not-graded-badge">Not Graded</span>
-                      ) : (
+                      {isProjectGraded(project) ? (
                         <span className="graded-badge">Graded</span>
+                      ) : (
+                        <span className="not-graded-badge">Not Graded</span>
                       )}
                     </td>
                   </tr>

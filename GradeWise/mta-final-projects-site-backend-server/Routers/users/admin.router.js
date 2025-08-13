@@ -339,8 +339,10 @@ router.get('/preferences', async (req, res) => {
           
           if (isDuplicate) {
             // Fetch project and judge names for better error message
-            const project = await collections.project_schemas.findOne({ ProjectNumber: parseInt(projectId) });
-            const judge = await collections.users.findOne({ ID: parseInt(judgeId) });
+            // Convert to string for ProjectNumber since it's stored as string in schema
+            const project = await collections.project_schemas.findOne({ ProjectNumber: projectId.toString() });
+            // Convert to string for ID since it's stored as string in schema
+            const judge = await collections.users.findOne({ ID: judgeId.toString() });
             
             const projectName = project ? project.Title : `Project ${projectId}`;
             const judgeName = judge ? judge.name : `Judge ${judgeId}`;
@@ -368,14 +370,16 @@ router.get('/preferences', async (req, res) => {
         for (const projectId of projectIds) {
           // Check if grade already exists for this judge-project combination
           const existingGrade = await collections.grades.findOne({
-            project_id: parseInt(projectId),
-            judge_id: parseInt(judgeId)
+            project_id: projectId.toString(),
+            judge_id: judgeId.toString()
           });
           
           if (existingGrade) {
             // Fetch project and judge names for better error message
-            const project = await collections.project_schemas.findOne({ ProjectNumber: parseInt(projectId) });
-            const judge = await collections.users.findOne({ ID: parseInt(judgeId) });
+            // Convert to string for ProjectNumber since it's stored as string in schema
+            const project = await collections.project_schemas.findOne({ ProjectNumber: projectId.toString() });
+            // Convert to string for ID since it's stored as string in schema
+            const judge = await collections.users.findOne({ ID: judgeId.toString() });
             
             const projectName = project ? project.Title : `Project ${projectId}`;
             const judgeName = judge ? judge.name : `Judge ${judgeId}`;
@@ -386,8 +390,8 @@ router.get('/preferences', async (req, res) => {
           }
           
           defaultGrades.push({
-            project_id: parseInt(projectId),
-            judge_id: parseInt(judgeId),
+            project_id: projectId.toString(),
+            judge_id: judgeId.toString(),
             complexity: 1,
             usability: 1,
             innovation: 1,
@@ -444,6 +448,124 @@ router.get('/preferences', async (req, res) => {
     } catch (error) {
         console.error('Error fetching judge and project maps:', error);
         res.status(500).json({ error: 'An error occurred while fetching data' });
+    }
+  });
+
+  // Get current admin user data
+  router.get('/current-admin', async (req, res) => {
+    try {
+      // Extract Bearer token from the Authorization header
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ error: 'Unauthorized: No token provided.' });
+      }
+
+      // Verify the token to get the user object from token payload
+      const userFromToken = await usersSerivce.checkToken(token);
+      if (!userFromToken) {
+        return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
+      }
+
+      // Ensure that the current user is an admin
+      if (userFromToken.type !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden: Current user is not an admin.' });
+      }
+
+      // Log the token payload for debugging (optional)
+      console.log('userFromToken:', userFromToken);
+
+      // Search for the admin record in the users collection.
+      const adminData = await collections.users.findOne({
+        $or: [
+          { ID: userFromToken.ID },
+          { ID: userFromToken.id },
+          { _id: userFromToken._id }
+        ]
+      });
+
+      if (!adminData) {
+        return res.status(404).json({ error: 'Admin not found in the database.' });
+      }
+
+      res.status(200).json(adminData);
+    } catch (error) {
+      console.error('Error retrieving admin data:', error);
+      res.status(500).json({ error: 'An error occurred while retrieving admin data.' });
+    }
+  });
+
+  // Get grade information for a specific project
+  router.get('/projects/:projectId/gradeInfo', async (req, res) => {
+    try {
+      const projectId = req.params.projectId;
+      
+      // Get all grades for this project
+      const projectGrades = await collections.grades.find({ project_id: projectId.toString() }).toArray();
+      
+      if (projectGrades.length === 0) {
+        return res.json({
+          gradedBy: [],
+          averageScore: null,
+          totalScore: 0
+        });
+      }
+
+      // Filter out default grades (all scores = 1)
+      const validGrades = projectGrades.filter(grade => 
+        !(grade.complexity === 1 && grade.usability === 1 && 
+          grade.innovation === 1 && grade.presentation === 1 && 
+          grade.proficiency === 1)
+      );
+
+      // Get judge names for valid grades
+      const judgeIds = [...new Set(validGrades.map(grade => grade.judge_id))];
+      const judges = await collections.users.find({ 
+        ID: { $in: judgeIds.map(id => id.toString()) } 
+      }).toArray();
+      
+      const judgeMap = {};
+      judges.forEach(judge => {
+        judgeMap[judge.ID] = judge.name;
+      });
+
+      // Create gradedBy array with judge names
+      const gradedBy = validGrades.map(grade => ({
+        judge_id: grade.judge_id,
+        judge_name: judgeMap[grade.judge_id] || `Judge ${grade.judge_id}`,
+        complexity: grade.complexity,
+        usability: grade.usability,
+        innovation: grade.innovation,
+        presentation: grade.presentation,
+        proficiency: grade.proficiency,
+        grade: grade.grade,
+        additionalComment: grade.additionalComment
+      }));
+
+      // Calculate average score
+      const totalScore = validGrades.reduce((sum, grade) => sum + grade.grade, 0);
+      const averageScore = validGrades.length > 0 ? totalScore / validGrades.length : null;
+
+      res.json({
+        gradedBy: gradedBy,
+        averageScore: averageScore,
+        totalScore: totalScore,
+        totalJudges: validGrades.length
+      });
+    } catch (error) {
+      console.error('Error fetching grade info:', error);
+      res.status(500).json({ error: 'An error occurred while fetching grade information.' });
+    }
+  });
+
+  // Migration route to convert numeric IDs to strings
+  router.post('/migrate-grade-ids', async (req, res) => {
+    try {
+      const { migrateGradeIds } = require('./migration');
+      await migrateGradeIds();
+      res.json({ message: 'Migration completed successfully' });
+    } catch (error) {
+      console.error('Migration error:', error);
+      res.status(500).json({ error: 'Migration failed' });
     }
   });
 
@@ -721,39 +843,36 @@ router.get('/preferences', async (req, res) => {
       return res.json({ projects: [], judgeName });
     }
 
-    // Get unique project IDs for this judge
-    const projectIds = [...new Set(judgeGrades.map(grade => grade.project_id))];
-    
-    // Convert project IDs to strings to match the project_schemas collection ProjectNumber format
-    const projectIdStrings = projectIds.map(id => id.toString());
+          // Get unique project IDs for this judge
+      const projectIds = [...new Set(judgeGrades.map(grade => grade.project_id))];
+      
+      // Get project details
+      const projects = await collections.project_schemas.find({
+        ProjectNumber: { $in: projectIds }
+      }).toArray();
 
-    // Get project details
-    const projects = await collections.project_schemas.find({
-      ProjectNumber: { $in: projectIdStrings }
-    }).toArray();
+      // Create a map of project details
+      const projectMap = {};
+      projects.forEach(project => {
+        projectMap[project.ProjectNumber] = project.Title;
+      });
 
-    // Create a map of project details
-    const projectMap = {};
-    projects.forEach(project => {
-      projectMap[project.ProjectNumber] = project.Title;
-    });
+          // Calculate averages for each project
+      const projectAnalytics = projectIds.map(projectId => {
+        const projectGrades = judgeGrades.filter(grade => grade.project_id === projectId);
 
-    // Calculate averages for each project
-    const projectAnalytics = projectIds.map(projectId => {
-      const projectGrades = judgeGrades.filter(grade => grade.project_id === projectId);
+        if (projectGrades.length === 0) return null;
 
-      if (projectGrades.length === 0) return null;
+        const avgComplexity = projectGrades.reduce((sum, grade) => sum + grade.complexity, 0) / projectGrades.length;
+        const avgUsability = projectGrades.reduce((sum, grade) => sum + grade.usability, 0) / projectGrades.length;
+        const avgInnovation = projectGrades.reduce((sum, grade) => sum + grade.innovation, 0) / projectGrades.length;
+        const avgPresentation = projectGrades.reduce((sum, grade) => sum + grade.presentation, 0) / projectGrades.length;
+        const avgProficiency = projectGrades.reduce((sum, grade) => sum + grade.proficiency, 0) / projectGrades.length;
+        const avgTotal = projectGrades.reduce((sum, grade) => sum + grade.grade, 0) / projectGrades.length;
 
-      const avgComplexity = projectGrades.reduce((sum, grade) => sum + grade.complexity, 0) / projectGrades.length;
-      const avgUsability = projectGrades.reduce((sum, grade) => sum + grade.usability, 0) / projectGrades.length;
-      const avgInnovation = projectGrades.reduce((sum, grade) => sum + grade.innovation, 0) / projectGrades.length;
-      const avgPresentation = projectGrades.reduce((sum, grade) => sum + grade.presentation, 0) / projectGrades.length;
-      const avgProficiency = projectGrades.reduce((sum, grade) => sum + grade.proficiency, 0) / projectGrades.length;
-      const avgTotal = projectGrades.reduce((sum, grade) => sum + grade.grade, 0) / projectGrades.length;
-
-      return {
-        projectId,
-        title: projectMap[projectId.toString()] || '',
+        return {
+          projectId,
+          title: projectMap[projectId] || '',
         avgComplexity,
         avgUsability,
         avgInnovation,
@@ -796,48 +915,16 @@ router.get('/preferences', async (req, res) => {
       const judgeIds = [...new Set(projectGrades.map(grade => grade.judge_id))];
       console.log('Judge IDs from grades:', judgeIds);
       
-      // Get all judges from users collection to debug
+      // Get all judges from users collection
       const allJudges = await collections.users.find({}).toArray();
-      console.log('All users in database:', allJudges.map(u => ({ 
-        ID: u.ID, 
-        name: u.name, 
-        type: u.type,
-        IDType: typeof u.ID,
-        IDAsNumber: parseInt(u.ID)
-      })));
       
-      console.log('Judge IDs from grades with types:', judgeIds.map(id => ({
-        id: id,
-        type: typeof id,
-        asString: id.toString(),
-        asNumber: parseInt(id)
-      })));
-      
-      // Try multiple matching strategies
+      // Create judge map using string matching
       const judgeMap = {};
-      
-      // Strategy 1: Direct string match
       judgeIds.forEach(judgeId => {
-        const judgeIdStr = judgeId.toString();
-        const judge = allJudges.find(u => u.ID.toString() === judgeIdStr);
+        const judge = allJudges.find(u => u.ID === judgeId.toString());
         if (judge) {
           judgeMap[judgeId] = judge.name;
-          console.log(`Strategy 1 - Found judge ${judgeId} -> ${judge.name}`);
-        }
-      });
-      
-      // Strategy 2: Numeric match (convert both to numbers)
-      judgeIds.forEach(judgeId => {
-        if (!judgeMap[judgeId]) {
-          const judge = allJudges.find(u => {
-            const userIDNum = parseInt(u.ID);
-            const judgeIDNum = parseInt(judgeId);
-            return userIDNum === judgeIDNum;
-          });
-          if (judge) {
-            judgeMap[judgeId] = judge.name;
-            console.log(`Strategy 2 - Found judge ${judgeId} -> ${judge.name}`);
-          }
+          console.log(`Found judge ${judgeId} -> ${judge.name}`);
         }
       });
       

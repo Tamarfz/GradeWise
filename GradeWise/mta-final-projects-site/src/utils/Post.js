@@ -505,7 +505,7 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
     useEffect(() => {
         const fetchGradeInfo = async () => {
             try {
-                const response = await fetch(`${backendURL}/admin/projects/${project._id}/gradeInfo`);
+                const response = await fetch(`${backendURL}/admin/projects/${project.ProjectNumber || project._id}/gradeInfo`);
                 const data = await response.json();
                 console.log('Grade info for project:', project._id, data); // Debug log
                 console.log('Grade info structure:', {

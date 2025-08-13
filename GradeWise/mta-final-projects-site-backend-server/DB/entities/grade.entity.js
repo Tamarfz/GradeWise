@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const gradeSchema = new mongoose.Schema({
   id: { type: mongoose.Schema.Types.ObjectId, auto: true },
-  project_id: { type: Number, required: true },
-  judge_id: { type: Number, required: true },
+  project_id: { type: String, required: true },
+  judge_id: { type: String, required: true },
   complexity: { type: Number, required: true },
   usability: { type: Number, required: true },
   innovation: { type: Number, required: true },

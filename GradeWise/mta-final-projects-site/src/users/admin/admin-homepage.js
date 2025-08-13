@@ -22,6 +22,9 @@ const AdminHome = observer(() => {
     const navigate = useNavigate();
     const { userStorage } = storages;
     const user = userStorage.user;
+    
+    // Debug: Log user data
+    console.log('Admin user data:', user);
     const [judgeMap, setJudgeMap] = useState({});
     const [projectMap, setProjectMap] = useState({});
     const [stats, setStats] = useState({
@@ -145,6 +148,30 @@ const AdminHome = observer(() => {
     useEffect(() => {
         fetchJudgeAndProjectMaps();
         fetchStats();
+        
+        // Refresh user data from database to ensure avatar is up to date
+        const refreshUserData = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${backendURL}/admin/current-admin`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                
+                // Update userStorage with fresh data
+                userStorage.user.email = data.email || '';
+                userStorage.user.name = data.name || '';
+                userStorage.user.avatar = data.avatar || 'default';
+            } catch (error) {
+                console.error('Error refreshing user data:', error);
+            }
+        };
+
+        refreshUserData();
     }, []);
 
     const quickActions = [

@@ -18,6 +18,8 @@ import {
 import { storages } from '../../stores';
 import Swal from 'sweetalert2';
 import styled from 'styled-components';
+import { getAvatarUrl } from '../../utils/avatarUtils';
+import { backendURL } from '../../config';
 import './AdminButtons.css';
 
 // Modern styled components - same as JudgeButtons
@@ -125,6 +127,30 @@ const MenuSubtitle = styled.p`
   color: #718096;
   margin: 0;
   font-weight: 500;
+`;
+
+const AvatarContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+`;
+
+const UserAvatar = styled.img`
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  border: 3px solid var(--accent-primary, #667eea);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: transform 0.3s ease;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
 `;
 
 const NavigationList = styled.nav`
@@ -281,6 +307,34 @@ const AdminButtons = observer(() => {
     }
   }, [isOpen]);
 
+  // Refresh user data when menu opens to ensure avatar is up to date
+  useEffect(() => {
+    if (isOpen) {
+      const refreshUserData = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${backendURL}/admin/current-admin`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          
+          // Update userStorage with fresh data
+          userStorage.user.email = data.email || '';
+          userStorage.user.name = data.name || '';
+          userStorage.user.avatar = data.avatar || 'default';
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+        }
+      };
+
+      refreshUserData();
+    }
+  }, [isOpen, userStorage]);
+
   return (
     <MenuContainer>
       <ButtonContainer>
@@ -309,8 +363,16 @@ const AdminButtons = observer(() => {
       
       <SideMenu isOpen={isOpen}>
         <MenuHeader>
-          <MenuTitle>Admin Dashboard</MenuTitle>
-          <MenuSubtitle>Welcome back, {userStorage.user?.name}</MenuSubtitle>
+          <AvatarContainer>
+            <UserAvatar 
+              src={getAvatarUrl(userStorage.user?.avatar)}
+              alt="Admin Avatar"
+            />
+            <div>
+              <MenuTitle>Admin Dashboard</MenuTitle>
+              <MenuSubtitle>Welcome back, {userStorage.user?.name}</MenuSubtitle>
+            </div>
+          </AvatarContainer>
         </MenuHeader>
         
         <NavigationList>

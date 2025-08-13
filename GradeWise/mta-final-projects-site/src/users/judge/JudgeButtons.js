@@ -13,6 +13,8 @@ import { storages } from '../../stores';
 import Swal from 'sweetalert2';
 import styled from 'styled-components';
 import { useTheme } from '../../context/ThemeContext';
+import { getAvatarUrl } from '../../utils/avatarUtils';
+import { backendURL } from '../../config';
 import './JudgeButtons.css';
 
 // Modern styled components
@@ -283,6 +285,34 @@ const JudgeButtons = observer(() => {
     }
   }, [isOpen]);
 
+  // Refresh user data when menu opens to ensure avatar is up to date
+  useEffect(() => {
+    if (isOpen) {
+      const refreshUserData = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${backendURL}/current-judge`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          const data = await response.json();
+          
+          // Update userStorage with fresh data
+          userStorage.user.email = data.email || '';
+          userStorage.user.name = data.name || '';
+          userStorage.user.avatar = data.avatar || 'default';
+        } catch (error) {
+          console.error('Error refreshing user data:', error);
+        }
+      };
+
+      refreshUserData();
+    }
+  }, [isOpen, userStorage]);
+
   return (
     <MenuContainer>
       <ButtonContainer>
@@ -313,28 +343,7 @@ const JudgeButtons = observer(() => {
         <MenuHeader>
           <AvatarContainer>
             <UserAvatar 
-              src={(() => {
-                const avatar = userStorage.user?.avatar || 'default';
-                const avatars = {
-                  'default': '/Assets/icons/default-avatar.png',
-                  'michael-jordan': '/Assets/icons/michael-jordan.jpg',
-                  'ohad-avidar': '/Assets/icons/ohad-avidar.jpg',
-                  'trump': '/Assets/icons/trump.jpg',
-                  'harry-potter': '/Assets/icons/harry-potter.jpg',
-                  'the-rock': '/Assets/icons/the-rock.jpg',
-                  'jimmy-hendrix': '/Assets/icons/jimmy-hendrix.jpg',
-                  'messi': '/Assets/icons/lionel-messi.jpg',
-                  'cristiano-ronaldo': '/Assets/icons/cristiano-ronaldo.jpg',
-                  'spongebob': '/Assets/icons/spongebob.png',
-                  'pikachu': '/Assets/icons/pikachu.png',
-                  'spiderman': '/Assets/icons/spiderman.webp',
-                  'batman': '/Assets/icons/batman.png',
-                  'voldemort': '/Assets/icons/voldemort.jpg',
-                  'aladdin': '/Assets/icons/aladdin.jpeg',
-                  'mufasa': '/Assets/icons/lion_king_Mufasa.webp'
-                };
-                return avatars[avatar] || avatars['default'];
-              })()}
+              src={getAvatarUrl(userStorage.user?.avatar)}
               alt="User Avatar"
             />
             <div>

@@ -294,12 +294,13 @@ const AvatarSection = styled.div`
 
 const AvatarGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 20px;
-  margin-top: 15px;
-  max-width: 600px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 24px;
+  margin-top: 20px;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
+  justify-items: center;
 `;
 
 const AvatarOption = styled.div`
@@ -326,11 +327,19 @@ const AvatarOption = styled.div`
 `;
 
 const AvatarImage = styled.img`
-  width: 100px;
-  height: 80px;
-  border-radius: 12px;
-  object-fit: contain;
-  margin-bottom: 10px;
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  object-fit: cover;
+  object-position: center;
+  margin-bottom: 12px;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  transition: transform 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.05);
+  }
 `;
 
 const AvatarName = styled.span`
@@ -355,13 +364,12 @@ const ProfileSetup = observer(() => {
   // Available avatars
   const availableAvatars = [
     { id: 'default', url: '/Assets/icons/default-avatar.png', name: 'Default' },
-    { id: 'michael-jordan', url: '/Assets/icons/michael-jordan.jpg', name: 'Michael Jordan' },
+    { id: 'mario', url: '/Assets/icons/mario.jpg', name: 'Mario' },
     { id: 'ohad-avidar', url: '/Assets/icons/ohad-avidar.jpg', name: 'Ohad Avidar' },
     { id: 'trump', url: '/Assets/icons/trump.jpg', name: 'Trump' },
     { id: 'harry-potter', url: '/Assets/icons/harry-potter.jpg', name: 'Harry Potter' },
     { id: 'the-rock', url: '/Assets/icons/the-rock.jpg', name: 'The Rock' },
     { id: 'jimmy-hendrix', url: '/Assets/icons/jimmy-hendrix.jpg', name: 'Jimmy Hendrix' },
-    { id: 'messi', url: '/Assets/icons/lionel-messi.jpg', name: 'Lionel Messi' },
     { id: 'cristiano-ronaldo', url: '/Assets/icons/cristiano-ronaldo.jpg', name: 'Cristiano Ronaldo' },
     { id: 'spongebob', url: '/Assets/icons/spongebob.png', name: 'Spongebob' },
     { id: 'pikachu', url: '/Assets/icons/pikachu.png', name: 'Pikachu' },
@@ -369,7 +377,8 @@ const ProfileSetup = observer(() => {
     { id: 'batman', url: '/Assets/icons/batman.png', name: 'Batman' },
     { id: 'voldemort', url: '/Assets/icons/voldemort.jpg', name: 'Voldemort' },
     { id: 'aladdin', url: '/Assets/icons/aladdin.jpeg', name: 'Aladdin' },
-    { id: 'mufasa', url: '/Assets/icons/lion_king_Mufasa.webp', name: 'Mufasa' }
+    { id: 'mufasa', url: '/Assets/icons/lion_king_Mufasa.webp', name: 'Mufasa' },
+    { id: 'smurf', url: '/Assets/icons/smurf.jpg', name: 'Smurf' }
   ];
   
   // Call the backend to load current judge data when component mounts.
@@ -442,6 +451,26 @@ const ProfileSetup = observer(() => {
         userStorage.user.name = formData.name;
         userStorage.user.password = formData.password;
         userStorage.user.avatar = formData.avatar;
+        
+        // Refresh userStorage from database to get updated avatar
+        fetch(`${backendURL}/current-judge`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Update userStorage with fresh data from database
+          userStorage.user.email = data.email || '';
+          userStorage.user.name = data.name || '';
+          userStorage.user.avatar = data.avatar || 'default';
+        })
+        .catch(error => {
+          console.error('Error refreshing user data:', error);
+        });
+        
         Swal.fire({
           title: 'Success!',
           text: 'Profile updated successfully!',
