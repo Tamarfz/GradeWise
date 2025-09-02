@@ -191,84 +191,60 @@ const Analytics = observer(() => {
     }
   };
 
-  const fetchBirdViewData = async () => {
+  // Old fetchBirdViewData function removed - replaced with updated version below
+  // This function was causing duplicate declaration errors
+
+  // Updated bird view function that uses the same data source as judge view
+  const fetchBirdViewDataUpdated = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
       
-      // Ensure we have projects data, fetch if not available
-      let projectsData = projects;
-      if (!projectsData || projectsData.length === 0) {
-        console.log('Projects not loaded, fetching projects data...');
-        const projectsResponse = await fetch(`${backendURL}/admin/projects/projectsList`, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        
-        if (!projectsResponse.ok) {
-          throw new Error('Failed to fetch projects data');
-        }
-        
-        projectsData = await projectsResponse.json();
-        setProjects(projectsData);
-      }
-      
-      // Fetch all grades data
-      const gradesResponse = await fetch(`${backendURL}/admin/grades`, {
+      // Use the same data source as fetchJudgeAnalytics
+      const response = await fetch(`${backendURL}/admin/grades`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!gradesResponse.ok) {
+      if (!response.ok) {
         throw new Error('Failed to fetch grades data');
       }
 
-      const gradesData = await gradesResponse.json();
+      const data = await response.json();
       
-      // Group projects by judge
-      const judgeProjectMap = {};
-      
-      gradesData.grades.forEach(grade => {
-        const judgeId = grade.judge_id.toString();
-        const projectId = grade.project_id.toString();
+      // Transform the data to match the same format as fetchJudgeAnalytics
+      const birdViewArray = judges.map(judge => {
+        // Filter grades to only show projects assigned to this judge
+        const judgeGrades = data.grades.filter(grade => grade.judge_id.toString() === judge.ID.toString());
         
-        if (!judgeProjectMap[judgeId]) {
-          judgeProjectMap[judgeId] = [];
-        }
+        // Transform projects data to match the same format
+        const projectsData = judgeGrades.map(grade => {
+          // Get project name from the projects list
+          const project = projects.find(p => p.ProjectNumber.toString() === grade.project_id.toString());
+          const projectTitle = project ? project.Title : `Project ${grade.project_id}`;
+          
+          return {
+            title: projectTitle,
+            avgComplexity: grade.complexity,
+            avgUsability: grade.usability,
+            avgInnovation: grade.innovation,
+            avgPresentation: grade.presentation,
+            avgProficiency: grade.proficiency,
+            avgTotal: grade.grade,
+            projectId: grade.project_id
+          };
+        });
         
-        // Check if project already exists for this judge
-        const existingProject = judgeProjectMap[judgeId].find(p => p.projectId === projectId);
-        if (!existingProject) {
-          // Get project details from the fetched projects data
-          const project = projectsData.find(p => p.ProjectNumber.toString() === projectId);
-          const projectTitle = project ? project.Title : `Project ${projectId}`;
-          
-          // Check if project is graded (not default scores)
-          const isGraded = !(grade.complexity === 1 && grade.usability === 1 && 
-                           grade.innovation === 1 && grade.presentation === 1 && 
-                           grade.proficiency === 1);
-          
-          judgeProjectMap[judgeId].push({
-            projectId: projectId,
-            projectTitle: projectTitle,
-            isGraded: isGraded,
-            grade: grade.grade
-          });
-        }
+        return {
+          judgeId: judge.ID,
+          judgeName: judge.name,
+          projects: projectsData
+        };
       });
       
-      // Transform to array format with judge details
-      const birdViewArray = judges.map(judge => ({
-        judgeId: judge.ID,
-        judgeName: judge.name,
-        projects: judgeProjectMap[judge.ID.toString()] || []
-      }));
-      
-      console.log('Bird view data prepared:', birdViewArray);
+      console.log('Bird view data prepared using same source as judge view:', birdViewArray);
       setBirdViewData(birdViewArray);
     } catch (error) {
       console.error('Error fetching bird view data:', error);
@@ -306,7 +282,7 @@ const Analytics = observer(() => {
     if (mode === 'distribution') {
       fetchDistributionAnalytics();
     } else if (mode === 'bird-view') {
-      fetchBirdViewData();
+      fetchBirdViewDataUpdated();
     }
   };
 
@@ -324,9 +300,9 @@ const Analytics = observer(() => {
         const presentation = parseFloat(project.avgPresentation);
         const proficiency = parseFloat(project.avgProficiency);
         
-        // Check if all scores are 1 (default/not graded)
-        return !(complexity === 1 && usability === 1 && innovation === 1 && 
-                 presentation === 1 && proficiency === 1);
+        // Check if all scores are valid numbers (default/not graded)
+        return !(isNaN(complexity) || isNaN(usability) || isNaN(innovation) || 
+                 isNaN(presentation) || isNaN(proficiency));
       });
     } else if (viewMode === 'project' && analyticsData.judges) {
       // For project view: filter judges with valid grades
@@ -337,9 +313,9 @@ const Analytics = observer(() => {
         const presentation = parseFloat(judge.presentation);
         const proficiency = parseFloat(judge.proficiency);
         
-        // Check if all scores are 1 (default/not graded)
-        return !(complexity === 1 && usability === 1 && innovation === 1 && 
-                 presentation === 1 && proficiency === 1);
+        // Check if all scores are valid numbers (default/not graded)
+        return !(isNaN(complexity) || isNaN(usability) || isNaN(innovation) || 
+                 isNaN(presentation) || isNaN(proficiency));
       });
     }
 
@@ -384,16 +360,24 @@ const Analytics = observer(() => {
     const presentation = parseFloat(judge.presentation);
     const proficiency = parseFloat(judge.proficiency);
     
-    // Check if all scores are 1 (default/not graded)
-    return complexity === 1 && usability === 1 && innovation === 1 && 
-           presentation === 1 && proficiency === 1;
+    // Check if all scores are NaN or invalid (default/not graded)
+    return isNaN(complexity) || isNaN(usability) || isNaN(innovation) || 
+           isNaN(presentation) || isNaN(proficiency);
   };
 
   const isProjectGraded = (project) => {
-    // Check if any of the average scores are not 1 (meaning it has been graded)
-    return !(project.avgComplexity === 1 && project.avgUsability === 1 && 
-             project.avgInnovation === 1 && project.avgPresentation === 1 && 
-             project.avgProficiency === 1);
+    // Check if any of the average scores are valid numbers (meaning it has been graded)
+    // Handle both NaN values and undefined/null values
+    const complexity = parseFloat(project.avgComplexity);
+    const usability = parseFloat(project.avgUsability);
+    const innovation = parseFloat(project.avgInnovation);
+    const presentation = parseFloat(project.avgPresentation);
+    const proficiency = parseFloat(project.avgProficiency);
+    
+    // Check if all scores are valid numbers (not graded)
+    return !(isNaN(complexity) || isNaN(usability) || 
+             isNaN(innovation) || isNaN(presentation) || 
+             isNaN(proficiency));
   };
 
   const renderAnalyticsTable = () => {
@@ -639,7 +623,7 @@ const Analytics = observer(() => {
 
     const totalJudges = analyticsData.judges.length;
     
-    // Filter out judges with default scores (all "1") - these are not graded
+    // Filter out judges with invalid scores - these are not graded
     const validGrades = analyticsData.judges.filter(judge => {
       const complexity = parseFloat(judge.complexity);
       const usability = parseFloat(judge.usability);
@@ -647,9 +631,9 @@ const Analytics = observer(() => {
       const presentation = parseFloat(judge.presentation);
       const proficiency = parseFloat(judge.proficiency);
       
-      // Check if all scores are 1 (default/not graded)
-      return !(complexity === 1 && usability === 1 && innovation === 1 && 
-               presentation === 1 && proficiency === 1);
+      // Check if all scores are valid numbers (default/not graded)
+      return !(isNaN(complexity) || isNaN(usability) || isNaN(innovation) || 
+               isNaN(presentation) || isNaN(proficiency));
     });
     
     const completedAssessments = validGrades.length;
@@ -703,7 +687,7 @@ const Analytics = observer(() => {
 
     const totalProjects = analyticsData.projects.length;
     
-    // Filter out projects with default scores (all "1") - these are not graded
+    // Filter out projects with invalid scores - these are not graded
     const validGrades = analyticsData.projects.filter(project => {
       const complexity = parseFloat(project.avgComplexity);
       const usability = parseFloat(project.avgUsability);
@@ -711,9 +695,9 @@ const Analytics = observer(() => {
       const presentation = parseFloat(project.avgPresentation);
       const proficiency = parseFloat(project.avgProficiency);
       
-      // Check if all scores are 1 (default/not graded)
-      return !(complexity === 1 && usability === 1 && innovation === 1 && 
-               presentation === 1 && proficiency === 1);
+      // Check if all scores are valid numbers (default/not graded)
+      return !(isNaN(complexity) || isNaN(usability) || isNaN(innovation) || 
+               isNaN(presentation) || isNaN(proficiency));
     });
     
     const completedAssessments = validGrades.length;

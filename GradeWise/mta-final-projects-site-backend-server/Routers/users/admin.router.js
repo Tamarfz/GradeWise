@@ -392,13 +392,13 @@ router.get('/preferences', async (req, res) => {
           defaultGrades.push({
             project_id: projectId.toString(),
             judge_id: judgeId.toString(),
-            complexity: 1,
-            usability: 1,
-            innovation: 1,
-            presentation: 1,
-            proficiency: 1,
+            complexity: NaN,
+            usability: NaN,
+            innovation: NaN,
+            presentation: NaN,
+            proficiency: NaN,
             additionalComment: 'Not yet scored',
-            grade: 10,
+            grade: NaN,
             createdAt: new Date(),
             updatedAt: new Date()
           });
@@ -510,11 +510,11 @@ router.get('/preferences', async (req, res) => {
         });
       }
 
-      // Filter out default grades (all scores = 1)
+      // Filter out default grades (any score = NaN)
       const validGrades = projectGrades.filter(grade => 
-        !(grade.complexity === 1 && grade.usability === 1 && 
-          grade.innovation === 1 && grade.presentation === 1 && 
-          grade.proficiency === 1)
+        !(isNaN(grade.complexity) || isNaN(grade.usability) || 
+          isNaN(grade.innovation) || isNaN(grade.presentation) || 
+          isNaN(grade.proficiency))
       );
 
       // Get judge names for valid grades
@@ -574,14 +574,14 @@ router.get('/preferences', async (req, res) => {
     try {
       console.log('Fetching top 3 projects for podium...');
       
-      // Get all grades that are not default scores (exclude all "1" grades)
+      // Get all grades that are not default scores (exclude all NaN grades)
       const grades = await collections.grades.find({
         $or: [
-          { complexity: { $ne: 1 } },
-          { usability: { $ne: 1 } },
-          { innovation: { $ne: 1 } },
-          { presentation: { $ne: 1 } },
-          { proficiency: { $ne: 1 } }
+          { complexity: { $ne: NaN } },
+          { usability: { $ne: NaN } },
+          { innovation: { $ne: NaN } },
+          { presentation: { $ne: NaN } },
+          { proficiency: { $ne: NaN } }
         ]
       }).toArray();
 
@@ -691,14 +691,14 @@ router.get('/preferences', async (req, res) => {
     try {
       console.log('Fetching podium data for old format...');
       
-      // Get all grades that are not default scores (exclude all "1" grades)
+      // Get all grades that are not default scores (exclude all NaN grades)
       const grades = await collections.grades.find({
         $or: [
-          { complexity: { $ne: 1 } },
-          { usability: { $ne: 1 } },
-          { innovation: { $ne: 1 } },
-          { presentation: { $ne: 1 } },
-          { proficiency: { $ne: 1 } }
+          { complexity: { $ne: NaN } },
+          { usability: { $ne: NaN } },
+          { innovation: { $ne: NaN } },
+          { presentation: { $ne: NaN } },
+          { proficiency: { $ne: NaN } }
         ]
       }).toArray();
 
@@ -994,11 +994,11 @@ router.get('/preferences', async (req, res) => {
       // Get all grades from the database
       const allGrades = await collections.grades.find({}).toArray();
       
-      // Filter out default grades (all scores = 1)
+      // Filter out default grades (all scores = NaN)
       const validGrades = allGrades.filter(grade => {
-        return !(grade.complexity === 1 && grade.usability === 1 && 
-                grade.innovation === 1 && grade.presentation === 1 && 
-                grade.proficiency === 1);
+        return !(isNaN(grade.complexity) && isNaN(grade.usability) && 
+                isNaN(grade.innovation) && isNaN(grade.presentation) && 
+                isNaN(grade.proficiency));
       });
 
       // Calculate total counts
@@ -1080,6 +1080,33 @@ router.get('/preferences', async (req, res) => {
     } catch (error) {
       console.error('Error fetching distribution analytics:', error);
       res.status(500).json({ error: 'An error occurred while fetching distribution analytics' });
+    }
+  });
+
+  // Get project assignments from projects_judges_groups collection
+  router.get('/projects/assignments', async (req, res) => {
+    try {
+      // Get all project assignments
+      const assignments = await collections.projects_judges_groups.find({}).toArray();
+      
+      // Transform the data to show which projects are assigned to which judges
+      const assignmentMap = {};
+      
+      assignments.forEach(assignment => {
+        assignment.project_ids.forEach(projectId => {
+          if (!assignmentMap[projectId]) {
+            assignmentMap[projectId] = [];
+          }
+          assignment.judge_ids.forEach(judgeId => {
+            assignmentMap[projectId].push(judgeId);
+          });
+        });
+      });
+      
+      res.json({ assignments: assignmentMap });
+    } catch (error) {
+      console.error('Error fetching project assignments:', error);
+      res.status(500).json({ error: 'An error occurred while fetching project assignments' });
     }
   });
 

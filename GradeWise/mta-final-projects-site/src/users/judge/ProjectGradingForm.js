@@ -62,7 +62,7 @@ const StyledFormControl = styled(FormControl)`
   margin-bottom: 20px;
   
   .MuiInputLabel-root {
-    color: #ffffff !important;
+    color: var(--text-primary) !important;
     font-weight: 600 !important;
     font-size: 20px !important;
   }
@@ -248,13 +248,18 @@ const LoadingSpinner = styled.div`
 `;
 
 const InitialFormData = {
-  complexity: 10,
-  usability: 10,
-  innovation: 10,
-  presentation: 10,
-  proficiency: 10,
+  complexity: NaN,
+  usability: NaN,
+  innovation: NaN,
+  presentation: NaN,
+  proficiency: NaN,
   additionalComment: '',
-  grade: 50,
+  grade: NaN,
+};
+
+// Helper function to convert NaN values to "N/A" for display
+const convertNaNToNA = (value) => {
+  return isNaN(parseFloat(value)) ? "N/A" : value;
 };
 
 const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
@@ -267,12 +272,26 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
 
   // Calculate the total from grading fields
   const calculateTotal = (data) => {
-    return (
+    const total = (
       Number(data.complexity) +
       Number(data.usability) +
       Number(data.innovation) +
       Number(data.presentation) +
       Number(data.proficiency)
+    );
+    
+    // If any value is NaN, return NaN for the total
+    return isNaN(total) ? NaN : total;
+  };
+
+  // Check if all criteria values are "N/A" or NaN (indicating not graded)
+  const isAllCriteriaNaN = (data) => {
+    return (
+      isNaN(parseFloat(data.complexity)) &&
+      isNaN(parseFloat(data.usability)) &&
+      isNaN(parseFloat(data.innovation)) &&
+      isNaN(parseFloat(data.presentation)) &&
+      isNaN(parseFloat(data.proficiency))
     );
   };
 
@@ -287,16 +306,23 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
         if (response.data && response.data.gradeInfo) {
           const gradeInfo = response.data.gradeInfo;
           setJudgeId(gradeInfo.judge_id);
-          setFormData({
-            complexity: gradeInfo.complexity,
-            usability: gradeInfo.usability,
-            innovation: gradeInfo.innovation,
-            presentation: gradeInfo.presentation,
-            proficiency: gradeInfo.proficiency,
-            additionalComment: gradeInfo.additionalComment,
-            grade: gradeInfo.grade,
-          });
-          setGraded(true);
+          
+          // Check if all criteria are NaN (not graded)
+          if (isAllCriteriaNaN(gradeInfo)) {
+            setGraded(false); // Treat as not graded if all criteria are NaN
+            setFormData(InitialFormData); // Reset to initial values
+          } else {
+            setGraded(true); // Has valid grades
+            setFormData({
+              complexity: convertNaNToNA(gradeInfo.complexity),
+              usability: convertNaNToNA(gradeInfo.usability),
+              innovation: convertNaNToNA(gradeInfo.innovation),
+              presentation: convertNaNToNA(gradeInfo.presentation),
+              proficiency: convertNaNToNA(gradeInfo.proficiency),
+              additionalComment: gradeInfo.additionalComment,
+              grade: gradeInfo.grade,
+            });
+          }
         }
       } catch (error) {
         console.error('Error fetching grade:', error);
@@ -311,7 +337,16 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
   // Update a grading field and recalc total
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
-    const updatedData = { ...formData, [name]: parseInt(value, 10) };
+    
+    // Handle "N/A" values - convert to NaN for calculations
+    let numericValue;
+    if (value === "N/A") {
+      numericValue = NaN;
+    } else {
+      numericValue = parseInt(value, 10);
+    }
+    
+    const updatedData = { ...formData, [name]: numericValue };
     updatedData.grade = calculateTotal(updatedData);
     setFormData(updatedData);
   };
@@ -323,9 +358,23 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
   // Submit the form data to the backend
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if at least one criterion has a valid grade
+    const hasValidGrade = Object.values(formData).some(value => 
+      value !== 'N/A' && !isNaN(parseFloat(value)) && parseFloat(value) >= 1 && parseFloat(value) <= 10
+    );
+    
+    if (!hasValidGrade) {
+      Swal.fire('Error', 'Please provide at least one valid grade between 1-10.', 'error');
+      return;
+    }
+    
     try {
       const token = localStorage.getItem('token');
-      const method = graded ? 'PUT' : 'POST';
+      // Determine method based on whether we have existing valid grades
+      const hasExistingValidGrades = !isAllCriteriaNaN(formData) && graded;
+      const method = hasExistingValidGrades ? 'PUT' : 'POST';
+      
       const response = await fetch(`${backendURL}/gradeProject`, {
         method,
         headers: {
@@ -366,7 +415,7 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
         </HeaderSubtitle>
       </FormHeader>
 
-      {graded && (
+      {graded && !isAllCriteriaNaN(formData) && (
         <GradedNotice>
           <FaCheckCircle />
           You have already graded this project. Your previous responses are shown below.
@@ -382,10 +431,13 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
             labelId={`${field}-label`}
             id={field}
             name={field}
-            value={formData[field]}
+            value={isNaN(formData[field]) ? "N/A" : formData[field]}
             onChange={handleSelectChange}
             label={`${field.charAt(0).toUpperCase() + field.slice(1)} (1-10)`}
           >
+            <MenuItem value="N/A">
+              N/A
+            </MenuItem>
             {Array.from({ length: 10 }, (_, i) => (
               <MenuItem key={i + 1} value={i + 1}>
                 {i + 1}
@@ -420,7 +472,9 @@ const ProjectGradingForm = ({ projectId, onSubmit, onCancel }) => {
       <TotalScore>
         <FaCalculator />
         <span>Total Score:</span>
-        <TotalScoreValue>{formData.grade}</TotalScoreValue>
+        <TotalScoreValue>
+          {isNaN(formData.grade) ? 'N/A' : formData.grade}
+        </TotalScoreValue>
       </TotalScore>
 
       <ButtonContainer>

@@ -96,9 +96,9 @@ const AdminHome = observer(() => {
                 // Count projects that have been graded (not just default scores)
                 Object.values(projectGrades).forEach(projectGradeList => {
                     const hasValidGrade = projectGradeList.some(grade => 
-                        !(grade.complexity === 1 && grade.usability === 1 && 
-                          grade.innovation === 1 && grade.presentation === 1 && 
-                          grade.proficiency === 1)
+                        !(isNaN(grade.complexity) && isNaN(grade.usability) && 
+                          isNaN(grade.innovation) && isNaN(grade.presentation) && 
+                          isNaN(grade.proficiency))
                     );
                     
                     if (hasValidGrade) {

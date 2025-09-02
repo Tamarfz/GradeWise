@@ -370,6 +370,7 @@ const ProfileSetup = observer(() => {
     { id: 'harry-potter', url: '/Assets/icons/harry-potter.jpg', name: 'Harry Potter' },
     { id: 'the-rock', url: '/Assets/icons/the-rock.jpg', name: 'The Rock' },
     { id: 'jimmy-hendrix', url: '/Assets/icons/jimmy-hendrix.jpg', name: 'Jimmy Hendrix' },
+    { id: 'messi', url: '/Assets/icons/lionel-messi.jpg', name: 'Lionel Messi' },
     { id: 'cristiano-ronaldo', url: '/Assets/icons/cristiano-ronaldo.jpg', name: 'Cristiano Ronaldo' },
     { id: 'spongebob', url: '/Assets/icons/spongebob.png', name: 'Spongebob' },
     { id: 'pikachu', url: '/Assets/icons/pikachu.png', name: 'Pikachu' },

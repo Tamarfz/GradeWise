@@ -6,9 +6,10 @@ import { observer } from 'mobx-react-lite';
 import { storages } from '../../stores';
 import JudgeButtons from './JudgeButtons';
 import Feed from '../../utils/Feed';
-import axios from 'axios';
+
 import { backendURL } from '../../config';
 import { getAvatarUrl } from '../../utils/avatarUtils';
+
 import { 
   FaUserShield, 
   FaClipboardList, 
@@ -34,12 +35,19 @@ const JudgeHome = observer(() => {
             try {
                 const token = localStorage.getItem('token');
                 
-                // Use the correct endpoint that provides totalAssigned and totalGraded
-                const response = await axios.get(`${backendURL}/judge/counts`, {
-                    headers: { Authorization: `Bearer ${token}` },
+                // Use the existing working endpoint for judge statistics
+                const response = await fetch(`${backendURL}/judge/counts`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
                 
-                const { totalAssigned, totalGraded } = response.data;
+                if (!response.ok) {
+                    throw new Error('Failed to fetch judge counts');
+                }
+                
+                const { totalAssigned, totalGraded } = await response.json();
                 const pendingProjects = totalAssigned - totalGraded;
                 
                 setStats({
@@ -48,7 +56,7 @@ const JudgeHome = observer(() => {
                     pendingProjects: pendingProjects
                 });
                 
-                console.log('Judge stats:', { totalAssigned, totalGraded, pendingProjects });
+                console.log('Judge stats from judge counts endpoint:', { totalAssigned, totalGraded, pendingProjects });
             } catch (error) {
                 console.error('Error fetching judge stats:', error);
                 // Set default values if API call fails

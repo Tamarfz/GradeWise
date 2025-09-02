@@ -570,42 +570,78 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
             onClick={showGradeButton ? handleGradeClick : undefined}
         >
             {/* Modern Graded Badge */}
-            {gradeInfo && gradeInfo.gradedBy && gradeInfo.gradedBy.length > 0 && (
-                <GradedBadge>
-                    <BadgeIcon>
-                        <FaTrophy size={10} />
-                    </BadgeIcon>
-                    GRADED
-                </GradedBadge>
-            )}
+            {gradeInfo && gradeInfo.gradedBy && gradeInfo.gradedBy.length > 0 && (() => {
+                // Check if any of the grades are valid numbers (not NaN, undefined, null, or non-numeric)
+                const hasValidGrades = gradeInfo.gradedBy.some(grade => {
+                    const complexity = parseFloat(grade.complexity);
+                    const usability = parseFloat(grade.usability);
+                    const innovation = parseFloat(grade.innovation);
+                    const presentation = parseFloat(grade.presentation);
+                    const proficiency = parseFloat(grade.proficiency);
+                    
+                    // Check if all scores are valid numbers (meaning it has been graded)
+                    return !(isNaN(complexity) || isNaN(usability) || 
+                             isNaN(innovation) || isNaN(presentation) || 
+                             isNaN(proficiency));
+                });
+                
+                return hasValidGrades ? (
+                    <GradedBadge>
+                        <BadgeIcon>
+                            <FaTrophy size={10} />
+                        </BadgeIcon>
+                        GRADED
+                    </GradedBadge>
+                ) : null;
+            })()}
 
             {/* Score Badge - Show for any project that has been graded */}
-            {gradeInfo && (gradeInfo.gradedBy?.length > 0 || gradeInfo.averageScore) && (
-                <ScoreBadge>
-                    <BadgeIcon>
-                        <FaStar size={12} />
-                    </BadgeIcon>
-                    <span>Score:</span>
-                    <ScoreValue>
-                        {(() => {
-                            // Calculate score based on available data
-                            if (gradeInfo.gradedBy && gradeInfo.gradedBy.length > 0) {
-                                const totalScore = gradeInfo.gradedBy.reduce((sum, grade) => {
-                                    const gradeValue = grade.grade || grade.score || 0;
-                                    return sum + gradeValue;
-                                }, 0);
-                                return Math.round(totalScore / gradeInfo.gradedBy.length);
-                            } else if (gradeInfo.averageScore) {
-                                return Math.round(gradeInfo.averageScore);
-                            } else if (gradeInfo.totalScore && gradeInfo.gradedBy?.length) {
-                                return Math.round(gradeInfo.totalScore / gradeInfo.gradedBy.length);
-                            } else {
-                                return 'N/A';
-                            }
-                        })()}
-                    </ScoreValue>
-                </ScoreBadge>
-            )}
+            {gradeInfo && (gradeInfo.gradedBy?.length > 0 || gradeInfo.averageScore) && (() => {
+                // Check if any of the grades are valid numbers (not NaN, undefined, null, or non-numeric)
+                const hasValidGrades = gradeInfo.gradedBy && gradeInfo.gradedBy.some(grade => {
+                    const complexity = parseFloat(grade.complexity);
+                    const usability = parseFloat(grade.usability);
+                    const innovation = parseFloat(grade.innovation);
+                    const presentation = parseFloat(grade.presentation);
+                    const proficiency = parseFloat(grade.proficiency);
+                    
+                    // Check if all scores are valid numbers (meaning it has been graded)
+                    return !(isNaN(complexity) || isNaN(usability) || 
+                             isNaN(innovation) || isNaN(presentation) || 
+                             isNaN(proficiency));
+                });
+                
+                // Only show score badge if there are valid grades or a valid average score
+                if (hasValidGrades || (gradeInfo.averageScore && !isNaN(gradeInfo.averageScore))) {
+                    return (
+                        <ScoreBadge>
+                            <BadgeIcon>
+                                <FaStar size={12} />
+                            </BadgeIcon>
+                            <span>Score:</span>
+                            <ScoreValue>
+                                {(() => {
+                                    // Calculate score based on available data
+                                    if (hasValidGrades) {
+                                        const totalScore = gradeInfo.gradedBy.reduce((sum, grade) => {
+                                            const gradeValue = grade.grade || grade.score || 0;
+                                            return sum + gradeValue;
+                                        }, 0);
+                                        return Math.round(totalScore / gradeInfo.gradedBy.length);
+                                    } else if (gradeInfo.averageScore && !isNaN(gradeInfo.averageScore)) {
+                                        return Math.round(gradeInfo.averageScore);
+                                    } else if (gradeInfo.totalScore && !isNaN(gradeInfo.totalScore)) {
+                                        return Math.round(gradeInfo.totalScore);
+                                    } else {
+                                        return 'N/A';
+                                    }
+                                })()}
+                            </ScoreValue>
+                        </ScoreBadge>
+                    );
+                }
+                return null;
+            })()}
 
 
 
@@ -614,12 +650,33 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
                 <Image src={imageUrl} alt={project.Title || project.name} />
                 
                 {/* Judge Graded Badge - shows when current judge has graded this project */}
-                {judgeGraded && (
-                    <JudgeGradedBadge>
-                        <FaCheckCircle size={12} />
-                        GRADED
-                    </JudgeGradedBadge>
-                )}
+                {judgeGraded && (() => {
+                    // Check if the judge's grade is valid (not NaN)
+                    if (gradeInfo && gradeInfo.gradedBy) {
+                        const judgeGrade = gradeInfo.gradedBy.find(grade => {
+                            // This would need to be updated to check against the current judge's ID
+                            // For now, we'll check if any judge has valid grades
+                            const complexity = parseFloat(grade.complexity);
+                            const usability = parseFloat(grade.usability);
+                            const innovation = parseFloat(grade.innovation);
+                            const presentation = parseFloat(grade.presentation);
+                            const proficiency = parseFloat(grade.proficiency);
+                            
+                            // Check if all scores are valid numbers (meaning it has been graded)
+                            return !(isNaN(complexity) || isNaN(usability) || 
+                                     isNaN(innovation) || isNaN(presentation) || 
+                                     isNaN(proficiency));
+                        });
+                        
+                        return judgeGrade ? (
+                            <JudgeGradedBadge>
+                                <FaCheckCircle size={12} />
+                                GRADED
+                            </JudgeGradedBadge>
+                        ) : null;
+                    }
+                    return null;
+                })()}
                 
                 <ImageOverlay>
                     <OverlayContent>
@@ -663,14 +720,30 @@ const Post = ({ project, onGrade, showGradeButton, reloadGrade }) => {
                         )}
                     </ActionButtons>
                     
-                    {gradeInfo && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <FaCheck size={12} style={{ color: '#43e97b' }} />
-                            <span style={{ fontSize: '0.8rem', color: '#718096' }}>
-                                {gradeInfo.gradedBy?.length || 0} judges
-                            </span>
-                        </div>
-                    )}
+                    {gradeInfo && (() => {
+                        // Count only judges with valid grades (not NaN, undefined, null, or non-numeric)
+                        const validJudgeCount = gradeInfo.gradedBy ? gradeInfo.gradedBy.filter(grade => {
+                            const complexity = parseFloat(grade.complexity);
+                            const usability = parseFloat(grade.usability);
+                            const innovation = parseFloat(grade.innovation);
+                            const presentation = parseFloat(grade.presentation);
+                            const proficiency = parseFloat(grade.proficiency);
+                            
+                            // Check if all scores are valid numbers (meaning it has been graded)
+                            return !(isNaN(complexity) || isNaN(usability) || 
+                                     isNaN(innovation) || isNaN(presentation) || 
+                                     isNaN(proficiency));
+                        }).length : 0;
+                        
+                        return validJudgeCount > 0 ? (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <FaCheck size={12} style={{ color: '#43e97b' }} />
+                                <span style={{ fontSize: '0.8rem', color: '#718096' }}>
+                                    {validJudgeCount} judges
+                                </span>
+                            </div>
+                        ) : null;
+                    })()}
                 </CardActions>
             </ContentSection>
 

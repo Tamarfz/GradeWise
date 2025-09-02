@@ -15,6 +15,7 @@ import { backendURL } from '../../config';
 import Loading from '../../utils/Loader';
 import JudgeProjectStats from './JudgeProjectStats';
 import { FaGavel, FaSearch, FaFilter } from 'react-icons/fa';
+import { fetchJudgeProjects, transformGradesToProjects } from '../../utils/judgeDataUtils';
 import './GradeProjects.css'; 
 
 // Modern styled components
@@ -219,7 +220,8 @@ const GradeProjects = observer(() => {
   const user = userStorage.user;
   const token = localStorage.getItem('token');
 
-  const [projects, setProjects] = useState([]);
+  const [allProjects, setAllProjects] = useState([]); // Store all projects for search/filtering
+  const [projects, setProjects] = useState([]); // Store filtered projects
   const [selectedProject, setSelectedProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [filtersActive, setFiltersActive] = useState(false);
@@ -231,17 +233,23 @@ const GradeProjects = observer(() => {
   const fetchProjects = async (query = '') => {
     try {
       setLoading(true);
-      const response = await fetch(`${backendURL}/projectsForJudge/projectList${query}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch projects');
-      }
-      const data = await response.json();
-      setProjects(data.projects);
+      
+      // Get current judge ID from userStorage
+      const currentJudgeId = userStorage.user.ID || userStorage.user.id;
+      console.log('Current judge ID:', currentJudgeId);
+      console.log('User storage data:', userStorage.user);
+      
+      // Use shared utility to fetch judge projects from the judge-specific endpoint
+      const judgeProjects = await fetchJudgeProjects(token, currentJudgeId);
+      console.log('Fetched judge projects:', judgeProjects);
+      
+      // Transform the projects data to the expected format using shared utility
+      const projectsData = transformGradesToProjects(judgeProjects);
+      console.log('Transformed projects data:', projectsData);
+      
+      // Store all projects and set filtered projects
+      setAllProjects(projectsData);
+      setProjects(projectsData);
     } catch (error) {
       console.error('Error fetching projects:', error);
       Swal.fire('Error', 'Failed to fetch projects. Please try again.', 'error');
@@ -289,21 +297,26 @@ const GradeProjects = observer(() => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    let query = '';
     if (searchTerm || searchField) {
-      const params = [];
-      if (searchTerm) {
-        params.push(`searchTerm=${encodeURIComponent(searchTerm)}`);
-      }
-      if (searchField) {
-        params.push(`searchField=${encodeURIComponent(searchField)}`);
-      }
-      query = '?' + params.join('&');
+      // Filter projects locally since we now have all data
+      const filteredProjects = allProjects.filter(project => {
+        const matchesSearchTerm = !searchTerm || 
+          project.Title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          project.ProjectNumber.toString().includes(searchTerm);
+        
+        const matchesSearchField = !searchField || 
+          project[searchField]?.toString().toLowerCase().includes(searchTerm.toLowerCase());
+        
+        return matchesSearchTerm && matchesSearchField;
+      });
+      
+      setProjects(filteredProjects);
       setFiltersActive(true);
     } else {
+      // Show all projects if no search criteria
+      setProjects(allProjects);
       setFiltersActive(false);
     }
-    fetchProjects(query);
   };
 
   const handleClearFilters = (e) => {
@@ -311,7 +324,7 @@ const GradeProjects = observer(() => {
     setSearchTerm('');
     setSearchField('');
     setFiltersActive(false);
-    fetchProjects();
+    setProjects(allProjects); // Show all projects
   };
 
   if (loading) {
