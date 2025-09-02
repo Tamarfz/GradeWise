@@ -69,7 +69,8 @@ router.post('/check-token', async (req, res) => {
         error: "Failed to auth"
       });
     }
-    const userToReturn =  { type: user.type, name: user.name };
+    const userToReturn =  { type: user.type, name: user.name, avatar: user.avatar || 'default' };
+    console.log('Check token - user to return:', userToReturn);
     res.json({ success: true, user: userToReturn });
   } catch (error) {
     console.log(error);
@@ -218,7 +219,7 @@ getCollections()
         const projectId = req.params.projectId;
 
         // Look up the grade document for this project and judge
-        const grade = await collections.grades.findOne({ project_id: projectId, judge_id });
+        const grade = await collections.grades.findOne({ project_id: projectId.toString(), judge_id: judge_id.toString() });
         if (!grade) {
           return res.status(404).json({ error: 'Grade not found for this project.' });
         }
@@ -314,30 +315,45 @@ getCollections()
         }
 
         // Check if the grade already exists for this judge and project
-        // const existingGrade = await collections.grades.findOne({ judge_id, project_id: projectId });
-        // if (existingGrade) {
-        //   return res.status(400).json({ error: 'Grade for this project already exists for this judge.' });
-        // }
-
+        const existingGrade = await collections.grades.findOne({ judge_id: judge_id.toString(), project_id: projectId.toString() });
+        
         // Calculate the total grade
         const totalGrade = grades.complexity + grades.usability + grades.innovation + grades.presentation + grades.proficiency;
 
-        // Create a new grade document
-        const newGrade = {
-          project_id: projectId,
-          judge_id: judge_id,
-          complexity: grades.complexity,
-          usability: grades.usability,
-          innovation: grades.innovation,
-          presentation: grades.presentation,
-          proficiency: grades.proficiency,
-          additionalComment: grades.additionalComment || '',
-          grade: totalGrade,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
+        if (existingGrade) {
+          // Update existing grade document
+          await collections.grades.updateOne(
+            { judge_id: judge_id.toString(), project_id: projectId.toString() },
+            { $set: {
+                complexity: grades.complexity,
+                usability: grades.usability,
+                innovation: grades.innovation,
+                presentation: grades.presentation,
+                proficiency: grades.proficiency,
+                additionalComment: grades.additionalComment || '',
+                grade: totalGrade,
+                updatedAt: new Date()
+              }
+            }
+          );
+        } else {
+          // Create a new grade document
+          const newGrade = {
+            project_id: projectId.toString(),
+            judge_id: judge_id.toString(),
+            complexity: grades.complexity,
+            usability: grades.usability,
+            innovation: grades.innovation,
+            presentation: grades.presentation,
+            proficiency: grades.proficiency,
+            additionalComment: grades.additionalComment || '',
+            grade: totalGrade,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
 
-        await collections.grades.insertOne(newGrade);
+          await collections.grades.insertOne(newGrade);
+        }
         res.status(201).json({ message: 'Grade submitted successfully.' });
       } catch (error) {
         console.error('Error submitting grade:', error);
@@ -385,7 +401,7 @@ getCollections()
 
         // Update the existing grade document
         const updateResult = await collections.grades.updateOne(
-          { project_id: projectId, judge_id },
+          { project_id: projectId.toString(), judge_id: judge_id.toString() },
           { $set: {
               complexity: grades.complexity,
               usability: grades.usability,
@@ -444,8 +460,15 @@ getCollections()
       });
       const totalAssigned = projectIds.length;
 
-      // Get total graded projects count
-      const totalGraded = await collections.grades.countDocuments({ judge_id: user.id });
+      // Get total graded projects count (only where all criteria are non-null)
+      const totalGraded = await collections.grades.countDocuments({
+        judge_id: user.id.toString(),
+        complexity: { $ne: null },
+        usability: { $ne: null },
+        innovation: { $ne: null },
+        presentation: { $ne: null },
+        proficiency: { $ne: null }
+      });
 
       res.status(200).json({ totalAssigned, totalGraded });
     } catch (error) {

@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     type: { type: String, required: true, default: "judge" },
-    selected_preferences: [{ type: String }], 
+    selected_preferences: [{ type: String }],
+    avatar: { type: String, default: "default" }
 }, { timestamps: true });
 
 // Model creation

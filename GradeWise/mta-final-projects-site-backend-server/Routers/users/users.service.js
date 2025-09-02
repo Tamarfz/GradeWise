@@ -29,6 +29,7 @@ class UsersService {
         name: user.name,
         email: user.email,
         type: user.type,
+        avatar: user.avatar || 'default'
       } }, secretKey, { expiresIn: '100y' });
       return {
         success: true,
@@ -36,7 +37,8 @@ class UsersService {
         user: {
           type: user.type,
           name: user.name,
-          email: user.email
+          email: user.email,
+          avatar: user.avatar || 'default'
         }
       };
     } catch (error) {
@@ -58,6 +60,7 @@ class UsersService {
       console.error("Invalid token");
       return;
     }
+    console.log('Token verification - user data:', user.data);
     return user.data;
   }
 
@@ -224,6 +227,9 @@ class UsersService {
       } else if (field === 'email'){
         console.log("reached email"); 
         user.email = newValue;
+        await user.save();
+      } else if (field === 'avatar') {
+        user.avatar = newValue;
         await user.save();
       } else {
         return { success: false, error: 'Invalid field' };

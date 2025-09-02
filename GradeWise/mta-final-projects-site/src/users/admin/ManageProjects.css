@@ -9,6 +9,7 @@
   max-width: 100%; /* Ensure it doesn't exceed the screen width */
   box-sizing: border-box;
   overflow-x: hidden; /* Prevent horizontal scrolling */
+  font-size: 1.1em; /* Increase base font size by 10% */
 }
 
 /* Header styling */
@@ -28,6 +29,30 @@
   font-size: 16px; /* Adjust font size for smaller screens */
   color: #333;
   margin-bottom: 10px; /* Reduce margin */
+}
+
+/* File upload section styling */
+.file-upload-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px; /* Add space between file input and buttons */
+  width: 100%;
+}
+
+.file-upload-section input[type="file"] {
+  padding: 8px 15px;
+  background-color: #f8f9fa;
+  border: 2px solid #175a94;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.3s ease;
+  color: #175a94;
+}
+
+.file-upload-section input[type="file"]:hover {
+  background-color: #e9ecef;
+  border-color: #0e3f6d;
 }
 
 /* Buttons container */
@@ -91,6 +116,16 @@
     font-size: 14px; /* Further adjust font size */
   }
 
+  .file-upload-section {
+    margin-bottom: 10px; /* Reduce margin for smaller screens */
+  }
+
+  .file-upload-section input[type="file"] {
+    font-size: 12px; /* Adjust file input font size */
+    width: 100%; /* Make file input full width */
+    max-width: 300px; /* Limit width on mobile */
+  }
+
   .admin-buttons {
     flex-direction: column; /* Stack buttons vertically */
     gap: 5px; /* Reduce spacing between buttons */
@@ -99,11 +134,6 @@
   .admin-button {
     width: 100%; /* Make buttons full width */
     font-size: 12px; /* Adjust font size */
-  }
-
-  input[type="file"] {
-    font-size: 12px; /* Adjust file input font size */
-    width: 100%; /* Make file input full width */
   }
 
   .responsive-swal-popup {

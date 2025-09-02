@@ -1,40 +1,315 @@
-/* Mobile-friendly styles for ManageGrades page */
+/* Modern Manage Grades Page Styles */
 .manage-grades-container {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 10px;
-    background-color: #f8f8f8;
+    min-height: 100vh;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 20px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 1.1em; /* Increase base font size by 10% */
 }
 
+/* Modern Header */
+.manage-grades-container .admin-header {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 32px var(--shadow-light);
+    border: 1px solid var(--card-border);
+    text-align: center;
+}
+
+.manage-grades-container .admin-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+    letter-spacing: -0.5px;
+}
+
+/* Modern Table Container */
 .grades-manager-table {
-    width: 100%;
-    overflow-x: auto;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 8px 32px var(--shadow-light);
+    border: 1px solid var(--card-border);
+    overflow: hidden;
     margin-top: 20px;
 }
 
+/* Modern Table Styles */
 .grades-manager-table table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
-.grades-manager-table th, .grades-manager-table td {
-    padding: 8px;
+.grades-manager-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 18px 16px;
     text-align: left;
-    border: 1px solid #ddd;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    position: relative;
 }
 
-/* For small screens (phones, tablets) */
-@media (max-width: 600px) {
+.grades-manager-table th:first-child {
+    border-top-left-radius: 16px;
+}
+
+.grades-manager-table th:last-child {
+    border-top-right-radius: 16px;
+}
+
+.grades-manager-table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.grades-manager-table tr:hover td {
+    background: var(--bg-tertiary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--shadow-light);
+}
+
+.grades-manager-table tr:last-child td {
+    border-bottom: none;
+}
+
+.grades-manager-table tr:last-child td:first-child {
+    border-bottom-left-radius: 16px;
+}
+
+.grades-manager-table tr:last-child td:last-child {
+    border-bottom-right-radius: 16px;
+}
+
+/* Modern Loading State */
+.manage-grades-container .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    margin: 20px 0;
+}
+
+.manage-grades-container .loading h4 {
+    font-size: 1.2rem;
+    color: #667eea;
+    font-weight: 500;
+}
+
+/* Modern Status Badges */
+.graded-badge {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(67, 233, 123, 0.3);
+}
+
+.not-graded-badge {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* Modern Scrollbar */
+.grades-manager-table::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.grades-manager-table::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.grades-manager-table::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.grades-manager-table::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Responsive Design */
+ @media (max-width: 1024px) {
+     .manage-grades-container {
+         padding: 15px;
+     }
+     
+     .manage-grades-container .admin-header {
+         padding: 25px;
+         margin-bottom: 25px;
+     }
+     
+     .manage-grades-container .admin-header h2 {
+         font-size: 2rem;
+     }
+     
+     .grades-manager-table {
+         padding: 20px;
+     }
+     
+     .grades-manager-table th,
+     .grades-manager-table td {
+         padding: 12px 10px;
+         font-size: 0.85rem;
+     }
+     
+     /* Show more columns on tablets: Judge Name, Project Name, Total Score, Complexity, Usability */
+     .grades-manager-table th:nth-child(1), /* Judge ID */
+     .grades-manager-table td:nth-child(1),
+     .grades-manager-table th:nth-child(3), /* Project ID */
+     .grades-manager-table td:nth-child(3),
+     .grades-manager-table th:nth-child(7), /* Innovation */
+     .grades-manager-table td:nth-child(7),
+     .grades-manager-table th:nth-child(8), /* Presentation */
+     .grades-manager-table td:nth-child(8),
+     .grades-manager-table th:nth-child(9), /* Proficiency */
+     .grades-manager-table td:nth-child(9),
+     .grades-manager-table th:nth-child(10), /* Additional Comment */
+     .grades-manager-table td:nth-child(10) {
+         display: none;
+     }
+     
+     /* Keep: Judge Name (2), Project Name (4), Complexity (5), Usability (6), Total Score (11) */
+     .grades-manager-table th:nth-child(2),
+     .grades-manager-table td:nth-child(2),
+     .grades-manager-table th:nth-child(4),
+     .grades-manager-table td:nth-child(4),
+     .grades-manager-table th:nth-child(5),
+     .grades-manager-table td:nth-child(5),
+     .grades-manager-table th:nth-child(6),
+     .grades-manager-table td:nth-child(6),
+     .grades-manager-table th:nth-child(11),
+     .grades-manager-table td:nth-child(11) {
+         display: table-cell;
+     }
+ }
+
+@media (max-width: 768px) {
     .manage-grades-container {
         padding: 10px;
     }
-
-    .grades-manager-table th, .grades-manager-table td {
-        padding: 5px;
-        font-size: 14px;
+    
+    .manage-grades-container .admin-header {
+        padding: 20px;
+        margin-bottom: 20px;
     }
+    
+    .manage-grades-container .admin-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .grades-manager-table {
+        padding: 15px;
+        border-radius: 16px;
+    }
+    
+    .grades-manager-table th,
+    .grades-manager-table td {
+        padding: 10px 8px;
+        font-size: 0.8rem;
+    }
+    
+         /* Show only essential columns on mobile: Judge Name, Project Name, Total Score */
+     .grades-manager-table th:nth-child(1), /* Judge ID */
+     .grades-manager-table td:nth-child(1),
+     .grades-manager-table th:nth-child(3), /* Project ID */
+     .grades-manager-table td:nth-child(3),
+     .grades-manager-table th:nth-child(5), /* Complexity */
+     .grades-manager-table td:nth-child(5),
+     .grades-manager-table th:nth-child(6), /* Usability */
+     .grades-manager-table td:nth-child(6),
+     .grades-manager-table th:nth-child(7), /* Innovation */
+     .grades-manager-table td:nth-child(7),
+     .grades-manager-table th:nth-child(8), /* Presentation */
+     .grades-manager-table td:nth-child(8),
+     .grades-manager-table th:nth-child(9), /* Proficiency */
+     .grades-manager-table td:nth-child(9),
+     .grades-manager-table th:nth-child(10), /* Additional Comment */
+     .grades-manager-table td:nth-child(10) {
+         display: none;
+     }
+     
+     /* Keep only: Judge Name (2), Project Name (4), Total Score (11) */
+     .grades-manager-table th:nth-child(2),
+     .grades-manager-table td:nth-child(2),
+     .grades-manager-table th:nth-child(4),
+     .grades-manager-table td:nth-child(4),
+     .grades-manager-table th:nth-child(11),
+     .grades-manager-table td:nth-child(11) {
+         display: table-cell;
+     }
+}
 
-    .grades-manager-table table {
-        width: 100%;
+@media (max-width: 480px) {
+    .manage-grades-container .admin-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .grades-manager-table {
+        padding: 10px;
+    }
+    
+    .grades-manager-table th,
+    .grades-manager-table td {
+        padding: 8px 6px;
+        font-size: 0.75rem;
     }
 }
+
+/* Animation for table rows */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.grades-manager-table tbody tr {
+    animation: fadeInUp 0.3s ease forwards;
+}
+
+.grades-manager-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.grades-manager-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.grades-manager-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.grades-manager-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.grades-manager-table tbody tr:nth-child(5) { animation-delay: 0.5s; }

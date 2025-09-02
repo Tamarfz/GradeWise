@@ -49,6 +49,16 @@ nav ul li:hover::before {
 	transform: scale(7);
 }
 
+/* Logout button specific styling */
+nav ul li:last-child::before {
+	background-color: #175a94; /* Default blue color */
+}
+
+nav ul li:last-child:hover::before {
+	background-color: #dc3545; /* Red color on hover */
+	transform: scale(7);
+}
+
 .judge-buttons nav ul li span {
   font-size: 20px; /* adjust as necessary */
   font-weight: 600;
