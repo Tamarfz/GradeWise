@@ -2,15 +2,15 @@ const mongoose = require('mongoose');
 
 const gradeSchema = new mongoose.Schema({
   id: { type: mongoose.Schema.Types.ObjectId, auto: true },
-  project_id: { type: Number, required: true },
-  judge_id: { type: Number, required: true },
-  complexity: { type: Number, required: true },
-  usability: { type: Number, required: true },
-  innovation: { type: Number, required: true },
-  presentation: { type: Number, required: true },
-  proficiency: { type: Number, required: true },
+  project_id: { type: String, required: true },
+  judge_id: { type: String, required: true },
+  complexity: { type: Number, required: false, default: null },
+  usability: { type: Number, required: false, default: null },
+  innovation: { type: Number, required: false, default: null },
+  presentation: { type: Number, required: false, default: null },
+  proficiency: { type: Number, required: false, default: null },
   additionalComment: { type: String, default: '' },
-  grade: { type: Number, required: true },
+  grade: { type: Number, required: false, default: null },
 }, { timestamps: true });
 
 // Create a unique index on the combination of judge_id and project_id

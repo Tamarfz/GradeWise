@@ -1,11 +1,123 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
-import './ProfileSetup.css';
+import styled from 'styled-components';
 import { backendURL } from '../../config';
+import { FaCheck, FaCog } from 'react-icons/fa';
+
+const PreferencesContainer = styled.div`
+  margin-top: 20px;
+`;
+
+const PreferencesTitle = styled.h3`
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+const PreferencesList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+`;
+
+const PreferenceItem = styled.li`
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px var(--shadow-light);
+
+  &:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px var(--shadow-medium);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px var(--shadow-medium);
+  }
+`;
+
+const PreferenceLabel = styled.label`
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  margin: 0;
+  font-size: 1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+`;
+
+const ModernCheckbox = styled.input`
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--input-bg);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+
+  &:checked {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+
+  &:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  &:hover {
+    border-color: var(--accent-primary);
+    box-shadow: 0 2px 8px var(--shadow-light);
+  }
+`;
+
+const LoadingMessage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: var(--accent-primary);
+  font-weight: 600;
+  gap: 10px;
+`;
 
 const AvailablePreferences = observer(({ token }) => {
   const [preferences, setPreferences] = useState([]);
   const [selectedPreferences, setSelectedPreferences] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPreferences();
@@ -23,6 +135,8 @@ const AvailablePreferences = observer(({ token }) => {
       }
     } catch (error) {
       console.error('Error fetching preferences:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,60 +190,45 @@ const AvailablePreferences = observer(({ token }) => {
     }
   };
 
-  const PreferencesList = () => {
+  if (loading) {
     return (
-      <ul style={{ listStyleType: 'none', padding: 0 }}>
-        {preferences.map((preference, index) => (
-          <li key={preference.ID} style={{ marginBottom: '10px' }}>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                borderRadius: '6px',
-                border: '1px solid #ccc',
-                padding: '10px',
-              }}
-            >
-              <label
-                htmlFor={`preference-${index}`}
-                style={{
-                  flex: 1,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  margin: 0,
-                }}
-              >
-                {preference.ID}
-              </label>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minWidth: '45px',
-                }}
-              >
-                <input
-                  type="checkbox"
-                  id={`preference-${index}`}
-                  checked={selectedPreferences.includes(preference.ID)}
-                  onChange={() => toggleSelection(preference.ID)}
-                />
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <PreferencesContainer>
+        <LoadingMessage>
+          <FaCog style={{ animation: 'spin 1s linear infinite' }} />
+          Loading preferences...
+        </LoadingMessage>
+      </PreferencesContainer>
     );
-  };
+  }
 
   return (
-    <div className="preferences-section">
-      
-      <h3 style={{ color: 'rgb(23, 90, 148)' }}>Preferences</h3>
-      <PreferencesList />
-    </div>
+    <PreferencesContainer>
+      <PreferencesTitle>
+        <FaCog />
+        Project Preferences
+      </PreferencesTitle>
+      <PreferencesList>
+        {preferences.map((preference, index) => (
+          <PreferenceItem 
+            key={preference.ID} 
+            className={selectedPreferences.includes(preference.ID) ? 'selected' : ''}
+            onClick={() => toggleSelection(preference.ID)}
+          >
+            <PreferenceLabel htmlFor={`preference-${index}`}>
+              {preference.ID}
+            </PreferenceLabel>
+            <CheckboxContainer>
+              <ModernCheckbox
+                type="checkbox"
+                id={`preference-${index}`}
+                checked={selectedPreferences.includes(preference.ID)}
+                onChange={() => toggleSelection(preference.ID)}
+              />
+            </CheckboxContainer>
+          </PreferenceItem>
+        ))}
+      </PreferencesList>
+    </PreferencesContainer>
   );
 });
 

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import Swal from 'sweetalert2'; 
 import GradesManager from './GradesTable'; // Updated from GradesTable
-import BackButton from '../../utils/BackButton';
+
 import AdminButtons from './AdminButtons';
 import GradesSearchBar from './GradesSearchBar'; // Import the custom search bar
 import './ManageGrades.css';
@@ -18,6 +18,7 @@ const ManageGrades = () => {
     const [filtersActive, setFiltersActive] = useState(false);
     const [judgeMap, setJudgeMap] = useState({});
     const [projectMap, setProjectMap] = useState({});
+    const [sortedJudgeNames, setSortedJudgeNames] = useState([]);
     const token = localStorage.getItem('token');
 
     useEffect(() => {
@@ -30,6 +31,10 @@ const ManageGrades = () => {
         const storedProjectMap = JSON.parse(localStorage.getItem('projectMap')) || {};
         setJudgeMap(storedJudgeMap);
         setProjectMap(storedProjectMap);
+        
+        // Create sorted array of judge names
+        const judgeNames = Object.values(storedJudgeMap).sort((a, b) => a.localeCompare(b));
+        setSortedJudgeNames(judgeNames);
     }, []);
 
     const fetchGrades = async () => {
@@ -59,6 +64,12 @@ const ManageGrades = () => {
     // Handle input change for search term
     const handleSearchInputChange = (e) => {
         setSearchTerm(e.target.value);
+    };
+
+    // Handle search field change
+    const handleSearchFieldChange = (e) => {
+        setSearchField(e.target.value);
+        setSearchTerm(''); // Reset search term when field changes
     };
 
     // Handle search button click
@@ -94,7 +105,13 @@ const ManageGrades = () => {
     };
 
     if (loading) {
-        return <h4>Loading grades...</h4>;
+        return (
+            <div className="manage-grades-container">
+                <div className="loading">
+                    <h4>Loading grades...</h4>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -106,15 +123,16 @@ const ManageGrades = () => {
                 searchTerm={searchTerm}
                 searchField={searchField}
                 onSearchInputChange={handleSearchInputChange}
-                onSearchFieldChange={(e) => setSearchField(e.target.value)}
+                onSearchFieldChange={handleSearchFieldChange}
                 onSearch={handleSearch}
                 onClearFilters={handleClearFilters}
                 filtersActive={filtersActive}
+                sortedJudgeNames={sortedJudgeNames}
+                grades={grades}
             />
             <div className="grades-manager-table">
                 <GradesManager grades={filteredGrades} /> {/* Display filtered grades */} {/*GradesTable is now GradesManager*/}
             </div>
-            <BackButton route="/admin" />
             <AdminButtons />
         </div>
     );

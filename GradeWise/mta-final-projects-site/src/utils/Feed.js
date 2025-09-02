@@ -8,26 +8,33 @@ import Loading from './Loader';
 
 // Styled components for Feed
 const FeedContainer = styled.div`
-    background-color: #f0f8ff;
-    padding: 20px;
-    max-width: 800px;
+    background: transparent;
+    padding: 0;
+    max-width: 100%;
     margin: 0 auto;
 
     /* Mobile responsiveness */
     @media (max-width: 768px) {
-        padding: 15px;
-        max-width: 100%; /* Full width on smaller screens */
+        padding: 0;
+        max-width: 100%;
     }
 `;
 
 const EndMessage = styled.p`
-    color: #555;
+    color: #718096;
     text-align: center;
-    font-size: 16px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 
     /* Adjust font size for mobile */
     @media (max-width: 768px) {
-        font-size: 14px;
+        font-size: 1rem;
+        padding: 1.5rem;
     }
 `;
 
@@ -111,13 +118,15 @@ const Feed = () => {
             />
             
             {projects.length > 0 ? (
-                projects.map((project) => (
-                    <Post
-                        key={project._id}
-                        project={project}
-                        showGradeButton={false} // Don't show the Grade button
-                    />
-                ))
+                <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
+                    {projects.map((project) => (
+                        <Post
+                            key={project._id}
+                            project={project}
+                            showGradeButton={false} // Don't show the Grade button
+                        />
+                    ))}
+                </div>
             ) : (
                 <EndMessage>No projects to show</EndMessage>
             )}

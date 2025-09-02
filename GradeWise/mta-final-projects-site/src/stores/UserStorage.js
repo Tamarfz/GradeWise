@@ -23,8 +23,10 @@ class UserStorage {
       body: JSON.stringify({ token }),
     })
     const resData = await res.json()
+    console.log('Token verification response:', resData);
     if (!resData.success) return;
     this.user = resData.user;
+    console.log('User data loaded from token:', this.user);
     return true
   }
 

@@ -1,10 +1,45 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import styled, { keyframes } from "styled-components";
 import { storages } from "./stores";
 import { backendURL } from "./config";
 import Swal from 'sweetalert2';
 import "./Login.css";
+
+// Logo animations
+const float = keyframes`
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+`;
+
+const pulse = keyframes`
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+`;
+
+// Styled components for logo animations
+const AnimatedLogo = styled.img`
+  max-width: 60%;
+  height: auto;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+  animation: ${float} 3s ease-in-out infinite;
+
+  &:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.4));
+    animation: ${pulse} 1s ease-in-out;
+  }
+`;
 
 const Login = observer(() => {
   const { userStorage } = storages;
@@ -70,10 +105,9 @@ const Login = observer(() => {
   return (
     <div className="login-container">
       <div className="left-half">
-        <img
+        <AnimatedLogo
           src={`${process.env.PUBLIC_URL}/Assets/Logos/GradeWiseLogoRemoveBg.png`}
-          alt="TA Logo"
-          className="logo_TA"
+          alt="GradeWise Logo"
         />
       </div>
       <div className="right-half">
@@ -87,7 +121,7 @@ const Login = observer(() => {
                 id="userID"
                 value={userID}
                 onChange={(e) => setUserID(e.target.value)}
-				className="input-with-icon-id"
+                className="input-with-icon-id"
               />
             </div>
             <div className="form-group">
@@ -97,7 +131,7 @@ const Login = observer(() => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-				className="input-with-icon-password"
+                className="input-with-icon-password"
               />
             </div>
             <button type="submit">Log in</button>
