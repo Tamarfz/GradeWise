@@ -16,7 +16,7 @@ router.post('/login', async (req, res) => {
       res.json({ success: false, error: userRes.error });
     }
   } catch (error) {
-    console.log(error);
+    console.error('Login error:', error);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
@@ -29,7 +29,8 @@ router.post('/add-id', async (req, res) => {
     // More sophisticated logic can be added here to handle login
     res.json(userRes);
   } catch (error) {
-    console.log(error);
+    console.error('Add ID error:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
@@ -70,10 +71,9 @@ router.post('/check-token', async (req, res) => {
       });
     }
     const userToReturn =  { type: user.type, name: user.name, avatar: user.avatar || 'default' };
-    console.log('Check token - user to return:', userToReturn);
     res.json({ success: true, user: userToReturn });
   } catch (error) {
-    console.log(error);
+    console.error('Check token error:', error);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
@@ -247,7 +247,6 @@ getCollections()
           return res.status(401).json({ error: 'Unauthorized' });
         }
     
-        console.log('Fetching from projectsJudgesGroups for judge id:', user.id);
         const queryForGroups = { judge_ids: { $in: [user.id] } };
         const cursor = await collections.projects_judges_groups.find(queryForGroups);
         const matchingProjectGroups = await cursor.toArray();
@@ -294,8 +293,6 @@ getCollections()
     router.post('/gradeProject', async (req, res) => {
       try {
         // Verify the token and get the user info
-        console.log(req);
-        console.log(req.headers.authorization);
         const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
         if (!token) {
           return res.status(401).json({ error: 'Unauthorized: No token provided.' });
@@ -371,8 +368,6 @@ getCollections()
     router.put('/gradeProject', async (req, res) => {
       try {
         // Verify the token and get the user info
-        console.log(req);
-        console.log(req.headers.authorization);
         const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
         if (!token) {
           return res.status(401).json({ error: 'Unauthorized: No token provided.' });
@@ -501,9 +496,6 @@ getCollections()
         if (userFromToken.type !== 'judge') {
           return res.status(403).json({ error: 'Forbidden: Current user is not a judge.' });
         }
-
-        // Log the token payload for debugging (optional)
-        console.log('userFromToken:', userFromToken);
 
         // Search for the judge record in the users collection.
         // Adjust the query fields to match your database (e.g. "ID" vs. "id" or the _id)

@@ -56,7 +56,7 @@ class UsersService {
         }
       };
     } catch (error) {
-      console.log(error);
+      console.error('Login error:', error);
       return {
         success: false,
         error: "Unknown server error - login"
@@ -74,7 +74,6 @@ class UsersService {
       console.error("Invalid token");
       return;
     }
-    console.log('Token verification - user data:', user.data);
     return user.data;
   }
 

@@ -53,8 +53,6 @@ router.post('/projects', upload.single('file'), (req, res) => {
     const failedInserts = []; // List to keep track of failed WorkshopNames
     const filePath = req.file.path;
 
-    console.log('Started uploading');
-
     fs.createReadStream(filePath, { encoding: 'utf8' })
     .pipe(csv())
     .on('data', (data) => {
@@ -64,9 +62,7 @@ router.post('/projects', upload.single('file'), (req, res) => {
             if (data.hasOwnProperty(key)) {
                 const originalValue = data[key];
                 data[key] = removeNonUTF8(data[key]);
-                if (originalValue !== data[key]) {
-                    console.log(`Cleaned ${key}:`, data[key]); // Log cleaned data if it was modified
-                }
+                // Data cleaned silently
             }
         }
         if (data['Title']) {
@@ -81,25 +77,14 @@ router.post('/projects', upload.single('file'), (req, res) => {
         res.status(500).json({ error: 'Error while parsing CSV' });
     })
     .on('end', async () => {
-        console.log('Finished reading CSV. Total records:', results.length);
-
         for (let i = 0; i < results.length; i++) {
             const record = results[i];
             try {
-                console.log('Now inserting:', record.WorkshopName)
                 await projectsDB.create(record); // Insert the entire record
-                console.log(`Inserted record with WorkshopName: ${record.WorkshopName}`);
             } catch (err) {
                 console.error(`Failed to insert record with WorkshopName: ${record.WorkshopName}`, err.message);
                 failedInserts.push(record.WorkshopName);
             }
-        }
-
-        if (failedInserts.length > 0) {
-            console.log('Failed to insert the following WorkshopNames:', failedInserts);
-            console.log('Number of failed: ', failedInserts.length)
-        } else {
-            console.log('All records inserted successfully.');
         }
 
         fs.unlinkSync(filePath); // Clean up the temp file

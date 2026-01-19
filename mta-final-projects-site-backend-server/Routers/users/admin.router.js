@@ -203,7 +203,6 @@ getCollections()
       const project = await collections.project_schemas.findOne({ ProjectNumber: projectNumber });
 
       if (!project) {
-        console.log('Project not found');
         return res.status(404).json({ error: 'Project not found' });
       }
 
@@ -217,9 +216,6 @@ getCollections()
 router.put('/projects/update', async (req, res) => {
   try {
       const { projectNumber } = req.query; //original project number
-      console.log(projectNumber);
-      console.log(req.body);
-      console.log(req.query);
       const {
           ProjectNumber, // New project number 
           Title,
@@ -305,8 +301,6 @@ router.post('/projects/remove', async (req, res) => {
 });
 
 router.post('/projects/add', async (req, res) => {
-  console.log('Reached add project');
-  console.log(req.body);
   const newProject  = req.body;
 
   if (!newProject.ProjectNumber || !newProject.Title || !newProject.WorkshopName || !newProject.StudentName) {
@@ -339,8 +333,6 @@ router.get('/projects/workshops', async (req, res) => {
         }
       }
     ]).toArray();
-
-    console.log(workshops);
 
     res.status(200).json(workshops);
   } catch (error) {
@@ -408,7 +400,6 @@ router.get('/preferences', async (req, res) => {
 
   router.post('/assignProjects', async (req, res) => {
     try {
-      console.log('Starting project assignment...');
       // Extract token and verify the user
       const token = req.headers.authorization.split(' ')[1];
       const user = await usersSerivce.checkToken(token);
@@ -419,8 +410,6 @@ router.get('/preferences', async (req, res) => {
   
       // Extract judgeIds and projectIds from request body
       const { judgeIds, projectIds } = req.body;
-      console.log('Received judgeIds:', judgeIds);
-      console.log('Received projectIds:', projectIds);
 
       if (!judgeIds || !projectIds || judgeIds.length === 0 || projectIds.length === 0) {
         return res.status(400).json({ error: 'Both judges and projects must be selected.' });
@@ -459,9 +448,7 @@ router.get('/preferences', async (req, res) => {
         project_ids: projectIds
       });
   
-      console.log('Saving new assignment...');
       await newAssignment.save(); // Save the new assignment to MongoDB
-      console.log('Assignment saved successfully');
 
       // Create default grade entries for each judge-project combination
       const defaultGrades = [];
@@ -504,17 +491,12 @@ router.get('/preferences', async (req, res) => {
         }
       }
 
-      console.log('Created default grades:', defaultGrades);
-
       // Insert all default grades
       if (defaultGrades.length > 0) {
-        console.log('Inserting default grades...');
         await collections.grades.insertMany(defaultGrades);
-        console.log('Default grades inserted successfully');
       }
   
       // Return success response
-      console.log('Sending success response');
       res.status(200).json({ message: 'Projects successfully assigned to judges and default grades created.' });
     } catch (error) {
       console.error('Error assigning projects:', error);
@@ -569,9 +551,6 @@ router.get('/preferences', async (req, res) => {
       if (userFromToken.type !== 'admin') {
         return res.status(403).json({ error: 'Forbidden: Current user is not an admin.' });
       }
-
-      // Log the token payload for debugging (optional)
-      console.log('userFromToken:', userFromToken);
 
       // Search for the admin record in the users collection.
       const adminData = await collections.users.findOne({
@@ -671,8 +650,6 @@ router.get('/preferences', async (req, res) => {
   // Get top 3 projects for podium
   router.get('/podium', async (req, res) => {
     try {
-      console.log('Fetching top 3 projects for podium...');
-      
       // Get all grades that are not default scores (exclude all "1" grades)
       const grades = await collections.grades.find({
         $or: [
@@ -683,8 +660,6 @@ router.get('/preferences', async (req, res) => {
           { proficiency: { $ne: 1 } }
         ]
       }).toArray();
-
-      console.log(`Found ${grades.length} valid grades`);
 
       if (grades.length === 0) {
         return res.json({ topProjects: [] });
@@ -744,20 +719,12 @@ router.get('/preferences', async (req, res) => {
         .sort((a, b) => b.averageTotal - a.averageTotal)
         .slice(0, 3);
 
-      console.log(`Top 3 projects found: ${topProjects.length}`);
-
       // Get project titles for the top projects
       const projectIds = topProjects.map(p => p.projectId.toString());
-      console.log('Looking for projects with IDs:', projectIds);
       
       const projects = await collections.project_schemas.find({
         ProjectNumber: { $in: projectIds }
       }).toArray();
-
-      console.log('Found projects:', projects.map(p => ({
-        ProjectNumber: p.ProjectNumber,
-        Title: p.Title
-      })));
 
       // Create a map of project numbers to titles
       const projectMap = {};
@@ -765,18 +732,11 @@ router.get('/preferences', async (req, res) => {
         projectMap[project.ProjectNumber] = project.Title;
       });
 
-      console.log('Project map:', projectMap);
-
       // Add project titles to top projects
       const topProjectsWithTitles = topProjects.map(project => ({
         ...project,
         projectTitle: projectMap[project.projectId.toString()] || `Project ${project.projectId}`
       }));
-
-      console.log('Top projects with titles:', topProjectsWithTitles.map(p => ({
-        title: p.projectTitle,
-        score: p.averageTotal
-      })));
 
       res.json({ topProjects: topProjectsWithTitles });
     } catch (error) {
@@ -788,8 +748,6 @@ router.get('/preferences', async (req, res) => {
   // Get top 3 projects for podium (old format with categories)
   router.get('/podium2', async (req, res) => {
     try {
-      console.log('Fetching podium data for old format...');
-      
       // Get all grades that are not default scores (exclude all "1" grades)
       const grades = await collections.grades.find({
         $or: [
@@ -800,8 +758,6 @@ router.get('/preferences', async (req, res) => {
           { proficiency: { $ne: 1 } }
         ]
       }).toArray();
-
-      console.log(`Found ${grades.length} valid grades`);
 
       if (grades.length === 0) {
         return res.json({
@@ -1052,12 +1008,9 @@ router.get('/preferences', async (req, res) => {
           });
           if (judge) {
             judgeMap[judgeId] = judge.name;
-            console.log(`Strategy 4 - Found judge ${judgeId} -> ${judge.name}`);
           }
         }
       });
-      
-      console.log('Final judge map:', judgeMap);
 
       // Get individual grades for each judge
       const judgeAnalytics = judgeIds.map(judgeId => {
@@ -1066,7 +1019,6 @@ router.get('/preferences', async (req, res) => {
         if (!judgeGrade) return null;
 
         const judgeName = judgeMap[judgeId];
-        console.log(`Judge ID ${judgeId} (${typeof judgeId}) -> Name: ${judgeName}`);
 
         return {
           judgeId: judgeId,
