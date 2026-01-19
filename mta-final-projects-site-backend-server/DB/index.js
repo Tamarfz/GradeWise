@@ -1,7 +1,11 @@
 const mongoose = require('mongoose');
 
-// URI from MongoDB Atlas (make sure to replace credentials and database name appropriately)
-const uri = "mongodb+srv://main:vbvh2oarIXqTgB6B@mta-final-projects-site.q4iylbw.mongodb.net/myDatabaseName?retryWrites=true&w=majority&appName=mta-final-projects-site";
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  throw new Error(
+    'Missing MONGODB_URI. Create mta-final-projects-site-backend-server/.env and set MONGODB_URI.'
+  );
+}
 
 // Connect to MongoDB using Mongoose
 mongoose.connect(uri, {

@@ -8,7 +8,8 @@ const pathSecurity = {
   "/add-points": "judge"
 };
 
-const secretKey = 'SuperKey123';
+const secretKey =
+  process.env.JWT_SECRET || 'dev-only-change-me-immediately';
 
 const FAILED_RESULT = {
   success: false,
@@ -30,7 +31,7 @@ class UsersService {
         email: user.email,
         type: user.type,
         avatar: user.avatar || 'default'
-      } }, secretKey, { expiresIn: '100y' });
+      } }, secretKey, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
       return {
         success: true,
         token,
