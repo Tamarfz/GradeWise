@@ -189,30 +189,30 @@ getCollections()
             };
         }
 
-        router.get('/projects/getById', async (req, res) => {
-          try {
-            const { projectNumber } = req.query;
-            const project = await collections.project_schemas.findOne({ ProjectNumber: projectNumber });
-      
-              if (!project) {
-                console.log('Project not found')
-                  return res.status(404).json({ error: 'Project not found' });
-              }
-      
-              res.json(project);
-          } catch (error) {
-              console.error('Error fetching project:', error);
-              res.status(500).json({ error: 'Failed to fetch project: ',error });
-          }
-      });
-
         const projects = await collections.project_schemas.find(query).toArray();
         res.json(projects);
     } catch (error) {
         console.error('Error fetching projects:', error);
         res.status(500).json({ error: 'An error occurred while fetching projects' });
     }
-});
+  });
+
+  router.get('/projects/getById', async (req, res) => {
+    try {
+      const { projectNumber } = req.query;
+      const project = await collections.project_schemas.findOne({ ProjectNumber: projectNumber });
+
+      if (!project) {
+        console.log('Project not found');
+        return res.status(404).json({ error: 'Project not found' });
+      }
+
+      res.json(project);
+    } catch (error) {
+      console.error('Error fetching project:', error);
+      res.status(500).json({ error: 'Failed to fetch project: ' + error.message });
+    }
+  });
 
 router.put('/projects/update', async (req, res) => {
   try {
