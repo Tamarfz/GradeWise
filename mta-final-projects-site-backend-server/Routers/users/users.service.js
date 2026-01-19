@@ -1,6 +1,7 @@
 const potentialUserDB = require("../../DB/entities/potential_users.entity");
 const UserDB = require("../../DB/entities/user.entity");
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const availablePreferencesDB = require("../../DB/entities/available_preferences.entity");
 
 const pathSecurity = {
@@ -18,11 +19,23 @@ const FAILED_RESULT = {
 class UsersService {
   checkLoginDetails = async (userID, password) => {
     try {
-      const user = await UserDB.findOne({ ID: userID, password: password }).lean();
+      const user = await UserDB.findOne({ ID: userID }).lean();
       if (!user) {
         return {
           success: false,
           error: "User not found"
+        };
+      }
+      
+      // Check if password matches (supports both hashed and plaintext for migration)
+      const isPasswordValid = user.password.startsWith('$2') 
+        ? await bcrypt.compare(password, user.password)
+        : user.password === password;
+      
+      if (!isPasswordValid) {
+        return {
+          success: false,
+          error: "Invalid password"
         };
       }
       const token = jwt.sign({ data: {
@@ -115,11 +128,14 @@ class UsersService {
         return { success: false, error: 'User ID already exists' };
       }
 
+      // Hash password before saving
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
       const newUser = new UserDB({
         ID: userID,
         name: fullName,
         email: email,
-        password: password,
+        password: hashedPassword,
         type: type,
       });
 
@@ -220,7 +236,9 @@ class UsersService {
       }
 
       if (field === 'password') {
-        user.password = newValue; 
+        // Hash password before updating
+        const hashedPassword = await bcrypt.hash(newValue, 10);
+        user.password = hashedPassword;
         await user.save();
       } else if (field === 'name') {
         user.name = newValue;

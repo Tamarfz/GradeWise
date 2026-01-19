@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { usersSerivce } = require('./users.service');
 const { getCollections } = require('../../DB/index');
+const bcrypt = require('bcryptjs');
 const Grade = require('../../DB/entities/grade.entity'); // Adjust the path based on your folder structure
 const projectsDB = require('../../DB/entities/project.entity')
 
@@ -34,7 +35,8 @@ getCollections()
 
     router.get('/judges/judgesList', async (req, res) => {
       try {
-        const judges = await collections.users.find({}, { projection: { name: 1, ID: 1, email: 1, password: 1} }).toArray();
+        // Exclude password from response for security
+        const judges = await collections.users.find({}, { projection: { name: 1, ID: 1, email: 1, avatar: 1, type: 1} }).toArray();
         res.json(judges);
       } catch (error) {
         console.error('Error fetching judges:', error);
@@ -61,7 +63,9 @@ getCollections()
           return res.status(404).json({ error: 'Judge not found' });
         }
         
-        res.json(judge);
+        // Remove password from response for security
+        const { password, ...judgeWithoutPassword } = judge;
+        res.json(judgeWithoutPassword);
       } catch (error) {
         console.error('Error fetching judge:', error);
         res.status(500).json({ error: 'An error occurred while fetching judge' });
@@ -86,9 +90,9 @@ getCollections()
           avatar
         };
         
-        // Only include password if it's provided
+        // Only include password if it's provided (hash it before saving)
         if (password && password.trim() !== '') {
-          updateData.password = password;
+          updateData.password = await bcrypt.hash(password, 10);
         }
         
         // Update the judge
@@ -119,12 +123,15 @@ getCollections()
           return res.status(400).json({ error: 'Judge with this ID already exists' });
         }
         
+        // Hash password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
         // Create new judge
         const newJudge = {
           ID: ID.toString(),
           name,
           email,
-          password,
+          password: hashedPassword,
           avatar,
           type: 'judge',
           createdAt: new Date(),
