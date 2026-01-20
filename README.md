@@ -85,6 +85,3 @@ Frontend runs on `http://localhost:3000`, backend on `http://localhost:3001`.
   - View grades, analytics, and podium.
 
 ---
-
-> This project demonstrates a realistic full‑stack architecture: Express + JWT backend with controllers/services, and a React/MobX frontend with role‑based routing and a non‑trivial domain (grading and analytics). Perfect to showcase in a portfolio or CV.
-
