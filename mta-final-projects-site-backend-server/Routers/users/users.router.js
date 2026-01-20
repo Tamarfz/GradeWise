@@ -4,23 +4,10 @@ const router = express.Router();
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path
 const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../middleware/auth');
+const { login, registerFullInfo, checkToken } = require('../../controllers/auth.controller');
 
 
-router.post('/login', async (req, res) => {
-  try {
-    const { userID, password } = req.body;
-    const userRes = await usersSerivce.checkLoginDetails(userID, password);
-
-    if (userRes.success) {
-      res.json(userRes);
-    } else {
-      res.json({ success: false, error: userRes.error });
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.post('/login', login);
 
 router.post('/add-id', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
@@ -34,20 +21,7 @@ router.post('/add-id', authenticateToken, authorizeAdmin, async (req, res) => {
   }
 });
 
-router.post('/registerFullInfo', async (req, res) => {
-  const { userID, fullName, email, type, password } = req.body;
-  try {
-    const result = await usersSerivce.registerNewUserWithFullDetails(userID, fullName, email, type, password);
-    if (result.success) {
-      res.json({ success: true, message: 'Registration successful' });
-    } else {
-      res.json({ success: false, error: result.error });
-    }
-  } catch (error) {
-    console.error('Error during registration:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.post('/registerFullInfo', registerFullInfo);
 
 router.post("/example-guarded-data", authenticateToken, authorizeTypes('admin', 'judge'), async (req, res) => {
   const user = req.user; // User is already authenticated via middleware
@@ -59,23 +33,7 @@ router.post("/example-guarded-data", authenticateToken, authorizeTypes('admin', 
   res.json({ success: true });
 })
 
-router.post('/check-token', async (req, res) => {
-  try {
-    const { token } = req.body;
-    const user = await usersSerivce.checkToken(token); // Uses verifyToken internally
-    if (!user) {
-      return res.json({
-        success: false,
-        error: "Failed to auth"
-      });
-    }
-    const userToReturn = { type: user.type, name: user.name, avatar: user.avatar || 'default' };
-    res.json({ success: true, user: userToReturn });
-  } catch (error) {
-    console.error('Check token error:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.post('/check-token', checkToken);
 
 router.get('/preferences/user', authenticateToken, async (req, res) => {
   try {
