@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { usersService } = require('./users.service');
+const { usersService } = require('../../services/user');
 const { getCollections } = require('../../DB/index');
 const bcrypt = require('bcryptjs');
 const Grade = require('../../DB/entities/grade.entity'); // Adjust the path based on your folder structure

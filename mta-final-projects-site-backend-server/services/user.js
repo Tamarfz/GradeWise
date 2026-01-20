@@ -1,8 +1,8 @@
-const potentialUserDB = require("../../DB/entities/potential_users.entity");
-const UserDB = require("../../DB/entities/user.entity");
+const potentialUserDB = require("../DB/entities/potential_users.entity");
+const UserDB = require("../DB/entities/user.entity");
 const bcrypt = require('bcryptjs');
-const availablePreferencesDB = require("../../DB/entities/available_preferences.entity");
-const { generateToken } = require("../middleware/auth");
+const availablePreferencesDB = require("../DB/entities/available_preferences.entity");
+const { generateToken } = require("../Routers/middleware/auth");
 
 const FAILED_RESULT = {
   success: false,
@@ -19,7 +19,6 @@ class UsersService {
         };
       }
       
-      // Check if password matches (supports both hashed and plaintext for migration)
       const isPasswordValid = user.password.startsWith('$2') 
         ? await bcrypt.compare(password, user.password)
         : user.password === password;
@@ -56,17 +55,13 @@ class UsersService {
     }
   }
 
-  // Note: Token verification should now be done via auth middleware
-  // This method is kept for backward compatibility but will be deprecated
   async checkToken(token) {
-    const { verifyToken } = require("../middleware/auth");
+    const { verifyToken } = require("../Routers/middleware/auth");
     return verifyToken(token);
   }
 
-  // Deprecated: This method should be replaced with auth middleware in routers
-  // Kept for backward compatibility during migration
   addId(path, token, ID) {
-    const { verifyToken } = require("../middleware/auth");
+    const { verifyToken } = require("../Routers/middleware/auth");
     const user = verifyToken(token);
     
     if (!user) {
@@ -76,7 +71,6 @@ class UsersService {
       };
     }
 
-    // Path-based authorization (legacy - should use middleware instead)
     const pathSecurity = {
       "/add-id": "admin",
       "/add-points": "judge"
@@ -117,7 +111,6 @@ class UsersService {
         return { success: false, error: 'User ID already exists' };
       }
 
-      // Hash password before saving
       const hashedPassword = await bcrypt.hash(password, 10);
       
       const newUser = new UserDB({
@@ -225,7 +218,6 @@ class UsersService {
       }
 
       if (field === 'password') {
-        // Hash password before updating
         const hashedPassword = await bcrypt.hash(newValue, 10);
         user.password = hashedPassword;
         await user.save();
@@ -255,3 +247,4 @@ class UsersService {
 const usersService = new UsersService();
 
 module.exports = { usersService };
+

@@ -1,5 +1,5 @@
 const express = require('express');
-const { usersService } = require('./users.service');
+const { usersService } = require('../../services/user');
 const router = express.Router();
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path

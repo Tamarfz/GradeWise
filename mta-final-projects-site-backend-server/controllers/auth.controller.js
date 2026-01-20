@@ -1,4 +1,4 @@
-const { usersService } = require('../Routers/users/users.service');
+const { usersService } = require('../services/user');
 
 /**
  * Handle user login
