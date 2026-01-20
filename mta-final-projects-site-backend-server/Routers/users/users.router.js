@@ -4,7 +4,8 @@ const router = express.Router();
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path
 const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../../middleware/auth');
-const { login, registerFullInfo, checkToken } = require('../../controllers/auth.controller');
+const { login, registerFullInfo, checkToken } = require('../../controllers/auth');
+const { updateUserField } = require('../../controllers/user');
 
 
 router.post('/login', login);
@@ -68,21 +69,7 @@ router.post('/preferences/remove', authenticateToken, removePreference);
 router.post('/preferences/save', authenticateToken, savePreferences);
 
 
-router.post('/user/updateField', authenticateToken, async (req, res) => {
-  try {
-    const { field, newValue } = req.body;
-    const result = await usersService.updateUserField(req.user.id, field, newValue);
-
-    if (result.success) {
-      res.json({ success: true, message: 'saved successfully' });
-    } else {
-      res.json({ success: false, error: result.error });
-    }
-  } catch (error) {
-    console.error('Error saving field:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.post('/user/updateField', authenticateToken, updateUserField);
 
 getCollections()
   .then((collections) => {
