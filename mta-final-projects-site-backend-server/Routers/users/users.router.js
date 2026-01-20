@@ -6,6 +6,7 @@ const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the c
 const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../../middleware/auth');
 const { login, registerFullInfo, checkToken } = require('../../controllers/auth');
 const { updateUserField } = require('../../controllers/user');
+const { getUserPreferences, getPreferences, addPreference, removePreference, savePreferences } = require('../../controllers/preferences');
 const { getProjectGrade, getProjectsForJudge, submitGrade, updateGrade, getJudgeCounts, getCurrentJudge } = require('../../controllers/grade');
 
 
@@ -37,33 +38,11 @@ router.post("/example-guarded-data", authenticateToken, authorizeTypes('admin', 
 
 router.post('/check-token', checkToken);
 
-router.get('/preferences/user', authenticateToken, async (req, res) => {
-  try {
-    const userPreferences = await usersService.getUserPreferences(req.user.id);
-    res.json(userPreferences);
-  } catch (error) {
-    console.error('Error fetching user preferences:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.get('/preferences/user', authenticateToken, getUserPreferences);
 
 router.get('/preferences', getPreferences);
 
-router.post('/preferences/add', authenticateToken, async (req, res) => {
-  try {
-    const { preferenceId } = req.body;
-    const result = await usersService.addPreference(req.user.id, preferenceId);
-
-    if (result.success) {
-      res.json({ success: true, message: 'Preference added successfully' });
-    } else {
-      res.json({ success: false, error: result.error });
-    }
-  } catch (error) {
-    console.error('Error adding preference:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.post('/preferences/add', authenticateToken, addPreference);
 
 router.post('/preferences/remove', authenticateToken, removePreference);
 
