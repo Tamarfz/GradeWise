@@ -32,7 +32,55 @@ const getProjectGrade = (collections) => {
   };
 };
 
+/**
+ * Factory to create handler for getting list of projects assigned to current judge
+ * Usage in router: getProjectsForJudge(collections)
+ */
+const getProjectsForJudge = (collections) => {
+  return async (req, res) => {
+    try {
+      const queryForGroups = { judge_ids: { $in: [req.user.id] } };
+      const cursor = await collections.projects_judges_groups.find(queryForGroups);
+      const matchingProjectGroups = await cursor.toArray();
+
+      // Extract distinct project IDs
+      const projectIds = [];
+      matchingProjectGroups.forEach((group) => {
+        if (group.project_ids && Array.isArray(group.project_ids)) {
+          group.project_ids.forEach((pId) => {
+            if (!projectIds.includes(pId)) {
+              projectIds.push(pId);
+            }
+          });
+        }
+      });
+
+      console.log('projectIds:', projectIds);
+
+      // Base filter: projects that match the judge's allowed projects
+      const filter = { ProjectNumber: { $in: projectIds } };
+      // Check for search params and add filtering if provided
+      const { searchTerm, searchField } = req.query;
+      if (searchTerm && searchField) {
+        filter[searchField] = { $regex: searchTerm, $options: 'i' }; // case-insensitive regex match
+      }
+
+      // Find projects matching the filter
+      const projectsCursor = await collections.project_schemas.find(filter);
+      const projects = await projectsCursor.toArray();
+
+      res.json({ projects });
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      res
+        .status(500)
+        .json({ error: 'An error occurred while fetching projects' });
+    }
+  };
+};
+
 module.exports = {
   getProjectGrade,
+  getProjectsForJudge,
 };
 

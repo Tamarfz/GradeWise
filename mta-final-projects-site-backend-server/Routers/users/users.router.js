@@ -6,7 +6,7 @@ const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the c
 const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../../middleware/auth');
 const { login, registerFullInfo, checkToken } = require('../../controllers/auth');
 const { updateUserField } = require('../../controllers/user');
-const { getProjectGrade } = require('../../controllers/grade');
+const { getProjectGrade, getProjectsForJudge } = require('../../controllers/grade');
 
 
 router.post('/login', login);
@@ -85,44 +85,11 @@ getCollections()
 
 getCollections()
   .then((collections) => {
-    router.get('/projectsForJudge/projectList', authenticateToken, async (req, res) => {
-      try {
-        const queryForGroups = { judge_ids: { $in: [req.user.id] } };
-        const cursor = await collections.projects_judges_groups.find(queryForGroups);
-        const matchingProjectGroups = await cursor.toArray();
-    
-        // Extract distinct project IDs
-        const projectIds = [];
-        matchingProjectGroups.forEach((group) => {
-          if (group.project_ids && Array.isArray(group.project_ids)) {
-            group.project_ids.forEach((pId) => {
-              if (!projectIds.includes(pId)) {
-                projectIds.push(pId);
-              }
-            });
-          }
-        });
-    
-        console.log('projectIds:', projectIds);
-    
-        // Base filter: projects that match the judge's allowed projects
-        const filter = { ProjectNumber: { $in: projectIds } };
-        // Check for search params and add filtering if provided
-        const { searchTerm, searchField } = req.query;
-        if (searchTerm && searchField) {
-          filter[searchField] = { $regex: searchTerm, $options: 'i' }; // case-insensitive regex match
-        }
-    
-        // Find projects matching the filter
-        const projectsCursor = await collections.project_schemas.find(filter);
-        const projects = await projectsCursor.toArray();
-    
-        res.json({ projects });
-      } catch (error) {
-        console.error('Error fetching projects:', error);
-        res.status(500).json({ error: 'An error occurred while fetching projects' });
-      }
-    });
+    router.get(
+      '/projectsForJudge/projectList',
+      authenticateToken,
+      getProjectsForJudge(collections)
+    );
   })
   .catch((error) => {
     console.error('Error setting up routes:', error);
