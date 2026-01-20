@@ -6,6 +6,7 @@ const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the c
 const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../../middleware/auth');
 const { login, registerFullInfo, checkToken } = require('../../controllers/auth');
 const { updateUserField } = require('../../controllers/user');
+const { getProjectGrade } = require('../../controllers/grade');
 
 
 router.post('/login', login);
@@ -73,26 +74,11 @@ router.post('/user/updateField', authenticateToken, updateUserField);
 
 getCollections()
   .then((collections) => {
-    router.get('/projects/:projectId/grade', authenticateToken, async (req, res) => {
-      try {
-        // Use the judge's ID (from the verified token) and the provided project ID
-        const judge_id = req.user.id;
-        const projectId = req.params.projectId;
-
-        // Look up the grade document for this project and judge
-        const grade = await collections.grades.findOne({ project_id: projectId.toString(), judge_id: judge_id.toString() });
-        if (!grade) {
-          return res.status(404).json({ error: 'Grade not found for this project.' });
-        }
-
-        // Return the grade info
-        res.status(200).json({ gradeInfo: grade });
-      } catch (error) {
-        console.error('Error retrieving grade:', error);
-        res.status(500).json({ error: 'An error occurred while retrieving the grade.' });
-      }
-    });
-
+    router.get(
+      '/projects/:projectId/grade',
+      authenticateToken,
+      getProjectGrade(collections)
+    );
   })
 
 // Assuming getCollections is defined elsewhere and returns a promise with the collections
