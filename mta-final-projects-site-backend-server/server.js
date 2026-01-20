@@ -36,7 +36,7 @@ app.use(cors(corsOptions));
 // Middleware to parse JSON request bodies
 app.use(bodyParser.json());
 
-// Use the user routesaaa
+// Use the user routes
 app.use(userRouter);
 
 // Mount the admin router
