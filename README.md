@@ -1,6 +1,6 @@
 # GradeWise
 
-GradeWise is a full‑stack web app for managing final projects, assigning judges, and collecting structured grades across multiple criteria. It provides separate, role‑based experiences for **judges** and **administrators**, built with a modern React frontend and a Node.js/Express backend on MongoDB.
+GradeWise is a full‑stack web app for managing projects exhibitions and competitions, assigning judges, and collecting structured grades across multiple criteria. It provides separate, role‑based experiences for **judges** and **administrators**, built with a modern React frontend and a Node.js/Express backend on MongoDB.
 
 ---
 
