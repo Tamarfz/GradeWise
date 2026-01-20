@@ -4,7 +4,8 @@ const { usersSerivce } = require('./users.service');
 const { getCollections } = require('../../DB/index');
 const bcrypt = require('bcryptjs');
 const Grade = require('../../DB/entities/grade.entity'); // Adjust the path based on your folder structure
-const projectsDB = require('../../DB/entities/project.entity')
+const projectsDB = require('../../DB/entities/project.entity');
+const { authenticateToken, authorizeAdmin } = require('../middleware/auth');
 
 getCollections()
   .then((collections) => {
@@ -380,14 +381,8 @@ router.get('/preferences', async (req, res) => {
   });
 
 
-  router.get('/grades', async (req, res) => {
+  router.get('/grades', authenticateToken, authorizeAdmin, async (req, res) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
-        const user = await usersSerivce.checkToken(token); 
-        if (!user) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
-
         const gradesList = await collections.grades.find({}).toArray();
         res.json({'grades': gradesList});
     } catch (error) {
@@ -398,15 +393,9 @@ router.get('/preferences', async (req, res) => {
 
   const ProjectsJudgesGroup = require('../../DB/entities/projects_judges_group.entity'); // Path to your model
 
-  router.post('/assignProjects', async (req, res) => {
+  router.post('/assignProjects', authenticateToken, authorizeAdmin, async (req, res) => {
     try {
-      // Extract token and verify the user
-      const token = req.headers.authorization.split(' ')[1];
-      const user = await usersSerivce.checkToken(token);
-      
-      if (!user || user.type !== 'admin') {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
+      // User is already authenticated and authorized as admin via middleware
   
       // Extract judgeIds and projectIds from request body
       const { judgeIds, projectIds } = req.body;
@@ -533,31 +522,14 @@ router.get('/preferences', async (req, res) => {
   });
 
   // Get current admin user data
-  router.get('/current-admin', async (req, res) => {
+  router.get('/current-admin', authenticateToken, authorizeAdmin, async (req, res) => {
     try {
-      // Extract Bearer token from the Authorization header
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token) {
-        return res.status(401).json({ error: 'Unauthorized: No token provided.' });
-      }
-
-      // Verify the token to get the user object from token payload
-      const userFromToken = await usersSerivce.checkToken(token);
-      if (!userFromToken) {
-        return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
-      }
-
-      // Ensure that the current user is an admin
-      if (userFromToken.type !== 'admin') {
-        return res.status(403).json({ error: 'Forbidden: Current user is not an admin.' });
-      }
-
       // Search for the admin record in the users collection.
       const adminData = await collections.users.findOne({
         $or: [
-          { ID: userFromToken.ID },
-          { ID: userFromToken.id },
-          { _id: userFromToken._id }
+          { ID: req.user.ID },
+          { ID: req.user.id },
+          { _id: req.user._id }
         ]
       });
 

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const client = require('../');
+
 
 // Schema definition
 const userSchema = new mongoose.Schema({

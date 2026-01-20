@@ -1,16 +1,8 @@
 const potentialUserDB = require("../../DB/entities/potential_users.entity");
 const UserDB = require("../../DB/entities/user.entity");
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const availablePreferencesDB = require("../../DB/entities/available_preferences.entity");
-
-const pathSecurity = {
-  "/add-id": "admin",
-  "/add-points": "judge"
-};
-
-const secretKey =
-  process.env.JWT_SECRET || 'dev-only-change-me-immediately';
+const { generateToken } = require("../middleware/auth");
 
 const FAILED_RESULT = {
   success: false,
@@ -38,13 +30,13 @@ class UsersService {
           error: "Invalid password"
         };
       }
-      const token = jwt.sign({ data: {
+      const token = generateToken({
         id: user.ID,
         name: user.name,
         email: user.email,
         type: user.type,
         avatar: user.avatar || 'default'
-      } }, secretKey, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+      });
       return {
         success: true,
         token,
@@ -64,43 +56,41 @@ class UsersService {
     }
   }
 
+  // Note: Token verification should now be done via auth middleware
+  // This method is kept for backward compatibility but will be deprecated
   async checkToken(token) {
-    if (!token) {
-      console.error("No Token");
-      return;
-    }
-    const user = jwt.verify(token, secretKey);
-    if (!user) {
-      console.error("Invalid token");
-      return;
-    }
-    return user.data;
+    const { verifyToken } = require("../middleware/auth");
+    return verifyToken(token);
   }
 
-  auth(token) {
-    const decoded = jwt.verify(token, secretKey);
-    return decoded.user;
-  }
-
-  validateType(path, user) {
-    const requiredPermissionType = pathSecurity[path];
-    const userType = user.type;
-    if (!requiredPermissionType) {
-      return false;
-    } else {
-      return requiredPermissionType === userType;
-    }
-  }
-
+  // Deprecated: This method should be replaced with auth middleware in routers
+  // Kept for backward compatibility during migration
   addId(path, token, ID) {
-    const user = this.auth(token);
-    const isValid = this.validateType(path, user);
-    if (!isValid) {
+    const { verifyToken } = require("../middleware/auth");
+    const user = verifyToken(token);
+    
+    if (!user) {
       return {
         success: false,
         error: "unauthorized"
       };
     }
+
+    // Path-based authorization (legacy - should use middleware instead)
+    const pathSecurity = {
+      "/add-id": "admin",
+      "/add-points": "judge"
+    };
+    
+    const requiredPermissionType = pathSecurity[path];
+    if (requiredPermissionType && user.type !== requiredPermissionType) {
+      return {
+        success: false,
+        error: "unauthorized"
+      };
+    }
+
+    return { success: true };
   }
 
   async checkIfUserExistsInPotentialUsers(userID) {

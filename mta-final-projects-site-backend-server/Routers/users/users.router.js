@@ -3,6 +3,7 @@ const { usersSerivce } = require('./users.service');
 const router = express.Router();
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path
+const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../middleware/auth');
 
 
 router.post('/login', async (req, res) => {
@@ -21,13 +22,12 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/add-id', async (req, res) => {
+router.post('/add-id', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
-    const { token, ID } = req.body;
-    const userRes = usersSerivce.addId("/add-id", token, ID);
-
-    // More sophisticated logic can be added here to handle login
-    res.json(userRes);
+    const { ID } = req.body;
+    // User is already authenticated and authorized as admin via middleware
+    // Add your logic here to handle ID addition
+    res.json({ success: true, message: 'ID added successfully' });
   } catch (error) {
     console.error('Add ID error:', error);
     res.status(500).json({ success: false, error: 'Server error' });
@@ -49,28 +49,27 @@ router.post('/registerFullInfo', async (req, res) => {
   }
 });
 
-router.post("/example-guarded-data", async (req, res) => {
-  const { token } = req.body;
-  const user = await usersSerivce.checkToken(token);
-  if (user?.type === "admin") {
+router.post("/example-guarded-data", authenticateToken, authorizeTypes('admin', 'judge'), async (req, res) => {
+  const user = req.user; // User is already authenticated via middleware
+  if (user.type === "admin") {
     // admin logic
-  } else if (user?.type === "judge") {
+  } else if (user.type === "judge") {
     // judge logic
   }
-  // kick them out
+  res.json({ success: true });
 })
 
 router.post('/check-token', async (req, res) => {
   try {
     const { token } = req.body;
-    const user = await usersSerivce.checkToken(token);
+    const user = await usersSerivce.checkToken(token); // Uses verifyToken internally
     if (!user) {
       return res.json({
         success: false,
         error: "Failed to auth"
       });
     }
-    const userToReturn =  { type: user.type, name: user.name, avatar: user.avatar || 'default' };
+    const userToReturn = { type: user.type, name: user.name, avatar: user.avatar || 'default' };
     res.json({ success: true, user: userToReturn });
   } catch (error) {
     console.error('Check token error:', error);
@@ -78,16 +77,9 @@ router.post('/check-token', async (req, res) => {
   }
 });
 
-router.get('/preferences/user', async (req, res) => {
+router.get('/preferences/user', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const user = await usersSerivce.checkToken(token);
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
-    const userPreferences = await usersSerivce.getUserPreferences(user.id);
+    const userPreferences = await usersSerivce.getUserPreferences(req.user.id);
     res.json(userPreferences);
   } catch (error) {
     console.error('Error fetching user preferences:', error);
@@ -105,17 +97,10 @@ router.get('/preferences', async (req, res) => {
   }
 });
 
-router.post('/preferences/add', async (req, res) => {
+router.post('/preferences/add', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const user = await usersSerivce.checkToken(token);
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
     const { preferenceId } = req.body;
-    const result = await usersSerivce.addPreference(user.id, preferenceId);
+    const result = await usersSerivce.addPreference(req.user.id, preferenceId);
 
     if (result.success) {
       res.json({ success: true, message: 'Preference added successfully' });
@@ -128,17 +113,10 @@ router.post('/preferences/add', async (req, res) => {
   }
 });
 
-router.post('/preferences/remove', async (req, res) => {
+router.post('/preferences/remove', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const user = await usersSerivce.checkToken(token);
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
     const { preferenceId } = req.body;
-    const result = await usersSerivce.removePreference(user.id, preferenceId);
+    const result = await usersSerivce.removePreference(req.user.id, preferenceId);
 
     if (result.success) {
       res.json({ success: true, message: 'Preference removed successfully' });
@@ -151,17 +129,10 @@ router.post('/preferences/remove', async (req, res) => {
   }
 });
 
-router.post('/preferences/save', async (req, res) => {
+router.post('/preferences/save', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const user = await usersSerivce.checkToken(token);
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
     const { preferences } = req.body;
-    const result = await usersSerivce.savePreferences(user.id, preferences);
+    const result = await usersSerivce.savePreferences(req.user.id, preferences);
 
     if (result.success) {
       res.json({ success: true, message: 'Preferences saved successfully' });
@@ -175,17 +146,10 @@ router.post('/preferences/save', async (req, res) => {
 });
 
 
-router.post('/user/updateField', async (req, res) => {
+router.post('/user/updateField', authenticateToken, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    const user = await usersSerivce.checkToken(token);
-
-    if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid token' });
-    }
-
-    const { field,newValue } = req.body;
-    const result = await usersSerivce.updateUserField(user.id, field,newValue);
+    const { field, newValue } = req.body;
+    const result = await usersSerivce.updateUserField(req.user.id, field, newValue);
 
     if (result.success) {
       res.json({ success: true, message: 'saved successfully' });
@@ -200,22 +164,10 @@ router.post('/user/updateField', async (req, res) => {
 
 getCollections()
   .then((collections) => {
-    router.get('/projects/:projectId/grade', async (req, res) => {
+    router.get('/projects/:projectId/grade', authenticateToken, async (req, res) => {
       try {
-        // Extract token from the Authorization header
-        const token = req.headers.authorization?.split(' ')[1];
-        if (!token) {
-          return res.status(401).json({ error: 'Unauthorized: No token provided.' });
-        }
-
-        // Verify the token and get user info
-        const user = await usersSerivce.checkToken(token);
-        if (!user) {
-          return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
-        }
-
         // Use the judge's ID (from the verified token) and the provided project ID
-        const judge_id = user.id;
+        const judge_id = req.user.id;
         const projectId = req.params.projectId;
 
         // Look up the grade document for this project and judge
@@ -238,16 +190,9 @@ getCollections()
 
 getCollections()
   .then((collections) => {
-    router.get('/projectsForJudge/projectList', async (req, res) => {
+    router.get('/projectsForJudge/projectList', authenticateToken, async (req, res) => {
       try {
-        const token = req.headers.authorization.split(' ')[1];
-        const user = await usersSerivce.checkToken(token);
-    
-        if (!user) {
-          return res.status(401).json({ error: 'Unauthorized' });
-        }
-    
-        const queryForGroups = { judge_ids: { $in: [user.id] } };
+        const queryForGroups = { judge_ids: { $in: [req.user.id] } };
         const cursor = await collections.projects_judges_groups.find(queryForGroups);
         const matchingProjectGroups = await cursor.toArray();
     
@@ -290,20 +235,9 @@ getCollections()
 
   getCollections()
   .then((collections) => {
-    router.post('/gradeProject', async (req, res) => {
+    router.post('/gradeProject', authenticateToken, authorizeJudge, async (req, res) => {
       try {
-        // Verify the token and get the user info
-        const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
-        if (!token) {
-          return res.status(401).json({ error: 'Unauthorized: No token provided.' });
-        }
-
-        const user = await usersSerivce.checkToken(token);
-        if (!user) {
-          return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
-        }
-
-        const judge_id = user.id; // Extract the judge's ID from the user object
+        const judge_id = req.user.id; // Extract the judge's ID from the authenticated user
         const grades = req.body; // Get the grades from the request body
         const projectId = req.query.projectId || req.body.project_id; // Get the project ID from the query string
 
@@ -365,20 +299,9 @@ getCollections()
 
   getCollections()
   .then((collections) => {
-    router.put('/gradeProject', async (req, res) => {
+    router.put('/gradeProject', authenticateToken, authorizeJudge, async (req, res) => {
       try {
-        // Verify the token and get the user info
-        const token = req.headers.authorization?.split(' ')[1]; // Extract the token from the Authorization header
-        if (!token) {
-          return res.status(401).json({ error: 'Unauthorized: No token provided.' });
-        }
-
-        const user = await usersSerivce.checkToken(token);
-        if (!user) {
-          return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
-        }
-
-        const judge_id = user.id; // Extract the judge's ID from the user object
+        const judge_id = req.user.id; // Extract the judge's ID from the authenticated user
         const grades = req.body;    // Get the grades from the request body
         const projectId = req.query.projectId || req.body.project_id; // Get the project ID from the query string
 
@@ -428,19 +351,10 @@ getCollections()
   // Combined endpoint to get both assigned and graded counts for the judge
 getCollections()
 .then((collections) => {
-  router.get('/judge/counts', async (req, res) => {
+  router.get('/judge/counts', authenticateToken, authorizeJudge, async (req, res) => {
     try {
-      const token = req.headers.authorization?.split(' ')[1];
-      if (!token) {
-        return res.status(401).json({ error: 'Unauthorized: No token provided.' });
-      }
-      const user = await usersSerivce.checkToken(token);
-      if (!user) {
-        return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
-      }
-
       // Get total assigned projects count
-      const query = { judge_ids: { $in: [user.id] } };
+      const query = { judge_ids: { $in: [req.user.id] } };
       const cursor = await collections.projects_judges_groups.find(query);
       const groups = await cursor.toArray();
       const projectIds = [];
@@ -457,7 +371,7 @@ getCollections()
 
       // Get total graded projects count (only where all criteria are non-null)
       const totalGraded = await collections.grades.countDocuments({
-        judge_id: user.id.toString(),
+        judge_id: req.user.id.toString(),
         complexity: { $ne: null },
         usability: { $ne: null },
         innovation: { $ne: null },
@@ -478,32 +392,15 @@ getCollections()
 
 getCollections()
   .then((collections) => {
-    router.get('/current-judge', async (req, res) => {
+    router.get('/current-judge', authenticateToken, authorizeJudge, async (req, res) => {
       try {
-        // Extract Bearer token from the Authorization header
-        const token = req.headers.authorization?.split(' ')[1];
-        if (!token) {
-          return res.status(401).json({ error: 'Unauthorized: No token provided.' });
-        }
-
-        // Verify the token to get the user object from token payload
-        const userFromToken = await usersSerivce.checkToken(token);
-        if (!userFromToken) {
-          return res.status(401).json({ error: 'Unauthorized: Invalid token.' });
-        }
-
-        // Ensure that the current user is a judge
-        if (userFromToken.type !== 'judge') {
-          return res.status(403).json({ error: 'Forbidden: Current user is not a judge.' });
-        }
-
         // Search for the judge record in the users collection.
         // Adjust the query fields to match your database (e.g. "ID" vs. "id" or the _id)
         const judgeData = await collections.users.findOne({
           $or: [
-            { ID: userFromToken.ID },
-            { ID: userFromToken.id },
-            { _id: userFromToken._id }
+            { ID: req.user.ID },
+            { ID: req.user.id },
+            { _id: req.user._id }
           ]
         });
 

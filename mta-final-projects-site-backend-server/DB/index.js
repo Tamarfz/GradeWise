@@ -1,3 +1,4 @@
+//Mongoose is an ODM (Object Data Mapper) that sits on top of MongoDB.
 const mongoose = require('mongoose');
 
 const uri = process.env.MONGODB_URI;
@@ -14,6 +15,10 @@ mongoose.connect(uri, {
   serverApi: mongoose.ServerApiVersion
 });
 
+/*
+Waits for the MongoDB connection to open, then retrieves all collections in the database.
+Returns them as a map.
+*/
 const getCollections = () => {
   return new Promise((resolve, reject) => {
     mongoose.connection.on('error', (err) => {
