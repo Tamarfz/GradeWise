@@ -1,4 +1,4 @@
-const { usersSerivce } = require('../Routers/users/users.service');
+const { usersService } = require('../Routers/users/users.service');
 
 /**
  * Handle user login
@@ -7,7 +7,7 @@ const { usersSerivce } = require('../Routers/users/users.service');
 const login = async (req, res) => {
   try {
     const { userID, password } = req.body;
-    const userRes = await usersSerivce.checkLoginDetails(userID, password);
+    const userRes = await usersService.checkLoginDetails(userID, password);
 
     if (userRes.success) {
       res.json(userRes);
@@ -27,7 +27,7 @@ const login = async (req, res) => {
 const registerFullInfo = async (req, res) => {
   const { userID, fullName, email, type, password } = req.body;
   try {
-    const result = await usersSerivce.registerNewUserWithFullDetails(userID, fullName, email, type, password);
+    const result = await usersService.registerNewUserWithFullDetails(userID, fullName, email, type, password);
     if (result.success) {
       res.json({ success: true, message: 'Registration successful' });
     } else {
@@ -46,7 +46,7 @@ const registerFullInfo = async (req, res) => {
 const checkToken = async (req, res) => {
   try {
     const { token } = req.body;
-    const user = await usersSerivce.checkToken(token); // Uses verifyToken internally
+    const user = await usersService.checkToken(token); // Uses verifyToken internally
     if (!user) {
       return res.json({
         success: false,

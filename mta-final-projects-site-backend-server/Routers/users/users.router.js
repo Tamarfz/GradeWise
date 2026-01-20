@@ -1,5 +1,5 @@
 const express = require('express');
-const { usersSerivce } = require('./users.service');
+const { usersService } = require('./users.service');
 const router = express.Router();
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path
@@ -37,7 +37,7 @@ router.post('/check-token', checkToken);
 
 router.get('/preferences/user', authenticateToken, async (req, res) => {
   try {
-    const userPreferences = await usersSerivce.getUserPreferences(req.user.id);
+    const userPreferences = await usersService.getUserPreferences(req.user.id);
     res.json(userPreferences);
   } catch (error) {
     console.error('Error fetching user preferences:', error);
@@ -45,20 +45,12 @@ router.get('/preferences/user', authenticateToken, async (req, res) => {
   }
 });
 
-router.get('/preferences', async (req, res) => {
-  try {
-    const preferences = await usersSerivce.getPreferences();
-    res.json(preferences);
-  } catch (error) {
-    console.error('Error fetching preferences:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.get('/preferences', getPreferences);
 
 router.post('/preferences/add', authenticateToken, async (req, res) => {
   try {
     const { preferenceId } = req.body;
-    const result = await usersSerivce.addPreference(req.user.id, preferenceId);
+    const result = await usersService.addPreference(req.user.id, preferenceId);
 
     if (result.success) {
       res.json({ success: true, message: 'Preference added successfully' });
@@ -71,43 +63,15 @@ router.post('/preferences/add', authenticateToken, async (req, res) => {
   }
 });
 
-router.post('/preferences/remove', authenticateToken, async (req, res) => {
-  try {
-    const { preferenceId } = req.body;
-    const result = await usersSerivce.removePreference(req.user.id, preferenceId);
+router.post('/preferences/remove', authenticateToken, removePreference);
 
-    if (result.success) {
-      res.json({ success: true, message: 'Preference removed successfully' });
-    } else {
-      res.json({ success: false, error: result.error });
-    }
-  } catch (error) {
-    console.error('Error removing preference:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-router.post('/preferences/save', authenticateToken, async (req, res) => {
-  try {
-    const { preferences } = req.body;
-    const result = await usersSerivce.savePreferences(req.user.id, preferences);
-
-    if (result.success) {
-      res.json({ success: true, message: 'Preferences saved successfully' });
-    } else {
-      res.json({ success: false, error: result.error });
-    }
-  } catch (error) {
-    console.error('Error saving preferences:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
+router.post('/preferences/save', authenticateToken, savePreferences);
 
 
 router.post('/user/updateField', authenticateToken, async (req, res) => {
   try {
     const { field, newValue } = req.body;
-    const result = await usersSerivce.updateUserField(req.user.id, field, newValue);
+    const result = await usersService.updateUserField(req.user.id, field, newValue);
 
     if (result.success) {
       res.json({ success: true, message: 'saved successfully' });

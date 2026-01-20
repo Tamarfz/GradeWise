@@ -252,6 +252,6 @@ class UsersService {
   }
 }
 
-const usersSerivce = new UsersService();
+const usersService = new UsersService();
 
-module.exports = { usersSerivce };
+module.exports = { usersService };
