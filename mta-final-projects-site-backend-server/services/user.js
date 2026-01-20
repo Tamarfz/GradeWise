@@ -2,7 +2,7 @@ const potentialUserDB = require("../DB/entities/potential_users.entity");
 const UserDB = require("../DB/entities/user.entity");
 const bcrypt = require('bcryptjs');
 const availablePreferencesDB = require("../DB/entities/available_preferences.entity");
-const { generateToken } = require("../Routers/middleware/auth");
+const { generateToken } = require("../middleware/auth");
 
 const FAILED_RESULT = {
   success: false,
@@ -56,12 +56,12 @@ class UsersService {
   }
 
   async checkToken(token) {
-    const { verifyToken } = require("../Routers/middleware/auth");
+    const { verifyToken } = require("../middleware/auth");
     return verifyToken(token);
   }
 
   addId(path, token, ID) {
-    const { verifyToken } = require("../Routers/middleware/auth");
+    const { verifyToken } = require("../middleware/auth");
     const user = verifyToken(token);
     
     if (!user) {

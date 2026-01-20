@@ -3,7 +3,7 @@ const { usersService } = require('../../services/user');
 const router = express.Router();
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path
-const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../middleware/auth');
+const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../../middleware/auth');
 const { login, registerFullInfo, checkToken } = require('../../controllers/auth.controller');
 
 

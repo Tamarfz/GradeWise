@@ -5,7 +5,7 @@ const { getCollections } = require('../../DB/index');
 const bcrypt = require('bcryptjs');
 const Grade = require('../../DB/entities/grade.entity'); // Adjust the path based on your folder structure
 const projectsDB = require('../../DB/entities/project.entity');
-const { authenticateToken, authorizeAdmin } = require('../middleware/auth');
+const { authenticateToken, authorizeAdmin } = require('../../middleware/auth');
 
 getCollections()
   .then((collections) => {
