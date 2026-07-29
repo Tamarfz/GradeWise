@@ -236,36 +236,35 @@ JSX: syntax describing UI.
   return (
   //Everything nested inside this div is part of the login screen.
     <div className="login-container">
-    //layout container
+    {/*layout container*/}
       <div className="left-half">
-      //'AnimatedLogo is the custom styled component defined earlier
-      //React renders it as an 'img' element with the animation and styling included.
+      {/*AnimatedLogo is the custom styled component defined earlier*/}
+      {/*React renders it as an 'img' element with the animation and styling included.*/}
         <AnimatedLogo
           src={`${process.env.PUBLIC_URL}/Assets/Logos/GradeWiseLogoRemoveBg.png`}
           alt="GradeWise Logo"
           //Images do not contain child elements, so JSX uses a self-closing tag:
         />
-      </div>//end of left half
-      //second layout section, beside left-half.
+      </div>{/*end of left half*/}
+      {/*}second layout section, beside left-half.*/}
       <div className="right-half">
-      //This is an inner container around the form. It lets Login.css style the form area alone.
+      {/*This is an inner container around the form. It lets Login.css style the form area alone.*/}
         <div className="login-box">
           <h2>Login</h2>
-          /*
+          {/*
           creates an HTML form, onSubmit=handleLogin means When the user submits this form then
           react should call the handleLogin function
-          */
+          */}
           <form onSubmit={handleLogin}>
-            Groups the label and input together so CSS can style them as one field.
             <div className="form-group">
-              /*
+              {/*
               creates a visible label for the ID input
               htmlFor="userID" connects this label to the input with the matching ID.
               Benefits:
               Clicking ID Number: focuses the input.
               Screen readers can announce the input as “ID Number.”
               Its gives the field proper HTML meaning and accessibility.
-              */
+              */}
               <label htmlFor="userID">ID Number:</label>
               //starts an HTML input element—a box where the user can type.
               <input
@@ -292,15 +291,15 @@ JSX: syntax describing UI.
                 className="input-with-icon-password"
               />
             </div>
-            //type="submit" means means clicking it submits the nearest form.
+            {/*type="submit" means means clicking it submits the nearest form.*/}
             <button type="submit">Log in</button>
-            /*
+           {/*
             This starts the Sign up button. type="button" is important. It means:
             its a normal button so do not submit the form.”
             Without a type, a button inside a form is usually treated as type="submit" by default.
-            */
+            */}
             <button type="button">
-            /*
+            {/*
             Link is React Router’s navigation component, which is a React component that changes the 
             app's URL and displayed React page.
             Click Link
@@ -310,7 +309,7 @@ JSX: syntax describing UI.
              → no full page reload
             to="/register -> When clicked, change the React route to /register
             It navigates to the registration component without reloading the entire page
-            */
+            */}
               <Link to="/register" className="register-button">
                 Sign up
               </Link>
