@@ -1,6 +1,6 @@
 const express = require('express');
-const { usersService } = require('../../services/user');
-const router = express.Router();
+//const { usersService } = require('../../services/user'); not used ATM.
+const router = express.Router();//'router' is an instance created by the Router() factory function(prop of express)
 const { getCollections } = require('../../DB/index');
 const Grade = require('../../DB/entities/grade.entity'); // Ensure this is the correct path
 const { authenticateToken, authorizeAdmin, authorizeJudge, authorizeTypes } = require('../../middleware/auth');
@@ -11,16 +11,28 @@ const { getProjectGrade, getProjectsForJudge, submitGrade, updateGrade, getJudge
 
 
 router.post('/login', login);
-
+/*
+When a POST /add-id request arrives, Express runs them in this order:
+authenticateToken -> authorizeAdmin -> final async handler
+Each middleware calls next();
+Without await, async doesn't do much.
+req  -> Everything the client sent.
+res  -> Everything we'll send back.
+Client -> Express receives request -> Middleware -> Route handler -> res.json(...) -> Response sent back to client
+*/
 router.post('/add-id', authenticateToken, authorizeAdmin, async (req, res) => {
   try {
     const { ID } = req.body;
-    // User is already authenticated and authorized as admin via middleware
-    // Add your logic here to handle ID addition
     res.json({ success: true, message: 'ID added successfully' });
   } catch (error) {
-    console.error('Add ID error:', error);
-    res.status(500).json({ success: false, error: 'Server error' });
+    /*
+    The server does two different things:
+    1.Log the detailed error
+    2.Send a generic message (for the client)
+    */
+    console.error('Add ID route failed:', error);
+    res.status(500).json({ success: false, error: 'Server error' });//500 is Internal Server Error.
+
   }
 });
 
@@ -37,20 +49,18 @@ router.post("/example-guarded-data", authenticateToken, authorizeTypes('admin', 
 })
 
 router.post('/check-token', checkToken);
-
 router.get('/preferences/user', authenticateToken, getUserPreferences);
-
 router.get('/preferences', getPreferences);
-
 router.post('/preferences/add', authenticateToken, addPreference);
-
 router.post('/preferences/remove', authenticateToken, removePreference);
-
 router.post('/preferences/save', authenticateToken, savePreferences);
-
-
 router.post('/user/updateField', authenticateToken, updateUserField);
 
+/*
+getCollections() returns a Promise.
+Only after the collections are available, it registers the route.
+
+*/
 getCollections()
   .then((collections) => {
     router.get(
@@ -59,8 +69,6 @@ getCollections()
       getProjectGrade(collections)
     );
   })
-
-// Assuming getCollections is defined elsewhere and returns a promise with the collections
 
 getCollections()
   .then((collections) => {
@@ -128,4 +136,8 @@ getCollections()
     console.error('Error setting up /current-judge route:', error);
   });
 
+
+/*
+Exports the configured router object, then another file can import it and mount it.
+*/
 module.exports = router;
