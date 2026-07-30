@@ -244,7 +244,9 @@ class UsersService {
   }
 }
 
+/*
+The file does not export the whole class. It exports one created instance of the class.
+require(...) returns exactly whatever the other file assigned to module.exports
+*/
 const usersService = new UsersService();
-
 module.exports = { usersService };
-

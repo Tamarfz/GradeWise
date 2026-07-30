@@ -1,3 +1,22 @@
+/*
+handle authentication-related HTTP requests.
+It acts as a bridge:
+Frontend request
+→ Express route
+→ auth controller
+→ usersService business logic/database work
+→ HTTP JSON response back to frontend
+
+the backend uses require(...), while the React frontend mostly uses import.
+equivalent to:
+const userModule = require('../services/user');
+const usersService = userModule.usersService;
+destructuring, extracts the property from the exported object
+const importedValue = require('../services/user') would give -> 
+importedValue = {
+  usersService: /* instance */
+};
+*/
 const { usersService } = require('../services/user');
 
 /**
@@ -6,7 +25,15 @@ const { usersService } = require('../services/user');
  */
 const login = async (req, res) => {
   try {
+    /* object destructuring, req.body is the request body sent by the frontend and parsed by Express’s
+    JSON middleware. Afterward, this controller has two local variables: userID, password.
+    */
     const { userID, password } = req.body;
+    /*
+    asynchronous because it needs database access, returns a Promise.
+    await waits for that Promise to settle, without blocking the Node.js server.
+    This await runs on the backend server
+    */
     const userRes = await usersService.checkLoginDetails(userID, password);
 
     if (userRes.success) {
