@@ -1,5 +1,15 @@
-const jwt = require('jsonwebtoken');
+/*
+authentication verifies who you are, while authorization determines what you can access.
+Json Web Token(JWT) is used for authorization
+User sends ID + password once:
+server verifies credentials ->  server gives browser a JWT 
+Later requests:
+Browser sends JWT ->  server verifies JWT -> server knows who the user is and their role
+without it, an attacker could call protected endpoints directly, such as an admin route, and the server could not safely identify or authorize them.
 
+*/
+
+const jwt = require('jsonwebtoken');
 const secretKey = process.env.JWT_SECRET || 'dev-only-change-me-immediately';
 
 /**
@@ -33,10 +43,16 @@ const verifyToken = (token) => {
   }
 };
 
-/**
+/*
  * Express middleware to authenticate requests using JWT token
  * Expects token in Authorization header: "Bearer <token>"
  * Attaches user data to req.user on success
+ core middleware pattern:
+ Extract token
+→ verify token
+→ attach authenticated user to req.user
+→ call next()
+→ next middleware or route handler can use req.user
  */
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;

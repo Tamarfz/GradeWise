@@ -1,16 +1,27 @@
 const potentialUserDB = require("../DB/entities/potential_users.entity");
+//imports the Mongoose User model - the code used to query the MongoDB users collection
 const UserDB = require("../DB/entities/user.entity");
+//imports the password-hashing library. used to safely compare:
+//password entered during login vs. hashed password stored in MongoDB
 const bcrypt = require('bcryptjs');
 const availablePreferencesDB = require("../DB/entities/available_preferences.entity");
+
+//This imports the function that creates the JWT token after successful login.
 const { generateToken } = require("../middleware/auth");
 
-const FAILED_RESULT = {
-  success: false,
-};
 
 class UsersService {
+  /*
+  This is a function stored as a property of each UsersService instance.
+  parameters received from the auth controller
+  */
   checkLoginDetails = async (userID, password) => {
     try {
+    /*
+    queries MongoDB for one user whose ID matches the ID entered during login.
+    .findOne({ ID: userID }) -> Find the first document where the database field ID equals the value in the userID variable.
+    lean() -> Return a plain JavaScript object, not a full Mongoose document object.
+    */
       const user = await UserDB.findOne({ ID: userID }).lean();
       if (!user) {
         return {
@@ -19,6 +30,11 @@ class UsersService {
         };
       }
       
+      /*
+      user.password.startsWith('$2') -> Checks whether the password stored in MongoDB begins with "$2".
+      bcrypt password hashes normally begin with values such as: $2a$, $2b$.
+      we ask: Is the password in the database bcrypt-hashed?
+      */
       const isPasswordValid = user.password.startsWith('$2') 
         ? await bcrypt.compare(password, user.password)
         : user.password === password;
@@ -29,16 +45,21 @@ class UsersService {
           error: "Invalid password"
         };
       }
+      /*
+      creates a JWT token and returns it as a string.
+      The argument is an object containing the data to place inside the token.
+      This object is called the JWT payload.
+      */
       const token = generateToken({
         id: user.ID,
         name: user.name,
         email: user.email,
         type: user.type,
-        avatar: user.avatar || 'default'
+        avatar: user.avatar || 'default'//use the first truthy value.
       });
       return {
         success: true,
-        token,
+        token,// token: token,
         user: {
           type: user.type,
           name: user.name,
@@ -56,10 +77,14 @@ class UsersService {
   }
 
   async checkToken(token) {
+  //Node caches required modules, so it does not fully reload middleware/auth.js on every method call.
     const { verifyToken } = require("../middleware/auth");
     return verifyToken(token);
   }
 
+/*
+checks whether the token owner is authorized for a given path
+*/
   addId(path, token, ID) {
     const { verifyToken } = require("../middleware/auth");
     const user = verifyToken(token);
@@ -70,7 +95,7 @@ class UsersService {
         error: "unauthorized"
       };
     }
-
+    //creates an object used as a lookup table
     const pathSecurity = {
       "/add-id": "admin",
       "/add-points": "judge"
