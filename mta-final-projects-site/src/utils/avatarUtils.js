@@ -1,4 +1,8 @@
-// Avatar utility functions
+/*
+This creates and immediately exports a named arrow function.
+This is a lookup object
+The image files are stored under the frontend’s public/Assets/icons folder.
+*/
 export const getAvatarUrl = (avatarId) => {
   const avatars = {
     'default': '/Assets/icons/default-avatar.png',
