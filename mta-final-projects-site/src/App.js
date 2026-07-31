@@ -1,4 +1,32 @@
-import React, { useState, useCallback, useEffect } from 'react';
+/*
+App.js is the frontend’s central coordinator. Its main goals are:
+1. Define which React component appears for each URL.
+2. Restore the logged-in user when the app starts.
+3. Prevent users from seeing frontend pages for the wrong role.
+4. Provide global app features, such as the theme.
+It defines URLs such as:
+/                  → Login
+/register          → Register
+/judge             → Judge dashboard
+/admin             → Admin dashboard
+It also contains route “layouts”:
+ AuthLayout ->  redirects logged-in users away from Login
+ JudgeLayout -> allows only judge users
+ AdminLayout -> allows only admin users
+*/
+
+/*
+useCallback -> memoizes a function reference between renders.
+useEffect -> runs side effects after React renders
+*/
+import React, {useCallback, useEffect } from 'react';
+/*
+BrowserRouter connects React Router to the browser URL and history.
+Routes is a container for all route definitions. It finds the route matching the current URL.
+Route defines one URL rule.
+Outlet is a placeholder for nested routes.
+useNavigate is a Hook that gives a component a navigation function. It changes the route through JavaScript, without reloading the page.
+*/
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
@@ -19,24 +47,35 @@ import './styles/theme.css';
 import { observer } from 'mobx-react-lite';
 import { storages } from './stores';
 import styled from 'styled-components';
-import { useLocation } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 
 
-// Add FontAwesome CSS
+/*
+ Add FontAwesome CSS
+ document.createElement('link') creates a new DOM <link> element in memory.
+ fontAwesomeLink.rel = 'stylesheet';-> tells the browser the link points to CSS.
+*/
 const fontAwesomeLink = document.createElement('link');
 fontAwesomeLink.rel = 'stylesheet';
 fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
 document.head.appendChild(fontAwesomeLink);
 
 
-
+/*
+reates a React component named AdminLayout, wrapped with MobX observer.
+It is a route guard: Only allow an admin user to see nested admin routes.”
+*/
 const AdminLayout = observer(() => {
+  //Gets the React Router function used to redirect
   const navigate = useNavigate();
   const { userStorage, appStorage } = storages;
+  //userStorage.user -> current logged-in user
+  //appStorage.isLoading -> whether token restoration is in progress
   if (userStorage.user?.type !== 'admin' && !appStorage.isLoading) {
     return navigate('/');
   }
+  //If the user is an admin, render the matching nested admin route.
+  //<Outlet /> is where React Router inserts that child page.
   return <Outlet />;
 });
 
@@ -63,7 +102,7 @@ const AuthLayout = observer(() => {
 });
 
 const App = observer(() => {
-
+//not used currently
   const h1Style = {
     fontSize: '50px',
     color: '#165ea1',
@@ -79,15 +118,14 @@ const App = observer(() => {
     await userStorage.getDataFromToken(token);
     appStorage.isLoading = false;
   }, []);
-
-  useEffect(() => {
     initiate();
   }, []);
 
   return (
-    <ThemeProvider>
-      <Router>
+    <ThemeProvider>{/*makes theme state available to every child component*/}
+      <Router>{/*enables React Router for all child components*/}
         <div className="app-container" style={{ position: 'relative' }}>
+        {/*starts the route definitions. React Router checks the current URL and renders the matching route tree inside this component.*/}
           <Routes>
             <Route path="/" element={<AuthLayout />}>
               <Route index element={<Login />} />
