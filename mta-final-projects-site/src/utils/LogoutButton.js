@@ -1,4 +1,4 @@
-import React from 'react';
+//import React from 'react';
 import Swal from 'sweetalert2';
 import { storages } from '../stores';
 
@@ -14,6 +14,8 @@ const LogoutButton = () => {
             cancelButtonColor: '#d33',
             confirmButtonText: 'Logout'
         }).then((result) => {
+        //userStorage.logout() - > removes the token and sets userStorage.user = null.
+        // The observer route guards then redirect the user away from protected pages.
             if (result.isConfirmed)  userStorage.logout()
         });
     };
