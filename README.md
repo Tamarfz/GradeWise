@@ -19,7 +19,7 @@
 
 ## Overview
 
-GradeWise is a full-stack B.Sc. Computer Science final project for managing project exhibitions and competitions. It supports two distinct roles:
+GradeWise is a full-stack project for managing project exhibitions and competitions. It supports two distinct roles:
 
 - **Judges** review assigned projects, configure preferences, and submit structured grades.
 - **Administrators** manage users and projects, assign judges, monitor grades, view analytics, and generate a podium.
@@ -120,14 +120,3 @@ GradeWise/
 - **Mongoose models** define the MongoDB data shape for users, projects, grades, and assignments.
 - The grade schema uses a unique `{ judge_id, project_id }` index to ensure one judge cannot submit duplicate grades for the same project.
 
-## Future improvements
-
-- Add automated backend and frontend tests
-- Add request validation and consistent API error responses
-- Move token storage to secure HttpOnly cookies for stronger XSS protection
-- Consolidate repeated API/authentication request code
-- Add API documentation and a Docker Compose development environment
-
-## License
-
-Academic project. All rights reserved unless a separate license is added.
