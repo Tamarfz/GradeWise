@@ -99,3 +99,4 @@ storybook-static
 tmp/
 temp/
 mta-final-projects-site-backend-server/env.example
+mta-final-projects-site-backend-server/.env.txt
