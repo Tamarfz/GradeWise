@@ -12,10 +12,10 @@ equivalent to:
 const userModule = require('../services/user');
 const usersService = userModule.usersService;
 destructuring, extracts the property from the exported object
-const importedValue = require('../services/user') would give -> 
-importedValue = {
-  usersService: /* instance */
-};
+const importedValue = require('../services/user') would be an object like:
+{
+  usersService: <UsersService instance>
+}
 */
 const { usersService } = require('../services/user');
 

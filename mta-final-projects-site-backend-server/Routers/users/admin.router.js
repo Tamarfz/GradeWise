@@ -531,6 +531,8 @@ router.get('/preferences', async (req, res) => {
           { ID: req.user.id },
           { _id: req.user._id }
         ]
+      }, {
+        projection: { password: 0 }
       });
 
       if (!adminData) {

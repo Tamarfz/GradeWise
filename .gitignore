@@ -100,3 +100,5 @@ tmp/
 temp/
 mta-final-projects-site-backend-server/env.example
 mta-final-projects-site-backend-server/.env.txt
+mta-final-projects-site-backend-server/package-lock.json
+mta-final-projects-site-backend-server/package.json
