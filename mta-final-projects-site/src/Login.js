@@ -266,7 +266,6 @@ JSX: syntax describing UI.
               Its gives the field proper HTML meaning and accessibility.
               */}
               <label htmlFor="userID">ID Number:</label>
-              //starts an HTML input element—a box where the user can type.
               <input
                 type="text"
                 id="userID"

@@ -118,8 +118,10 @@ const App = observer(() => {
     await userStorage.getDataFromToken(token);
     appStorage.isLoading = false;
   }, []);
+
+  useEffect(() => {
     initiate();
-  }, []);
+  }, [initiate]);
 
   return (
     <ThemeProvider>{/*makes theme state available to every child component*/}
