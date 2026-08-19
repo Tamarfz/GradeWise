@@ -144,6 +144,16 @@ button {
   }
 }
 
+/* Respect users who ask the operating system/browser to reduce motion.
+   This also gives browser automation a stable control to interact with. */
+@media (prefers-reduced-motion: reduce) {
+  .login-box,
+  .login-box button {
+    animation: none;
+    transition: none;
+  }
+}
+
 button:hover {
   background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
   box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
