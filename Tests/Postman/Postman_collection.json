@@ -1,0 +1,465 @@
+{
+  "info": {
+    "_postman_id": "a92a18f5-ca09-4c75-bffb-2ab3a795c930",
+    "name": "GradeWise",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "56243905",
+    "_collection_link": "https://go.postman.co/collection/56243905-a92a18f5-ca09-4c75-bffb-2ab3a795c930?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "item": [
+        {
+          "name": "Login as a judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns HTTP 200\", () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Judge login succeeded\", () => {\r",
+                  "  pm.expect(body.success).to.eql(true);\r",
+                  "  pm.expect(body.user.type).to.eql(\"judge\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"A JWT token was returned\", () => {\r",
+                  "  pm.expect(body.token).to.be.a(\"string\");\r",
+                  "  pm.expect(body.token.length).to.be.above(0);\r",
+                  "});\r",
+                  "\r",
+                  "if (body.success && body.token) {\r",
+                  "  pm.environment.set(\"judgeToken\", body.token);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userID\": \"{{judgeId}}\",\r\n  \"password\": \"{{demoPassword}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login as admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns HTTP 200\", () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login succeeded\", () => {\r",
+                  "  pm.expect(body.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"A JWT token was returned\", () => {\r",
+                  "  pm.expect(body.token).to.be.a(\"string\");\r",
+                  "  pm.expect(body.token.length).to.be.above(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"The logged-in user is an admin\", () => {\r",
+                  "  pm.expect(body.user.type).to.eql(\"admin\");\r",
+                  "});\r",
+                  "\r",
+                  "if (body.success && body.token) {\r",
+                  "  pm.environment.set(\"adminToken\", body.token);\r",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userID\": \"{{adminId}}\",\n  \"password\": \"{{demoPassword}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid password login(judge)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Request was processed\", () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login is rejected\", () => {\r",
+                  "  pm.expect(body.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response identifies an invalid password\", () => {\r",
+                  "  pm.expect(body.error).to.eql(\"User not found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"userID\": \"{{judgeId}}\",\r\n  \"password\": \"{{invalidPassword}}\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid password login(admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Request was processed\", () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Login is rejected\", () => {\r",
+                  "  pm.expect(body.success).to.eql(false);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response identifies an invalid password\", () => {\r",
+                  "  pm.expect(body.error).to.eql(\"User not found\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userID\": \"{{adminId}}\",\n  \"password\": \"{{invalidPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authorization",
+      "item": [
+        {
+          "name": "Try to request admin route while connected as a judge",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Judge is blocked from an admin-only endpoint\", () => {\r",
+                  "  pm.response.to.have.status(403);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response explains the permission failure\", () => {\r",
+                  "  pm.expect(body.error).to.eql(\"Forbidden: Admin access required.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{judgeToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/current-admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "current-admin"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication API",
+      "item": [
+        {
+          "name": "Validate admin token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Returns HTTP 200\", () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Token is valid\", () => {\r",
+                  "  pm.expect(body.success).to.eql(true);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token belongs to an admin\", () => {\r",
+                  "  pm.expect(body.user.type).to.eql(\"admin\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Token validation does not expose a password\", () => {\r",
+                  "  pm.expect(body.user).not.to.have.property(\"password\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"token\": \"{{adminToken}}\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/check-token",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "check-token"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Access an admin-only endpoint",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Admin can access the admin endpoint\", () => {\r",
+                  "  pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response does not expose a password hash\", () => {\r",
+                  "  pm.expect(body).not.to.have.property(\"password\");\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "pm.test(\"Response belongs to an admin\", () => {\r",
+                  "  pm.expect(body.type).to.eql(\"admin\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"User type is Admin\", () => {\r",
+                  "    pm.expect(body.type === \"admin\").to.be.true;\r",
+                  "\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/current-admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "current-admin"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Missing token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Request without a token is rejected with 401\", () => {\r",
+                  "  pm.response.to.have.status(401);\r",
+                  "});\r",
+                  "\r",
+                  "const body = pm.response.json();\r",
+                  "\r",
+                  "pm.test(\"Response explains that the token is missing\", () => {\r",
+                  "  pm.expect(body.error).to.eql(\"Unauthorized: No token provided.\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/current-admin",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "current-admin"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
