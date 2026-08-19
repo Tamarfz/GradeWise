@@ -44,6 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -65,6 +67,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "react-scripts": "^5.0.1"
   }
 }

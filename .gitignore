@@ -102,3 +102,7 @@ mta-final-projects-site-backend-server/env.example
 mta-final-projects-site-backend-server/.env.txt
 mta-final-projects-site-backend-server/package-lock.json
 mta-final-projects-site-backend-server/package.json
+mta-final-projects-site/package.json
+mta-final-projects-site/package-lock.json
+mta-final-projects-site/e2e/.env.example
+mta-final-projects-site/e2e/README.md
